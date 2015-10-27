@@ -4,15 +4,14 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/testtextView" />
+        android:text="start new trip"
+        android:id="@+id/textView2" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="justForTest"
-        android:id="@+id/buttonTest" />
+        android:text="start"
+        android:id="@+id/start_trip_button" />
 </LinearLayout>
