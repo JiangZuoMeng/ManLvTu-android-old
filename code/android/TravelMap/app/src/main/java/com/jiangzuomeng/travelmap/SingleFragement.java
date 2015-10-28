@@ -9,12 +9,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.baidu.mapapi.SDKInitializer;
+
+
 /**
  * Created by wilbert on 2015/10/27.
  */
 public class SingleFragement extends Fragment implements View.OnClickListener{
     public static final String TYPE = "type";
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -35,7 +37,8 @@ public class SingleFragement extends Fragment implements View.OnClickListener{
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_single, container,false);
+        //SDKInitializer.initialize(getActivity().getApplicationContext());
+        View view = inflater.inflate(R.layout.fragment_single, container, false);
         Bundle args = getArguments();
                 ((TextView) (view.findViewById(R.id.testtextView))).setText(args.getString(TYPE));
         Button button = (Button)view.findViewById(R.id.buttonTest);
@@ -45,6 +48,8 @@ public class SingleFragement extends Fragment implements View.OnClickListener{
                 btnclick.test_onclick();
             }
         });
+
+        //mapView = (MapView)view.findViewById(R.id.mapView);
         return view;
         //return super.onCreateView(inflater, container, savedInstanceState);
     }
