@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -30,6 +31,9 @@ import android.widget.PopupWindow;
 import android.widget.TableLayout;
 
 import com.baidu.mapapi.SDKInitializer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 enum State{
         OnTrip,NotOnTrip
@@ -52,7 +56,16 @@ public class MainActivity extends AppCompatActivity
 
         state = State.NotOnTrip;
 
-        pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),3);
+        List<SingleFragement> fragements = new ArrayList<>();
+        for (int i = 0; i < 1; i++) {
+            SingleFragement fragment = new SingleFragement();
+            Bundle args = new Bundle();
+            String s = "position " + i;
+            args.putString(SingleFragement.TYPE, s);
+            fragment.setArguments(args);
+            fragements.add(fragment);
+        }
+        pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),1, fragements);
         viewPager = (ViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
 
