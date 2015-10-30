@@ -4,14 +4,18 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="start new trip"
-        android:id="@+id/textView2" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/TripNametextView"
+        android:hint="相册名"
+        android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="start"
-        android:id="@+id/start_trip_button" />
+        android:text="开始旅图"
+        android:id="@+id/start_trip_button"
+        android:layout_gravity="center_horizontal" />
 </LinearLayout>

@@ -27,7 +27,8 @@ public class CollectionPagerAdapter  extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return fragements.get(position);
+        //return fragements.get(position);
+        return new AMapFragment();
     }
 
     @Override
@@ -37,6 +38,9 @@ public class CollectionPagerAdapter  extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
+        if (position == 1) {
+            return "我的旅图";
+        }
         return "Position " + position;
     }
 }

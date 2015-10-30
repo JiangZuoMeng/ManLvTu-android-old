@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,9 +27,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.app.ActionBar;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TableLayout;
+import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
 
@@ -46,6 +51,9 @@ public class MainActivity extends AppCompatActivity
     ActionBar actionBar;
     TabLayout tabLayout;
     State state;
+    String []strs = new String[] {
+            "遇见","美食","酒店"
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +65,7 @@ public class MainActivity extends AppCompatActivity
         state = State.NotOnTrip;
 
         List<SingleFragement> fragements = new ArrayList<>();
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 2; i++) {
             SingleFragement fragment = new SingleFragement();
             Bundle args = new Bundle();
             String s = "position " + i;
@@ -65,7 +73,7 @@ public class MainActivity extends AppCompatActivity
             fragment.setArguments(args);
             fragements.add(fragment);
         }
-        pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),1, fragements);
+        pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2, fragements);
         viewPager = (ViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
 
@@ -112,6 +120,14 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
         });
+
+        FloatingActionButton tag = (FloatingActionButton) findViewById(R.id.set_tag);
+        tag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                set_tag_click(v);
+            }
+        });
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -122,10 +138,36 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    private void set_tag_click(View v) {
+        View popView = getLayoutInflater().inflate(R.layout.popup_set_tag, null);
+        PopupWindow popupWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
+        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,strs));
+        listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                tag_on_click_listener(position);
+            }
+        });
+        popupWindow.showAsDropDown(v);
+    }
+
+    private void tag_on_click_listener(int position) {
+        TabLayout.Tab tab = tabLayout.getTabAt(0);
+        tab.setText(strs[position]);
+    }
+
     private void fab_long_click(View v) {
         if (state == State.OnTrip) {
             //stop the trip
-            Snackbar.make(v,"stop the trip", Snackbar.LENGTH_SHORT).show();
+//            Snackbar.make(v,"stop the trip", Snackbar.LENGTH_SHORT).show();
+            Toast toast = Toast.makeText(getApplicationContext(), "the trip has stopped", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
+            toast.show();
             state = State.NotOnTrip;
         } else {
 
@@ -152,6 +194,9 @@ public class MainActivity extends AppCompatActivity
         }
         else {
             //// TODO: 2015/10/27 camera
+            Toast toast = Toast.makeText(getApplicationContext(), "start the camera", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
+            toast.show();
         }
 
     }
