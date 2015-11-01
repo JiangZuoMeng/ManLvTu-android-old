@@ -34,8 +34,8 @@ import com.amap.api.maps2d.model.MyLocationStyle;
 /**
  * Created by wilbert on 2015/10/30.
  */
-public class AMapFragment extends Fragment implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener,
-        AMap.OnInfoWindowClickListener, AMap.InfoWindowAdapter{
+public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener,
+        AMap.OnInfoWindowClickListener, AMap.InfoWindowAdapter, AMap.OnMapClickListener{
     private MapView mapView;
     private AMap aMap;
     private OnLocationChangedListener mlistener;
@@ -43,12 +43,6 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     private int []imageIds;
     private LayoutInflater layoutInflater;
     private Marker current_marker = null;
-    private static String Maptype;
-    public  static void setType(String t) {
-        Maptype = t;
-
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_amap, container, false);
@@ -63,7 +57,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 
     private void initData() {
         imageIds = new int[]{
-            R.mipmap.test1, R.mipmap.test2, R.mipmap.test3,
+                R.mipmap.test1, R.mipmap.test2, R.mipmap.test3,
                 R.mipmap.test4
         };
     }
@@ -71,7 +65,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     private void setUpMap() {
         MyLocationStyle myLocationStyle = new MyLocationStyle();
         myLocationStyle.myLocationIcon(BitmapDescriptorFactory
-                .fromResource(R.mipmap.location_marker));// 设置小蓝点的图标
+                .fromResource(R.mipmap.ic_bookmark_black_24dp));// 设置小蓝点的图标
         myLocationStyle.strokeColor(Color.BLACK);// 设置圆形的边框颜色
         myLocationStyle.radiusFillColor(Color.argb(100, 0, 0, 180));// 设置圆形的填充颜色
         // myLocationStyle.anchor(int,int)//设置小蓝点的锚点
@@ -102,7 +96,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 			 */
             locationManagerProxy.requestLocationData(
                     LocationProviderProxy.AMapNetwork, 2000, 10, this);
-    }}
+        }}
 
     @Override
     public void deactivate() {
@@ -120,7 +114,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             mlistener.onLocationChanged(aMapLocation);// 显示系统小蓝点
             //添加marker
             LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
-            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pin_drop_black_24dp))
+            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bookmark_black_24dp))
                     .title("my location"));
         }
     }
@@ -184,14 +178,8 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         View view = getActivity().getLayoutInflater().inflate(R.layout.popup_window_meeting, null);
         final PopupWindow popupWindow = new PopupWindow(view, 50,
                 50, true);
-        popupWindow.setTouchable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         if (marker.isInfoWindowShown()) marker.hideInfoWindow();
-//        popupWindow.showAsDropDown(getView(), 10, 10);
         Log.v("wilbert", "popup show");
-//        LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.id_meeting);
-//        ImageView imageView = new ImageView(getActivity().getApplicationContext());
         return false;
     }
     //点击marker之后出现的
@@ -213,10 +201,10 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         Log.v("wilbert", "oninfowindowclick");
     }
 
-/*    @Override
+    @Override
     public void onMapClick(LatLng latLng) {
         if (current_marker != null)
             current_marker.hideInfoWindow();
         Log.v("wilbert", "map click");
-    }*/
+    }
 }

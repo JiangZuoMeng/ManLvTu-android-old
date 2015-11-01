@@ -30,8 +30,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.baidu.mapapi.SDKInitializer;
-
 import java.util.ArrayList;
 import java.util.List;
 

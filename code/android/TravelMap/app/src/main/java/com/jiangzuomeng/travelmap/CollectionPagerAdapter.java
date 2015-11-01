@@ -14,21 +14,22 @@ import java.util.List;
  */
 public class CollectionPagerAdapter  extends FragmentPagerAdapter {
     private int numberOfType;
-    private List<SingleFragement> fragements;
 
     public CollectionPagerAdapter(FragmentManager fm) {
         super(fm);
     }
-    public CollectionPagerAdapter(FragmentManager fm, int num, List<SingleFragement> f) {
+    public CollectionPagerAdapter(FragmentManager fm, int num) {
         super(fm);
         numberOfType = num;
-        fragements = f;
     }
 
     @Override
     public Fragment getItem(int position) {
         //return fragements.get(position);
+        if (position == 0)
         return new AMapFragment();
+        else
+            return  new AMap_MySelf_Fragment();
     }
 
     @Override

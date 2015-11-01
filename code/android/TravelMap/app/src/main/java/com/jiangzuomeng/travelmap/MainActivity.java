@@ -6,6 +6,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -34,8 +35,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.Toast;
-
-import com.baidu.mapapi.SDKInitializer;
+import com.jiangzuomeng.Adapter.DrawerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +44,15 @@ enum State{
         OnTrip,NotOnTrip
         }
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SingleFragement.ButtonOnclick{
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     CollectionPagerAdapter pagerAdapter;
     ViewPager viewPager;
     ActionBar actionBar;
     TabLayout tabLayout;
     State state;
+    FloatingActionButton fab;
+    FloatingActionButton tag;
     String []strs = new String[] {
             "遇见","美食","酒店"
     };
@@ -64,16 +66,7 @@ public class MainActivity extends AppCompatActivity
 
         state = State.NotOnTrip;
 
-        List<SingleFragement> fragements = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            SingleFragement fragment = new SingleFragement();
-            Bundle args = new Bundle();
-            String s = "position " + i;
-            args.putString(SingleFragement.TYPE, s);
-            fragment.setArguments(args);
-            fragements.add(fragment);
-        }
-        pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2, fragements);
+        pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
         viewPager = (ViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
 
@@ -104,7 +97,7 @@ public class MainActivity extends AppCompatActivity
             }
 
         });
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setLongClickable(true);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -121,7 +114,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        FloatingActionButton tag = (FloatingActionButton) findViewById(R.id.set_tag);
+        tag = (FloatingActionButton) findViewById(R.id.set_tag);
         tag.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,8 +127,12 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+/*        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);*/
+
+        ListView listView_drawer = (ListView)findViewById(R.id.drawer_listview);
+        DrawerAdapter drawerAdapter = new DrawerAdapter(this);
+        listView_drawer.setAdapter(drawerAdapter);
     }
 
     private void set_tag_click(View v) {
@@ -169,6 +166,7 @@ public class MainActivity extends AppCompatActivity
             toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
             toast.show();
             state = State.NotOnTrip;
+            fab.setBackgroundResource(R.mipmap.ic_note_add_black_24dp);
         } else {
 
         }
@@ -187,6 +185,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();
+                //fab.setBackgroundResource(R.mipmap.ic_camera_enhance_black_48dp);
+                fab.setBackground(getResources().getDrawable(R.mipmap.ic_camera_enhance_black_48dp));
                 state = State.OnTrip;
             }
         });
@@ -268,37 +268,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_home) {
-
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_search) {
-            SingleFragement singleFragement = new SingleFragement();
-            Bundle bundle = new Bundle();
-            bundle.putString(SingleFragement.TYPE, "search");
-            singleFragement.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().replace(R.id.coordinatorLayout, singleFragement).commit();
-//            getSupportFragmentManager().beginTransaction().addToBackStack(null);
-//            getSupportFragmentManager().beginTransaction().commit();
-        } else if (id == R.id.nav_setting) {
-            SingleFragement singleFragement = new SingleFragement();
-            Bundle bundle = new Bundle();
-            bundle.putString(SingleFragement.TYPE, "setting");
-            singleFragement.setArguments(bundle);
-            View view = findViewById(R.id.coordinatorLayout);
-            view.setVisibility(View.GONE);
-            getSupportFragmentManager().beginTransaction().replace(R.id.coordinatorLayout, singleFragement).commit();
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    @Override
-    public void test_onclick() {
-        Log.v("wilbert","successfully");
-    }
 }
