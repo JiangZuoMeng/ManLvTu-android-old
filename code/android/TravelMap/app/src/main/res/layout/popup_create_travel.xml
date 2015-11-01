@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    >
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/editText"
         android:layout_gravity="center_horizontal"
-        android:hint="输入本趟旅图的名称" />
+        android:hint="输入本趟旅图的名称"
+        android:background="#8d4949"
+        android:layout_margin="5dip"
+        android:alpha="0.5"
+        android:textSize="20dp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="开始旅图"
         android:id="@+id/start_trip_button"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:textColor="#fcfcfc"
+        android:background="#8d4949"
+        android:alpha="0.5" />
 
 </LinearLayout>

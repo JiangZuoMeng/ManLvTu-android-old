@@ -22,6 +22,8 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.LocationManagerProxy;
 import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps2d.AMap;
+import com.amap.api.maps2d.CameraUpdate;
+import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.LocationSource;
 import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.UiSettings;
@@ -30,12 +32,21 @@ import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
+import com.amap.api.services.core.LatLonPoint;
+import com.amap.api.services.geocoder.GeocodeQuery;
+import com.amap.api.services.geocoder.GeocodeResult;
+import com.amap.api.services.geocoder.GeocodeSearch;
+import com.amap.api.services.geocoder.RegeocodeResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wilbert on 2015/10/30.
  */
 public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener,
-        AMap.OnInfoWindowClickListener, AMap.InfoWindowAdapter, AMap.OnMapClickListener{
+        AMap.OnInfoWindowClickListener, AMap.InfoWindowAdapter, AMap.OnMapClickListener,
+        GeocodeSearch.OnGeocodeSearchListener {
     private MapView mapView;
     private AMap aMap;
     private OnLocationChangedListener mlistener;
@@ -43,6 +54,9 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     private int []imageIds;
     private LayoutInflater layoutInflater;
     private Marker current_marker = null;
+    private GeocodeSearch geocoderSearch;
+    private List<Marker> markers;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_amap, container, false);
@@ -56,6 +70,7 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     }
 
     private void initData() {
+        markers = new ArrayList<>();
         imageIds = new int[]{
                 R.mipmap.test1, R.mipmap.test2, R.mipmap.test3,
                 R.mipmap.test4
@@ -79,8 +94,30 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
 
         aMap.getUiSettings().setZoomGesturesEnabled(false);
         aMap.getUiSettings().setScrollGesturesEnabled(false);
-        aMap.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
+        aMap.setMyLocationEnabled(false);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
+        CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(4);
+        aMap.animateCamera(cameraUpdate);
+        CameraUpdate update = CameraUpdateFactory.changeLatLng(new LatLng(30, 104));
+        aMap.animateCamera(update);
+        addMarkers();
         // aMap.setMyLocationType()
+    }
+
+    private void addMarkers() {
+        geocoderSearch = new GeocodeSearch(getActivity());
+        geocoderSearch.setOnGeocodeSearchListener(this);
+        GeocodeQuery query = new GeocodeQuery("广州", "广州");// 第一个参数表示地址，第二个参数表示查询城市，中文或者中文全拼，citycode、adcode，
+        geocoderSearch.getFromLocationNameAsyn(query);// 设置同步地理编码请求
+        query = new GeocodeQuery("上海", "上海");
+        geocoderSearch.getFromLocationNameAsyn(query);
+        query = new GeocodeQuery("北京", "北京");
+        geocoderSearch.getFromLocationNameAsyn(query);
+        query = new GeocodeQuery("汕头", "汕头");
+        geocoderSearch.getFromLocationNameAsyn(query);
+        query = new GeocodeQuery("珠海", "珠海");
+        geocoderSearch.getFromLocationNameAsyn(query);
+        query = new GeocodeQuery("南京 ", "南京");
+        geocoderSearch.getFromLocationNameAsyn(query);
     }
 
     @Override
@@ -206,5 +243,22 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
         if (current_marker != null)
             current_marker.hideInfoWindow();
         Log.v("wilbert", "map click");
+    }
+
+    @Override
+    public void onRegeocodeSearched(RegeocodeResult regeocodeResult, int i) {
+
+    }
+
+    //根据地理编码查询结果 回调函数
+    @Override
+    public void onGeocodeSearched(GeocodeResult geocodeResult, int i) {
+        if (i == 0) {
+            LatLonPoint point = geocodeResult.getGeocodeAddressList().get(0).getLatLonPoint();
+
+            markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bookmark_black_24dp))
+                    .title("my location")));
+        }
     }
 }

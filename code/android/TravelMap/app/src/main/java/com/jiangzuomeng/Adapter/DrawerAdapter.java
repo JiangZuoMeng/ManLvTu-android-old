@@ -80,7 +80,7 @@ public class DrawerAdapter  extends BaseAdapter{
         } else {
             z = (zujian)convertView.getTag();
         }
-        z.image.setBackgroundResource((Integer)bs.get(position).get("image"));
+        z.image.setImageResource((Integer)bs.get(position).get("image"));
         z.title.setText((String)bs.get(position).get("title"));
         return convertView;
     }
