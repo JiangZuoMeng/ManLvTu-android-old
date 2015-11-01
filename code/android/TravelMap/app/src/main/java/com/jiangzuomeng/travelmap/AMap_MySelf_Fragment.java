@@ -45,7 +45,6 @@ import java.util.List;
  * Created by wilbert on 2015/10/30.
  */
 public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener,
-        AMap.OnInfoWindowClickListener, AMap.InfoWindowAdapter, AMap.OnMapClickListener,
         GeocodeSearch.OnGeocodeSearchListener {
     private MapView mapView;
     private AMap aMap;
@@ -88,8 +87,6 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
         aMap.setMyLocationStyle(myLocationStyle);
         aMap.setLocationSource(this);// 设置定位监听
         aMap.setOnMarkerClickListener(this);
-        aMap.setOnInfoWindowClickListener(this);
-        aMap.setInfoWindowAdapter(this);
         aMap.getUiSettings().setMyLocationButtonEnabled(true);// 设置默认定位按钮是否显示
 
         aMap.getUiSettings().setZoomGesturesEnabled(false);
@@ -212,37 +209,8 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.v("wilbert", "marker clicked");
-        View view = getActivity().getLayoutInflater().inflate(R.layout.popup_window_meeting, null);
-        final PopupWindow popupWindow = new PopupWindow(view, 50,
-                50, true);
-        if (marker.isInfoWindowShown()) marker.hideInfoWindow();
-        Log.v("wilbert", "popup show");
-        return false;
-    }
-    //点击marker之后出现的
-    @Override
-    public View getInfoWindow(Marker marker) {
-        View view = getActivity().getLayoutInflater().inflate(R.layout.popup_window_meeting, null);
-        Log.v("wilbert", "return view");
-        return view;
-    }
-    @Override
-    public View getInfoContents(Marker marker) {
-        return null;
-    }
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        if (marker.isInfoWindowShown())
-            marker.hideInfoWindow();
-        Log.v("wilbert", "oninfowindowclick");
-    }
-
-    @Override
-    public void onMapClick(LatLng latLng) {
-        if (current_marker != null)
-            current_marker.hideInfoWindow();
-        Log.v("wilbert", "map click");
+        //// TODO: 2015/11/1 跳转到每一项单独的旅程 返回值true表示默认操作(显示信息窗口)不显示
+        return true;
     }
 
     @Override
