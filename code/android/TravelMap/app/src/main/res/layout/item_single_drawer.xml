@@ -13,5 +13,10 @@
         android:layout_height="match_parent"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
-        android:id="@+id/drawer_text" />
+        android:id="@+id/drawer_text"
+        android:padding="10dip"
+        android:gravity="center_horizontal"
+        android:alpha="0.5"
+        android:background="#000000"
+        android:textColor="#fcfcfc" />
 </LinearLayout>

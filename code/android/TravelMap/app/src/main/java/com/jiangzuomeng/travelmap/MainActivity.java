@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
-        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,strs));
+        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.item_single_text,strs));
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -190,7 +190,8 @@ public class MainActivity extends AppCompatActivity
                 state = State.OnTrip;
             }
         });
-        popupWindow.showAsDropDown(view);
+//        popupWindow.showAsDropDown(view, 0, 0, Gravity.TOP|Gravity.CENTER);
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
         }
         else {
             //// TODO: 2015/10/27 camera

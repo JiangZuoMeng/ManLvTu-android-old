@@ -181,12 +181,6 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.v("wilbert", "marker clicked");
-        View view = getActivity().getLayoutInflater().inflate(R.layout.popup_window_meeting, null);
-        final PopupWindow popupWindow = new PopupWindow(view, 50,
-                50, true);
-        popupWindow.setTouchable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         if (marker.isInfoWindowShown()) marker.hideInfoWindow();
 //        popupWindow.showAsDropDown(getView(), 10, 10);
         Log.v("wilbert", "popup show");
