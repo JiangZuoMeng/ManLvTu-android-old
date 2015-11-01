@@ -1,6 +1,7 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -210,6 +211,8 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     public boolean onMarkerClick(Marker marker) {
         Log.v("wilbert", "marker clicked");
         //// TODO: 2015/11/1 跳转到每一项单独的旅程 返回值true表示默认操作(显示信息窗口)不显示
+        Intent intent = new Intent(getActivity(), SingleTravelActivity.class);
+        startActivity(intent);
         return true;
     }
 

@@ -1,8 +1,6 @@
 package com.jiangzuomeng.Adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +14,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by wilbert on 2015/10/31.
  */
 public class DrawerAdapter  extends BaseAdapter{
     List<Map<String, Object>> bs;
-    public final class zujian {
+    public final class content {
     public ImageView image;
     public TextView title;
     }
@@ -70,15 +67,15 @@ public class DrawerAdapter  extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        zujian z = null;
+        content z = null;
         if (convertView == null) {
-            z = new zujian();
+            z = new content();
             convertView = LayoutInflater.from(context).inflate(R.layout.item_single_drawer, null);
             z.image = (ImageView)convertView.findViewById(R.id.drawer_image);
             z.title = (TextView)convertView.findViewById(R.id.drawer_text);
             convertView.setTag(z);
         } else {
-            z = (zujian)convertView.getTag();
+            z = (content)convertView.getTag();
         }
         z.image.setImageResource((Integer)bs.get(position).get("image"));
         z.title.setText((String)bs.get(position).get("title"));
