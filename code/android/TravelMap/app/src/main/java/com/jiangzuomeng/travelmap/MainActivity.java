@@ -45,8 +45,7 @@ import java.util.List;
 enum State{
         OnTrip,NotOnTrip
         }
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity {
 
     CollectionPagerAdapter pagerAdapter;
     ViewPager viewPager;
@@ -272,35 +271,6 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
         });
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_search:
-
-                return true;
-            case R.id.action_notification:
-
-                return true;
-            case R.id.action_settings:
-
-                return true;
-        }
-
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         return true;
     }
 
