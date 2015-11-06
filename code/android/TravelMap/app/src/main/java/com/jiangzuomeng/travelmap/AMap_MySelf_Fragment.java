@@ -226,10 +226,10 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     public void onGeocodeSearched(GeocodeResult geocodeResult, int i) {
         if (i == 0) {
             LatLonPoint point = geocodeResult.getGeocodeAddressList().get(0).getLatLonPoint();
-
-            markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
+            markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))));
+            /*markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
                     .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bookmark_black_24dp))
-                    .title("my location")));
+                    .title("my location")));*/
         }
     }
 }
