@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="200dip"
+    android:layout_height="50dip">
+
+    <Button
+        android:id="@+id/SingleTravelActivityListViewPopupLeftButton"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="30dip"
+        android:text="编辑"/>
+
+    <Button
+        android:id="@+id/SingleTravelActivityListViewPopupRightButton"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="30dip"
+        android:text="删除" />
+</LinearLayout>
