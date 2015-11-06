@@ -29,14 +29,14 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="pqOf9pfHYWxRQ6qfmKHXNaYj"/>
         <!--wilbert-->
-        <meta-data
+        <!--<meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="3ee375419a7a4ec9abf2736b0040854d"/>
+            android:value="3ee375419a7a4ec9abf2736b0040854d"/>-->
         <!--ekuri-->
 
-<!--        <meta-data
+        <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="1c0ddf3748123bb4fafc260adada5840"/>-->
+            android:value="1c0ddf3748123bb4fafc260adada5840"/>
 
         <activity
             android:name=".LoginActivity"
