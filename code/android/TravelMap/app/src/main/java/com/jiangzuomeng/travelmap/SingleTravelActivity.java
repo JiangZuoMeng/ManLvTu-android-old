@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
@@ -112,13 +113,31 @@ public class SingleTravelActivity
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         View popViewContent = getLayoutInflater().inflate(R.layout.popup_window_for_single_travel_view_list_item, null);
+
+        Button editButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupEditButton);
+        Button deleteButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupDeleteButton);
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("ekuri", "edit button clicked");
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("ekuri", "delete button clicked");
+            }
+        });
+
         PopupWindow popupWindow = new PopupWindow(popViewContent, ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setTouchable(true);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
-        popupWindow.showAsDropDown(view);
-        Log.v("ekuri", "item long clicked");
+        Log.v("ekuri", "view height: " + view.getHeight() + " width: " + view.getWidth());
+        popupWindow.showAsDropDown(view, view.getWidth() / 2, -view.getHeight() / 2);
         return false;
     }
 }
