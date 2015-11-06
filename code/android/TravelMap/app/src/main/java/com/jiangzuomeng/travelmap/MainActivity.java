@@ -60,6 +60,10 @@ public class MainActivity extends AppCompatActivity
     };
     ListView.OnItemClickListener onItemClickListener = null;
     PopupWindow setTagPopUpWindow;
+    TabLayout.OnTabSelectedListener onTabSelectedListener;
+    ViewPager.SimpleOnPageChangeListener simpleOnPageChangeListener;
+    Button.OnClickListener btnOnclickListener;
+    Button.OnLongClickListener btnOnLongClickListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,63 +84,21 @@ public class MainActivity extends AppCompatActivity
 
         tabLayout = (TabLayout)findViewById(R.id.tablayout);
         tabLayout.setTabsFromPagerAdapter(pagerAdapter);
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
+        tabLayout.setOnTabSelectedListener(onTabSelectedListener);
+        viewPager.setOnPageChangeListener(simpleOnPageChangeListener);
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                TabLayout.Tab tab = tabLayout.getTabAt(position);
-                tab.select();
-            }
-
-        });
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setLongClickable(true);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fab_short_click(view);
-            }
-        });
-        fab.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                fab_long_click(v);
-                return true;
-            }
-        });
+        fab.setOnClickListener(btnOnclickListener);
+        fab.setOnLongClickListener(btnOnLongClickListener);
 
         tag = (FloatingActionButton) findViewById(R.id.set_tag);
-        tag.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                set_tag_click(v);
-            }
-        });
+        tag.setOnClickListener(btnOnclickListener);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
-/*        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);*/
 
         ListView listView_drawer = (ListView)findViewById(R.id.drawer_listview);
         DrawerAdapter drawerAdapter = new DrawerAdapter(this);
@@ -152,6 +114,54 @@ public class MainActivity extends AppCompatActivity
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 startActivity(intent);
+            }
+        };
+
+        onTabSelectedListener = new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        };
+
+        simpleOnPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                TabLayout.Tab tab = tabLayout.getTabAt(position);
+                tab.select();
+            }
+
+        };
+
+        btnOnclickListener = new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.fab:
+                        fab_short_click(v);
+                        break;
+                    case R.id.set_tag:
+                        set_tag_click(v);
+                        break;
+                }
+            }
+        };
+
+        btnOnLongClickListener = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                fab_long_click(v);
+                return true;
             }
         };
     }
