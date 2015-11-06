@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TravelMap</string>
+    <string name="app_name">漫旅图</string>
     
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -13,7 +13,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">漫旅图</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

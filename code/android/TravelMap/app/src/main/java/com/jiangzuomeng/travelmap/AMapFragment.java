@@ -4,12 +4,14 @@ import android.app.ActionBar;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +29,7 @@ import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.LocationSource;
 import com.amap.api.maps2d.MapView;
+import com.amap.api.maps2d.Projection;
 import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
@@ -48,6 +51,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     private LayoutInflater layoutInflater;
     private Marker current_marker = null;
     private static String Maptype;
+    private LinearLayout linearLayout;
     public  static void setType(String t) {
         Maptype = t;
 
@@ -193,11 +197,20 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             marker.hideInfoWindow();
             return  true;
         }
-//        popupWindow.showAsDropDown(getView(), 10, 10);
         Log.v("wilbert", "popup show");
-//        LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.id_meeting);
-//        ImageView imageView = new ImageView(getActivity().getApplicationContext());
-        return false;
+        View popView = layoutInflater.inflate(R.layout.popup_window_meeting, null);
+        linearLayout = (LinearLayout)popView.findViewById(R.id.meeting_linear_layout);
+        AddMarksPicturesHere();
+        PopupWindow popupWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        Projection projection = aMap.getProjection();
+        Point point = projection.toScreenLocation(marker.getPosition());
+        popupWindow.showAtLocation(mapView, Gravity.CENTER, 0, 0);
+        return true;
+        //return false;
     }
     //点击marker之后出现的
     @Override
@@ -205,9 +218,44 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         View view = getActivity().getLayoutInflater().inflate(R.layout.popup_window_meeting, null);
         Log.v("wilbert", "return view");
         horizontalScrollView = (HorizontalScrollView)view.findViewById(R.id.horizontalScrollView);
-        horizontalScrollView.fullScroll(View.FOCUS_RIGHT);
+        linearLayout = (LinearLayout)view.findViewById(R.id.meeting_linear_layout);
+
+        AddMarksPicturesHere();
+
         return view;
     }
+
+    private void AddMarksPicturesHere() {
+        ImageView imageView = new ImageView(getActivity().getApplicationContext());
+        imageView.setImageResource(R.mipmap.test2_show);
+        imageView.setPadding(5, 5, 5, 5);
+        linearLayout.addView(imageView);
+
+        imageView = new ImageView(getActivity().getApplicationContext());
+        imageView.setImageResource(R.mipmap.test1_show);
+        imageView.setPadding(5, 5, 5, 5);
+        linearLayout.addView(imageView);
+
+        imageView = new ImageView(getActivity().getApplicationContext());
+        imageView.setImageResource(R.mipmap.test4_show);
+        imageView.setPadding(5, 5, 5, 5);
+        linearLayout.addView(imageView);
+
+        final int width = imageView.getWidth();
+        final int height = imageView.getHeight();
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("wilbert", "onclick");
+            }
+        });
+
+        imageView = new ImageView(getActivity().getApplicationContext());
+        imageView.setImageResource(R.mipmap.test4_show);
+        imageView.setPadding(5, 5, 5, 5);
+        linearLayout.addView(imageView);
+    }
+
     @Override
     public View getInfoContents(Marker marker) {
         return null;
@@ -227,7 +275,6 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             current_marker.hideInfoWindow();
         Log.v("wilbert", "map click " + current_marker.isInfoWindowShown());
         //horizontalScrollView.fullScroll(View.FOCUS_RIGHT);
-
     }
 
 }

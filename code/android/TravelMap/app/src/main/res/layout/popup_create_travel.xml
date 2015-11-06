@@ -11,7 +11,7 @@
         android:hint="输入本趟旅图的名称"
         android:background="#8d4949"
         android:layout_margin="5dip"
-        android:alpha="0.5"
+        android:alpha="0.8"
         android:textSize="20dp" />
 
     <Button
@@ -22,6 +22,6 @@
         android:layout_gravity="center_horizontal"
         android:textColor="#fcfcfc"
         android:background="#8d4949"
-        android:alpha="0.5" />
+        android:alpha="0.8" />
 
 </LinearLayout>

@@ -14,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,6 +37,7 @@ import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.Toast;
 import com.jiangzuomeng.Adapter.DrawerAdapter;
+import com.jiangzuomeng.MyLayout.CustomViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity
     String []strs = new String[] {
             "遇见","美食","酒店"
     };
+    ListView.OnItemClickListener onItemClickListener = null;
+    PopupWindow setTagPopUpWindow;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,11 +67,15 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle("漫旅图");
+
 
         state = State.NotOnTrip;
 
+        initMyListener();
+
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
-        viewPager = (ViewPager)findViewById(R.id.pager);
+        viewPager = (CustomViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
 
         tabLayout = (TabLayout)findViewById(R.id.tablayout);
@@ -133,15 +141,28 @@ public class MainActivity extends AppCompatActivity
         ListView listView_drawer = (ListView)findViewById(R.id.drawer_listview);
         DrawerAdapter drawerAdapter = new DrawerAdapter(this);
         listView_drawer.setAdapter(drawerAdapter);
+        listView_drawer.setOnItemClickListener(onItemClickListener);
+    }
+
+    private void initMyListener() {
+        onItemClickListener = new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this,SingleTravelActivity.class);
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                startActivity(intent);
+            }
+        };
     }
 
     private void set_tag_click(View v) {
         View popView = getLayoutInflater().inflate(R.layout.popup_set_tag, null);
-        PopupWindow popupWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
+        setTagPopUpWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setTouchable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        setTagPopUpWindow.setTouchable(true);
+        setTagPopUpWindow.setOutsideTouchable(true);
+        setTagPopUpWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
         listView.setAdapter(new ArrayAdapter<String>(this, R.layout.item_single_text,strs));
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
@@ -150,12 +171,13 @@ public class MainActivity extends AppCompatActivity
                 tag_on_click_listener(position);
             }
         });
-        popupWindow.showAsDropDown(v);
+        setTagPopUpWindow.showAsDropDown(v);
     }
 
     private void tag_on_click_listener(int position) {
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         tab.setText(strs[position]);
+        setTagPopUpWindow.dismiss();
     }
 
     private void fab_long_click(View v) {
