@@ -1,9 +1,11 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +16,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,6 +39,7 @@ import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.Toast;
 import com.jiangzuomeng.Adapter.DrawerAdapter;
+import com.jiangzuomeng.MyLayout.CustomViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +47,7 @@ import java.util.List;
 enum State{
         OnTrip,NotOnTrip
         }
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity {
 
     CollectionPagerAdapter pagerAdapter;
     ViewPager viewPager;
@@ -56,6 +59,12 @@ public class MainActivity extends AppCompatActivity
     String []strs = new String[] {
             "遇见","美食","酒店"
     };
+    ListView.OnItemClickListener onItemClickListener = null;
+    PopupWindow setTagPopUpWindow;
+    TabLayout.OnTabSelectedListener onTabSelectedListener;
+    ViewPager.SimpleOnPageChangeListener simpleOnPageChangeListener;
+    Button.OnClickListener btnOnclickListener;
+    Button.OnLongClickListener btnOnLongClickListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,13 +75,48 @@ public class MainActivity extends AppCompatActivity
 
         state = State.NotOnTrip;
 
+        initMyListener();
+
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
-        viewPager = (ViewPager)findViewById(R.id.pager);
+        viewPager = (CustomViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
 
         tabLayout = (TabLayout)findViewById(R.id.tablayout);
         tabLayout.setTabsFromPagerAdapter(pagerAdapter);
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        tabLayout.setOnTabSelectedListener(onTabSelectedListener);
+        viewPager.setOnPageChangeListener(simpleOnPageChangeListener);
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setLongClickable(true);
+        fab.setOnClickListener(btnOnclickListener);
+        fab.setOnLongClickListener(btnOnLongClickListener);
+
+        tag = (FloatingActionButton) findViewById(R.id.set_tag);
+        tag.setOnClickListener(btnOnclickListener);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        ListView listView_drawer = (ListView)findViewById(R.id.drawer_listview);
+        DrawerAdapter drawerAdapter = new DrawerAdapter(this);
+        listView_drawer.setAdapter(drawerAdapter);
+        listView_drawer.setOnItemClickListener(onItemClickListener);
+    }
+
+    private void initMyListener() {
+        onItemClickListener = new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this,SingleTravelActivity.class);
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                startActivity(intent);
+            }
+        };
+
+        onTabSelectedListener = new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
@@ -87,75 +131,66 @@ public class MainActivity extends AppCompatActivity
             public void onTabReselected(TabLayout.Tab tab) {
 
             }
-        });
+        };
 
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        simpleOnPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 TabLayout.Tab tab = tabLayout.getTabAt(position);
                 tab.select();
             }
 
-        });
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setLongClickable(true);
+        };
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        btnOnclickListener = new Button.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                fab_short_click(view);
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.fab:
+                        fab_short_click(v);
+                        break;
+                    case R.id.set_tag:
+                        set_tag_click(v);
+                        break;
+                }
             }
-        });
-        fab.setOnLongClickListener(new View.OnLongClickListener() {
+        };
+
+        btnOnLongClickListener = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 fab_long_click(v);
                 return true;
             }
-        });
-
-        tag = (FloatingActionButton) findViewById(R.id.set_tag);
-        tag.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                set_tag_click(v);
-            }
-        });
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-/*        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);*/
-
-        ListView listView_drawer = (ListView)findViewById(R.id.drawer_listview);
-        DrawerAdapter drawerAdapter = new DrawerAdapter(this);
-        listView_drawer.setAdapter(drawerAdapter);
+        };
     }
 
     private void set_tag_click(View v) {
         View popView = getLayoutInflater().inflate(R.layout.popup_set_tag, null);
-        PopupWindow popupWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
+        setTagPopUpWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setTouchable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        setTagPopUpWindow.setTouchable(true);
+        setTagPopUpWindow.setOutsideTouchable(true);
+        setTagPopUpWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
-        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.item_single_text,strs));
+        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.item_single_text, strs));
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 tag_on_click_listener(position);
             }
         });
-        popupWindow.showAsDropDown(v);
+        //setTagPopUpWindow.showAsDropDown(v);
+        int[] location = new int[2];
+        v.getLocationOnScreen(location);
+        setTagPopUpWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0,
+                location[1]-popView.getMeasuredHeight()- v.getMeasuredHeight() * 3 / 2);
     }
 
     private void tag_on_click_listener(int position) {
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         tab.setText(strs[position]);
+        setTagPopUpWindow.dismiss();
     }
 
     private void fab_long_click(View v) {
@@ -175,6 +210,18 @@ public class MainActivity extends AppCompatActivity
     private void fab_short_click(View view) {
         if (state == State.NotOnTrip) {
         View popView= getLayoutInflater().inflate(R.layout.popup_create_travel,null);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(popView);
+            builder.setIcon(R.mipmap.apple_touch_icon);
+            builder.setTitle(R.string.dialogTitle);
+            builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            builder.show();
+/*
         final PopupWindow popupWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
                                                         ActionBar.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setTouchable(true);
@@ -192,6 +239,7 @@ public class MainActivity extends AppCompatActivity
         });
 //        popupWindow.showAsDropDown(view, 0, 0, Gravity.TOP|Gravity.CENTER);
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+*/
         }
         else {
             //// TODO: 2015/10/27 camera
@@ -240,35 +288,6 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
         });
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_search:
-
-                return true;
-            case R.id.action_notification:
-
-                return true;
-            case R.id.action_settings:
-
-                return true;
-        }
-
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         return true;
     }
 

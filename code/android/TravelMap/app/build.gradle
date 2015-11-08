@@ -29,4 +29,6 @@ dependencies {
     compile files('libs/AMap_2DMap_v2.6.0_20150916.jar')
     compile files('libs/AMap_Location_v1.4.1_20150917.jar')
     compile files('libs/AMap_Search_v2.6.0_20150914.jar')
+
+    compile 'com.commit451:PhotoView:1.2.4'
 }
