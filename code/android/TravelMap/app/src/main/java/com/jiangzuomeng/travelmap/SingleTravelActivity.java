@@ -6,6 +6,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -49,6 +50,9 @@ public class SingleTravelActivity
         mapView.onCreate(savedInstanceState);
         aMap = mapView.getMap();
         setupMap();
+
+        //
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void setupMap() {
@@ -139,5 +143,14 @@ public class SingleTravelActivity
         Log.v("ekuri", "view height: " + view.getHeight() + " width: " + view.getWidth());
         popupWindow.showAsDropDown(view, view.getWidth() / 2, -view.getHeight() / 2);
         return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+        }
+        return true;
     }
 }
