@@ -1,9 +1,11 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -70,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("漫旅图");
-
 
         state = State.NotOnTrip;
 
@@ -210,6 +210,18 @@ public class MainActivity extends AppCompatActivity {
     private void fab_short_click(View view) {
         if (state == State.NotOnTrip) {
         View popView= getLayoutInflater().inflate(R.layout.popup_create_travel,null);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(popView);
+            builder.setIcon(R.mipmap.apple_touch_icon);
+            builder.setTitle(R.string.dialogTitle);
+            builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            builder.show();
+/*
         final PopupWindow popupWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
                                                         ActionBar.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setTouchable(true);
@@ -227,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
         });
 //        popupWindow.showAsDropDown(view, 0, 0, Gravity.TOP|Gravity.CENTER);
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+*/
         }
         else {
             //// TODO: 2015/10/27 camera

@@ -81,10 +81,12 @@ public class AlbumViewerActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+                finish();
+                /*NavUtils.navigateUpFromSameTask(this);
+                return true;*/
         }
-        return super.onOptionsItemSelected(item);
+        return true;
+//        return super.onOptionsItemSelected(item);
     }
 
     public class AlbumViewerAdapter extends PagerAdapter {

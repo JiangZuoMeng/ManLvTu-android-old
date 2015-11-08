@@ -1,6 +1,7 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +27,8 @@ import java.util.List;
 
 public class SingleTravelActivity
         extends AppCompatActivity
-        implements AMap.OnMapClickListener, AdapterView.OnItemLongClickListener {
+        implements AMap.OnMapClickListener, AdapterView.OnItemLongClickListener
+        ,AdapterView.OnItemClickListener{
 
     private MapView mapView;
     private AMap aMap;
@@ -42,6 +44,7 @@ public class SingleTravelActivity
         ListView listView_drawer = (ListView)findViewById(R.id.SingleTravelMapListView);
         listView_drawer.setLongClickable(true);
         listView_drawer.setOnItemLongClickListener(this);
+        listView_drawer.setOnItemClickListener(this);
         SingleTravelItemListViewAdapter singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
         listView_drawer.setAdapter(singleTravelItemAdapter);
 
@@ -152,5 +155,11 @@ public class SingleTravelActivity
                 finish();
         }
         return true;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(this, AlbumViewerActivity.class);
+        startActivity(intent);
     }
 }

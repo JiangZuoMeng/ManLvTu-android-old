@@ -1,6 +1,7 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -8,6 +9,7 @@ import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -52,6 +54,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     private Marker current_marker = null;
     private static String Maptype;
     private LinearLayout linearLayout;
+    private ImageView.OnClickListener popupWindowImageClickListener;
     public  static void setType(String t) {
         Maptype = t;
 
@@ -67,8 +70,20 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         layoutInflater = LayoutInflater.from(getActivity());
         setUpMap();
         initData();
+        InitMyListener();
         showPictureAdapter = new ShowPictureAdapter(layoutInflater);
         return view;
+    }
+
+    private void InitMyListener() {
+        popupWindowImageClickListener = new ImageView.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), AlbumViewerActivity.class);
+                startActivity(intent);
+            }
+        };
+
     }
 
     private void initData() {
@@ -230,30 +245,30 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         imageView.setImageResource(R.mipmap.test2_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
+        imageView.setOnClickListener(popupWindowImageClickListener);
 
         imageView = new ImageView(getActivity().getApplicationContext());
         imageView.setImageResource(R.mipmap.test1_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
+        imageView.setOnClickListener(popupWindowImageClickListener);
 
         imageView = new ImageView(getActivity().getApplicationContext());
         imageView.setImageResource(R.mipmap.test4_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
+        imageView.setOnClickListener(popupWindowImageClickListener);
 
         final int width = imageView.getWidth();
         final int height = imageView.getHeight();
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.v("wilbert", "onclick");
-            }
-        });
+        imageView.setOnClickListener(popupWindowImageClickListener);
+
 
         imageView = new ImageView(getActivity().getApplicationContext());
         imageView.setImageResource(R.mipmap.test4_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
+        imageView.setOnClickListener(popupWindowImageClickListener);
     }
 
     @Override
