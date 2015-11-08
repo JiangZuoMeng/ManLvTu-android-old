@@ -173,14 +173,18 @@ public class MainActivity extends AppCompatActivity {
         setTagPopUpWindow.setOutsideTouchable(true);
         setTagPopUpWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
-        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.item_single_text,strs));
+        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.item_single_text, strs));
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 tag_on_click_listener(position);
             }
         });
-        setTagPopUpWindow.showAsDropDown(v);
+        //setTagPopUpWindow.showAsDropDown(v);
+        int[] location = new int[2];
+        v.getLocationOnScreen(location);
+        setTagPopUpWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0,
+                location[1]-popView.getMeasuredHeight()- v.getMeasuredHeight() * 3 / 2);
     }
 
     private void tag_on_click_listener(int position) {

@@ -22,6 +22,7 @@ public class CustomViewPager  extends ViewPager {
         if (v instanceof HorizontalScrollView) {
             return true;
         }
-        return super.canScroll(v, checkV, dx, x, y);
+//        return super.canScroll(v, checkV, dx, x, y);
+        return true;
     }
 }
