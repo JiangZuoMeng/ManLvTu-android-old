@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +17,9 @@ import android.widget.PopupWindow;
 
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.MapView;
+import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
+import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.Polyline;
 import com.amap.api.maps2d.model.PolylineOptions;
@@ -29,13 +30,14 @@ import java.util.ArrayList;
 public class SingleTravelActivity
         extends AppCompatActivity
         implements AMap.OnMapClickListener, AdapterView.OnItemLongClickListener
-        ,AdapterView.OnItemClickListener{
+        ,AdapterView.OnItemClickListener, AMap.OnMarkerDragListener {
 
     private MapView mapView;
     private AMap aMap;
     private Polyline polyline;
     private ArrayList markersLocation = new ArrayList<>();
     private ArrayList newAddedMarkerLocation = new ArrayList<>();
+    private boolean isMapMovable = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class SingleTravelActivity
 
     private void setupMap() {
         aMap.setOnMapClickListener(this);
+        aMap.setOnMarkerDragListener(this);
     }
 
     private void addMarkerToMap(LatLng location) {
@@ -77,7 +80,7 @@ public class SingleTravelActivity
         if (polyline != null) {
             polyline.remove();
         }
-        polyline = aMap.addPolyline(new PolylineOptions().addAll(markersLocation));
+        polyline = aMap.addPolyline(new PolylineOptions().addAll(markersLocation).addAll(newAddedMarkerLocation));
     }
 
     /**
@@ -162,8 +165,19 @@ public class SingleTravelActivity
             case R.id.action_add_new_position:
                 LatLng cameraPosition = aMap.getCameraPosition().target;
                 newAddedMarkerLocation.add(cameraPosition);
-                aMap.addMarker(new MarkerOptions().position(cameraPosition).draggable(true));
+                Marker newMarker = aMap.addMarker(new MarkerOptions().position(cameraPosition));
+                newMarker.setDraggable(true);
+                newMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                linkMarkersOfMap();
                 break;
+            case R.id.action_lock_map:
+                isMapMovable = !isMapMovable;
+                aMap.getUiSettings().setScrollGesturesEnabled(isMapMovable);
+                if (isMapMovable) {
+                    item.setIcon(R.drawable.ic_lock_open_white_24dp);
+                } else {
+                    item.setIcon(R.drawable.ic_lock_outline_white_24dp);
+                }
         }
         return true;
     }
@@ -178,5 +192,20 @@ public class SingleTravelActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.single_travel_activity_actionbar_menu, menu);
         return true;
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+
     }
 }

@@ -88,4 +88,5 @@
 
     <!-- String for single travel activity-->
     <string name="action_add_new_position">添加新的坐标点</string>
+    <string name="action_lock_map">锁定地图与解锁</string>
 </resources>
