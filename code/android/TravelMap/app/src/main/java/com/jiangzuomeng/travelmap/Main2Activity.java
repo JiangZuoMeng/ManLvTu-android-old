@@ -16,17 +16,17 @@ public class Main2Activity extends AppCompatActivity {
         LinearLayout linearLayout = (LinearLayout)findViewById(R.id.test_meeting_linear_layout);
 
         ImageView imageView = new ImageView(getApplicationContext());
-        imageView.setImageResource(R.mipmap.test2_show);
+        imageView.setImageResource(R.drawable.test2_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
 
         imageView = new ImageView(getApplicationContext());
-        imageView.setImageResource(R.mipmap.test1_show);
+        imageView.setImageResource(R.drawable.test1_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
 
         imageView = new ImageView(getApplicationContext());
-        imageView.setImageResource(R.mipmap.test4_show);
+        imageView.setImageResource(R.drawable.test4_show);
         imageView.setPadding(5,5,5,5);
         linearLayout.addView(imageView);
 
