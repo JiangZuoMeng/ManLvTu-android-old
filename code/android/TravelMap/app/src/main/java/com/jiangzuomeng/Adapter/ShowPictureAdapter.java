@@ -37,7 +37,7 @@ public class ShowPictureAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         View view = allview.get(position);
         ImageView imageView = (ImageView)view.findViewById(R.id.SingleImageView);
-        imageView.setImageResource(R.mipmap.test1_show);
+        imageView.setImageResource(R.drawable.test1_show);
         ((ViewPager)container).addView(view, position);
         return allview.get(position);
     }

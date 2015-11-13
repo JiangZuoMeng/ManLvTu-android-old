@@ -72,15 +72,15 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     private void initData() {
         markers = new ArrayList<>();
         imageIds = new int[]{
-                R.mipmap.test1, R.mipmap.test2, R.mipmap.test3,
-                R.mipmap.test4
+                R.drawable.test1, R.drawable.test2, R.drawable.test3,
+                R.drawable.test4
         };
     }
 
     private void setUpMap() {
         MyLocationStyle myLocationStyle = new MyLocationStyle();
         myLocationStyle.myLocationIcon(BitmapDescriptorFactory
-                .fromResource(R.mipmap.ic_bookmark_black_24dp));// 设置小蓝点的图标
+                .fromResource(R.drawable.ic_bookmark_black_24dp));// 设置小蓝点的图标
         myLocationStyle.strokeColor(Color.BLACK);// 设置圆形的边框颜色
         myLocationStyle.radiusFillColor(Color.argb(100, 0, 0, 180));// 设置圆形的填充颜色
         // myLocationStyle.anchor(int,int)//设置小蓝点的锚点
@@ -150,7 +150,7 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
             mlistener.onLocationChanged(aMapLocation);// 显示系统小蓝点
             //添加marker
             LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
-            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bookmark_black_24dp))
+            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bookmark_black_24dp))
                     .title("my location"));
         }
     }
@@ -229,7 +229,7 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
             LatLonPoint point = geocodeResult.getGeocodeAddressList().get(0).getLatLonPoint();
             markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))));
             /*markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bookmark_black_24dp))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bookmark_black_24dp))
                     .title("my location")));*/
         }
     }
