@@ -33,19 +33,19 @@ public class DrawerAdapter  extends BaseAdapter{
 
     private void initData() {
         Map<String, Object> map = new HashMap<>();
-        map.put("image",R.mipmap.test2_show);
+        map.put("image",R.drawable.test2_show);
         map.put("title", "长隆");
         bs.add(map);
         map = new HashMap<>();
-        map.put("image",R.mipmap.test3_show);
+        map.put("image",R.drawable.test3_show);
         map.put("title", "XX两日游");
         bs.add(map);
         map = new HashMap<>();
-        map.put("image", R.mipmap.test4_show);
+        map.put("image", R.drawable.test4_show);
         map.put("title", "广州");
         bs.add(map);
         map = new HashMap<>();
-        map.put("image",R.mipmap.test1_show);
+        map.put("image",R.drawable.test1_show);
         map.put("title", "XX");
         bs.add(map);
     }

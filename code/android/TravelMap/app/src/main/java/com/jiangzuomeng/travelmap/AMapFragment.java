@@ -88,15 +88,15 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 
     private void initData() {
         imageIds = new int[]{
-            R.mipmap.test1, R.mipmap.test2, R.mipmap.test3,
-                R.mipmap.test4
+            R.drawable.test1, R.drawable.test2, R.drawable.test3,
+                R.drawable.test4
         };
     }
 
     private void setUpMap() {
         MyLocationStyle myLocationStyle = new MyLocationStyle();
         myLocationStyle.myLocationIcon(BitmapDescriptorFactory
-                .fromResource(R.mipmap.location_marker));// 设置小蓝点的图标
+                .fromResource(R.drawable.location_marker));// 设置小蓝点的图标
         myLocationStyle.strokeColor(Color.BLACK);// 设置圆形的边框颜色
         myLocationStyle.radiusFillColor(Color.argb(100, 0, 0, 180));// 设置圆形的填充颜色
         // myLocationStyle.anchor(int,int)//设置小蓝点的锚点
@@ -146,7 +146,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             mlistener.onLocationChanged(aMapLocation);// 显示系统小蓝点
             //添加marker
             LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
-/*            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_pin_drop_black_24dp))
+/*            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin_drop_black_24dp))
                     .title("my location"));*/
             current_marker = aMap.addMarker(new MarkerOptions().position(latLng).title("my location"));
         }
@@ -227,7 +227,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         return true;
         //return false;
     }
-    //点击marker之后出现的
+    //点击marker之后出现的,由于无法实现滚动效果,所以此部分已经弃用,改为由上面实现popupwindow.
     @Override
     public View getInfoWindow(Marker marker) {
         View view = getActivity().getLayoutInflater().inflate(R.layout.popup_window_meeting, null);
@@ -242,19 +242,19 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 
     private void AddMarksPicturesHere() {
         ImageView imageView = new ImageView(getActivity().getApplicationContext());
-        imageView.setImageResource(R.mipmap.test2_show);
+        imageView.setImageResource(R.drawable.test2_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
         imageView.setOnClickListener(popupWindowImageClickListener);
 
         imageView = new ImageView(getActivity().getApplicationContext());
-        imageView.setImageResource(R.mipmap.test1_show);
+        imageView.setImageResource(R.drawable.test1_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
         imageView.setOnClickListener(popupWindowImageClickListener);
 
         imageView = new ImageView(getActivity().getApplicationContext());
-        imageView.setImageResource(R.mipmap.test4_show);
+        imageView.setImageResource(R.drawable.test4_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
         imageView.setOnClickListener(popupWindowImageClickListener);
@@ -265,7 +265,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 
 
         imageView = new ImageView(getActivity().getApplicationContext());
-        imageView.setImageResource(R.mipmap.test4_show);
+        imageView.setImageResource(R.drawable.test4_show);
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
         imageView.setOnClickListener(popupWindowImageClickListener);

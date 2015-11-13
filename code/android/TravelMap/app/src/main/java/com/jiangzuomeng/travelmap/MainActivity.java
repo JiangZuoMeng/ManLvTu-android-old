@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
             toast.show();
             state = State.NotOnTrip;
-            fab.setBackgroundResource(R.mipmap.ic_note_add_black_24dp);
+            fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
         } else {
 
         }
