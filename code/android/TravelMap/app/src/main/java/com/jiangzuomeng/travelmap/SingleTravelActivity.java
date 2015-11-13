@@ -1,12 +1,14 @@
 package com.jiangzuomeng.travelmap;
 
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,7 +25,6 @@ import com.amap.api.maps2d.model.PolylineOptions;
 import com.jiangzuomeng.Adapter.SingleTravelItemListViewAdapter;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class SingleTravelActivity
         extends AppCompatActivity
@@ -34,6 +35,7 @@ public class SingleTravelActivity
     private AMap aMap;
     private Polyline polyline;
     private ArrayList markersLocation = new ArrayList<>();
+    private ArrayList newAddedMarkerLocation = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +56,11 @@ public class SingleTravelActivity
         aMap = mapView.getMap();
         setupMap();
 
-        //
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // setting action bar
+        android.support.v7.app.ActionBar supportActionBar = getSupportActionBar();
+        supportActionBar.setDisplayHomeAsUpEnabled(true);
+        supportActionBar.setTitle("在生物岛");
+        supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
     }
 
     private void setupMap() {
@@ -153,6 +158,12 @@ public class SingleTravelActivity
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
+                break;
+            case R.id.action_add_new_position:
+                LatLng cameraPosition = aMap.getCameraPosition().target;
+                newAddedMarkerLocation.add(cameraPosition);
+                aMap.addMarker(new MarkerOptions().position(cameraPosition).draggable(true));
+                break;
         }
         return true;
     }
@@ -161,5 +172,11 @@ public class SingleTravelActivity
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, AlbumViewerActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.single_travel_activity_actionbar_menu, menu);
+        return true;
     }
 }
