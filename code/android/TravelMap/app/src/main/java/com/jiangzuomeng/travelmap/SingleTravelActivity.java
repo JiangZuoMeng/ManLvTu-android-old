@@ -150,7 +150,7 @@ public class SingleTravelActivity
         popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         Log.v("ekuri", "view height: " + view.getHeight() + " width: " + view.getWidth());
         popupWindow.showAsDropDown(view, view.getWidth() / 2, -view.getHeight() / 2);
-        return false;
+        return true;
     }
 
     @Override
