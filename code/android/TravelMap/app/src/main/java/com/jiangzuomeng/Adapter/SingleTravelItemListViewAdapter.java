@@ -31,6 +31,13 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         initData();
     }
 
+    public void addItem(Object imageId, Object description) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("image", imageId);
+        map.put("title", description);
+        data.add(0, map);
+    }
+
     private void initData() {
         Map<String, Object> map = new HashMap<>();
         map.put("image", R.drawable.test2_show);

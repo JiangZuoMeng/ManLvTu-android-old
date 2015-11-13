@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import com.amap.api.maps2d.AMap;
+import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
@@ -35,9 +36,22 @@ public class SingleTravelActivity
     private MapView mapView;
     private AMap aMap;
     private Polyline polyline;
-    private ArrayList markersLocation = new ArrayList<>();
-    private ArrayList newAddedMarkerLocation = new ArrayList<>();
+    private ArrayList<LatLng> markersLocation = new ArrayList<>();
+    private ArrayList<Marker> markers = new ArrayList<>();
     private boolean isMapMovable = true;
+    private ListView listView_drawer;
+    SingleTravelItemListViewAdapter singleTravelItemAdapter;
+    private View.OnClickListener clickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.SingleTravelActivityListViewPopupDeleteButton:
+                    //v.get
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +59,11 @@ public class SingleTravelActivity
         setContentView(R.layout.activity_single_travel);
 
         // setup single travel activity list view
-        ListView listView_drawer = (ListView)findViewById(R.id.SingleTravelMapListView);
+        listView_drawer = (ListView)findViewById(R.id.SingleTravelMapListView);
         listView_drawer.setLongClickable(true);
         listView_drawer.setOnItemLongClickListener(this);
         listView_drawer.setOnItemClickListener(this);
-        SingleTravelItemListViewAdapter singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
+        singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
         listView_drawer.setAdapter(singleTravelItemAdapter);
 
         // set map
@@ -66,13 +80,15 @@ public class SingleTravelActivity
     }
 
     private void setupMap() {
+        aMap.moveCamera(CameraUpdateFactory.zoomTo(14));
+        aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
         aMap.setOnMapClickListener(this);
         aMap.setOnMarkerDragListener(this);
     }
 
-    private void addMarkerToMap(LatLng location) {
-        markersLocation.add(location);
-        aMap.addMarker(new MarkerOptions().position(location));
+    private void addMarker(MarkerOptions markerOptions) {
+        markersLocation.add(markerOptions.getPosition());
+        markers.add(aMap.addMarker(markerOptions));
         linkMarkersOfMap();
     }
 
@@ -80,7 +96,9 @@ public class SingleTravelActivity
         if (polyline != null) {
             polyline.remove();
         }
-        polyline = aMap.addPolyline(new PolylineOptions().addAll(markersLocation).addAll(newAddedMarkerLocation));
+        polyline = aMap.addPolyline(new PolylineOptions()
+                .addAll(markersLocation)
+                .color(getResources().getColor(R.color.single_travel_polyline_color)));
     }
 
     /**
@@ -121,8 +139,7 @@ public class SingleTravelActivity
 
     @Override
     public void onMapClick(LatLng latLng) {
-        Log.v("ekuri", latLng.toString());
-        addMarkerToMap(latLng);
+        addMarker(new MarkerOptions().position(latLng));
     }
 
     @Override
@@ -132,19 +149,9 @@ public class SingleTravelActivity
         Button editButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupEditButton);
         Button deleteButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupDeleteButton);
 
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.v("ekuri", "edit button clicked");
-            }
-        });
+        editButton.setOnClickListener(clickListener);
 
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.v("ekuri", "delete button clicked");
-            }
-        });
+        deleteButton.setOnClickListener(clickListener);
 
         PopupWindow popupWindow = new PopupWindow(popViewContent, ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.WRAP_CONTENT, true);
@@ -163,12 +170,15 @@ public class SingleTravelActivity
                 finish();
                 break;
             case R.id.action_add_new_position:
-                LatLng cameraPosition = aMap.getCameraPosition().target;
-                newAddedMarkerLocation.add(cameraPosition);
-                Marker newMarker = aMap.addMarker(new MarkerOptions().position(cameraPosition));
-                newMarker.setDraggable(true);
-                newMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                addMarker(new MarkerOptions()
+                                .position(aMap.getCameraPosition().target)
+                                .draggable(true)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                );
                 linkMarkersOfMap();
+                singleTravelItemAdapter.addItem(R.drawable.ic_mood_black_24dp,
+                        getResources().getString(R.string.single_travel_default_list_view_item_description));
+                listView_drawer.setAdapter(singleTravelItemAdapter);
                 break;
             case R.id.action_lock_map:
                 isMapMovable = !isMapMovable;
@@ -201,7 +211,11 @@ public class SingleTravelActivity
 
     @Override
     public void onMarkerDrag(Marker marker) {
-
+        int markerIndex = markers.indexOf(marker);
+        if (markerIndex < 0)
+            return;
+        markersLocation.set(markerIndex, marker.getPosition());
+        linkMarkersOfMap();
     }
 
     @Override
