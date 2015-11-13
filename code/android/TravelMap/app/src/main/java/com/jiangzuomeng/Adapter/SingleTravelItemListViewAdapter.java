@@ -37,6 +37,9 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         map.put("title", description);
         data.add(0, map);
     }
+    public void removeItem(int index) {
+        data.remove(index);
+    }
 
     private void initData() {
         Map<String, Object> map = new HashMap<>();

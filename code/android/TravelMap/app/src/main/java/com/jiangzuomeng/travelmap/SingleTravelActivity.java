@@ -40,14 +40,23 @@ public class SingleTravelActivity
     private ArrayList<Marker> markers = new ArrayList<>();
     private boolean isMapMovable = true;
     private ListView listView_drawer;
+    PopupWindow popupWindow;
+    private int listViewClickPosition = 0;
     SingleTravelItemListViewAdapter singleTravelItemAdapter;
+
+
     private View.OnClickListener clickListener = new View.OnClickListener() {
 
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.SingleTravelActivityListViewPopupDeleteButton:
-                    //v.get
+                    popupWindow.dismiss();
+                    markers.remove(listViewClickPosition).remove();
+                    markersLocation.remove(listViewClickPosition);
+                    singleTravelItemAdapter.removeItem(listViewClickPosition);
+                    linkMarkersOfMap();
+                    listView_drawer.setAdapter(singleTravelItemAdapter);
                     break;
             }
         }
@@ -65,8 +74,9 @@ public class SingleTravelActivity
         listView_drawer.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
         listView_drawer.setAdapter(singleTravelItemAdapter);
+        initPopupWindow();
 
-        // set map
+        // setup map
         mapView = (MapView) findViewById(R.id.SingleTravelMapMapView);
         mapView.onCreate(savedInstanceState);
         aMap = mapView.getMap();
@@ -84,6 +94,23 @@ public class SingleTravelActivity
         aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
         aMap.setOnMapClickListener(this);
         aMap.setOnMarkerDragListener(this);
+    }
+
+    private void initPopupWindow() {
+        View popViewContent = getLayoutInflater().inflate(R.layout.popup_window_for_single_travel_view_list_item, null);
+
+        Button editButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupEditButton);
+        Button deleteButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupDeleteButton);
+
+        editButton.setOnClickListener(clickListener);
+
+        deleteButton.setOnClickListener(clickListener);
+
+        popupWindow = new PopupWindow(popViewContent, ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
     }
 
     private void addMarker(MarkerOptions markerOptions) {
@@ -144,21 +171,7 @@ public class SingleTravelActivity
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        View popViewContent = getLayoutInflater().inflate(R.layout.popup_window_for_single_travel_view_list_item, null);
-
-        Button editButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupEditButton);
-        Button deleteButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupDeleteButton);
-
-        editButton.setOnClickListener(clickListener);
-
-        deleteButton.setOnClickListener(clickListener);
-
-        PopupWindow popupWindow = new PopupWindow(popViewContent, ActionBar.LayoutParams.WRAP_CONTENT,
-                ActionBar.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setTouchable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
-        Log.v("ekuri", "view height: " + view.getHeight() + " width: " + view.getWidth());
+        listViewClickPosition = position;
         popupWindow.showAsDropDown(view, view.getWidth() / 2, -view.getHeight() / 2);
         return true;
     }
