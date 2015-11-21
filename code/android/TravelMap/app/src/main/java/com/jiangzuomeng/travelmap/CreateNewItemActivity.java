@@ -3,6 +3,7 @@ package com.jiangzuomeng.travelmap;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -57,6 +58,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
     SetTagAdapter setTagAdapter;
     String tagTemp;
     EditText addTagEditText;
+    ListView tagListView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,24 +118,35 @@ public class CreateNewItemActivity extends AppCompatActivity {
             @Override
             public boolean onLongClick(View v) {
                 pictureLinearLayout.removeView(v);
+                Bundle bundle = new Bundle();
                 return true;
             }
         };
         onItemLongClickListener = new ListView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                setTagAdapter.getIsSelected().remove(position);
-                setTagAdapter.getStrings().remove(position);
-                setTagAdapter.notifyDataSetChanged();
+                final int delete = position;
+                AlertDialog.Builder builder = new AlertDialog.Builder(CreateNewItemActivity.this);
+                builder.setMessage("确认删除吗?");
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setTagAdapter.removeAt(delete);
+                        Log.v("wilbert", "remove map strings");
+                        setTagAdapter.notifyDataSetChanged();
+                    }
+                });
+                builder.show();
+                //tagListView.setAdapter(setTagAdapter);
                 return true;
             }
         };
     }
 
     private void addOtherTag(View v) {
-        if(!addTagEditText.getText().equals("")) {
+        if(!addTagEditText.getText().toString().equals("")) {
             setTagAdapter.getStrings().add(addTagEditText.getText().toString());
-            setTagAdapter.getIsSelected().put(setTagAdapter.getStrings().size()-1, false);
+            setTagAdapter.getIsSelectList().add(setTagAdapter.getStrings().size()-1, false);
             setTagAdapter.notifyDataSetChanged();
             addTagEditText.setText("");
         }
@@ -146,7 +159,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
         setTagPopUpWindow.setTouchable(true);
         setTagPopUpWindow.setOutsideTouchable(true);
         setTagPopUpWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
-        ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
+        tagListView = (ListView)popView.findViewById(R.id.tag_listView);
         addOtherTagBtn = (Button)popView.findViewById(R.id.addOtherTagBtn);
         addOtherTagBtn.setOnClickListener(onClickListener);
         addTagEditText = (EditText)popView.findViewById(R.id.AddTagEditText);
@@ -154,17 +167,16 @@ public class CreateNewItemActivity extends AppCompatActivity {
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
         setTagAdapter = new SetTagAdapter(strings, this);
-        listView.setAdapter(setTagAdapter);
-        listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+        tagListView.setAdapter(setTagAdapter);
+        tagListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 SetTagAdapter.ViewHolder viewHolder = (SetTagAdapter.ViewHolder) view.getTag();
                 viewHolder.checkBox.toggle();
-                setTagAdapter.getIsSelected().put(position, viewHolder.checkBox.isChecked());
-//                tag_on_click_listener(position);
+                setTagAdapter.getIsSelectList().set(position, viewHolder.checkBox.isChecked());
             }
         });
-        listView.setOnItemLongClickListener(onItemLongClickListener);
+        tagListView.setOnItemLongClickListener(onItemLongClickListener);
         setTagPopUpWindow.showAsDropDown(v);
     }
 

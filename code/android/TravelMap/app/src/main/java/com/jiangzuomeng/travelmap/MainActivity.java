@@ -174,9 +174,7 @@ public class MainActivity extends AppCompatActivity {
         onItemLongClickListener = new ListView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                setTagAdapter.getIsSelected().remove(position);
-                setTagAdapter.getStrings().remove(position);
+                setTagAdapter.removeAt(position);
                 Log.v("wilbert", "remove isselect strings successfully");
                 setTagAdapter.notifyDataSetChanged();
 
@@ -188,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
     private void addOtherTag() {
         if(!addTagEditText.getText().toString().equals("")) {
             setTagAdapter.getStrings().add(addTagEditText.getText().toString());
-            setTagAdapter.getIsSelected().put(setTagAdapter.getStrings().size()-1, false);
+            setTagAdapter.getIsSelectList().add(setTagAdapter.getStrings().size() - 1, true);
             setTagAdapter.notifyDataSetChanged();
             addTagEditText.setText("");
         }
@@ -196,11 +194,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void set_tag_click(View v) {
         View popView = getLayoutInflater().inflate(R.layout.popup_set_tag, null);
-        setTagPopUpWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
-                ActionBar.LayoutParams.WRAP_CONTENT, true);
-        setTagPopUpWindow.setTouchable(true);
-        setTagPopUpWindow.setOutsideTouchable(true);
-        setTagPopUpWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(popView);
+        builder.setTitle("请选择筛选标签");
         ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
         List<String> strings = new ArrayList<>();
         addOtherTagBtn = (Button)popView.findViewById(R.id.addOtherTagBtn);
@@ -215,16 +211,18 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 SetTagAdapter.ViewHolder viewHolder = (SetTagAdapter.ViewHolder) view.getTag();
                 viewHolder.checkBox.toggle();
-                setTagAdapter.getIsSelected().put(position, viewHolder.checkBox.isChecked());
+                setTagAdapter.getIsSelectList().set(position, viewHolder.checkBox.isChecked());
 //                tag_on_click_listener(position);
             }
         });
         listView.setOnItemLongClickListener(onItemLongClickListener);
-        //setTagPopUpWindow.showAsDropDown(v);
-        int[] location = new int[2];
-        v.getLocationOnScreen(location);
-        setTagPopUpWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0,
-                location[1]-popView.getMeasuredHeight()- v.getMeasuredHeight() * 3 / 2);
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.show();
     }
 
     private void tag_on_click_listener(int position) {
@@ -287,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        SearchManager searchManager =
+/*        SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
                 (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -310,8 +308,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 return false;
             }
-        });
+        });*/
         return true;
     }
-
 }
