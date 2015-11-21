@@ -10,7 +10,8 @@ public class TravelItem {
     public int nextTravelItemId;
     public String[] label;
     public String time;
-    public String location;
+    public double locationLng;
+    public double locationLat;
     public int like;
     public String text;
     public String image;

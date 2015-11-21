@@ -10,4 +10,8 @@ public class Comment {
     public int fromWhosId;
     public String text;
     public String time;
+
+    public Comment() {
+
+    }
 }
