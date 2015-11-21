@@ -5,5 +5,5 @@
         android:id="@+id/action_confirm"
         android:title="@string/confirm"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_mood_black_24dp"/>
+        android:icon="@drawable/ic_done_white_24dp"/>
 </menu>

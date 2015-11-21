@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class SetTagAdapter extends BaseAdapter {
     private List<String> strings = new ArrayList<>();
-    private static HashMap<Integer, Boolean> isSelected;
+    private List<Boolean> isSelectList = new ArrayList<>();
     private Context context;
     private LayoutInflater layoutInflater = null;
 
@@ -27,14 +27,13 @@ public class SetTagAdapter extends BaseAdapter {
         strings = s;
         context = mContext;
         layoutInflater = LayoutInflater.from(context);
-        isSelected = new HashMap<Integer, Boolean>();
         initData();
         Log.v("wilbert", strings.size()+"");
     }
 
     private void initData() {
         for (int i = 0; i < strings.size(); i++) {
-            isSelected.put(i, false);
+            isSelectList.add(false);
         }
     }
 
@@ -67,13 +66,17 @@ public class SetTagAdapter extends BaseAdapter {
             Log.v("wilbert", "convertView != null");
         }
         viewHolder.checkBox.setText(strings.get(position));
-        viewHolder.checkBox.setChecked(isSelected.get(position));
+        viewHolder.checkBox.setChecked(isSelectList.get(position));
         return convertView;
     }
 
-    public HashMap<Integer, Boolean> getIsSelected() {
-        return  isSelected;
+    public List<Boolean> getIsSelectList() {return isSelectList;}
+    public void removeAt(int position) {
+        strings.remove(position);
+//        isSelected.remove(new Integer(position));
+        isSelectList.remove(position);
     }
+
     public final class ViewHolder {
         public CheckBox checkBox;
     }
