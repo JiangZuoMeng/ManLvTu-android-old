@@ -44,6 +44,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
     View.OnClickListener onClickListener;
     AdapterView.OnItemClickListener onItemClickListener;
     ImageView.OnLongClickListener onLongClickListener;
+    ListView.OnItemLongClickListener onItemLongClickListener;
     Spinner spinner;
     LinearLayout pictureLinearLayout;
     Uri fileUri;
@@ -118,6 +119,15 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 return true;
             }
         };
+        onItemLongClickListener = new ListView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                setTagAdapter.getIsSelected().remove(position);
+                setTagAdapter.getStrings().remove(position);
+                setTagAdapter.notifyDataSetChanged();
+                return true;
+            }
+        };
     }
 
     private void addOtherTag(View v) {
@@ -154,6 +164,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
 //                tag_on_click_listener(position);
             }
         });
+        listView.setOnItemLongClickListener(onItemLongClickListener);
         setTagPopUpWindow.showAsDropDown(v);
     }
 

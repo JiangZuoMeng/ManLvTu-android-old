@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             "遇见","美食","酒店"
     };
     ListView.OnItemClickListener onItemClickListener = null;
+    ListView.OnItemLongClickListener onItemLongClickListener;
     PopupWindow setTagPopUpWindow;
     TabLayout.OnTabSelectedListener onTabSelectedListener;
     ViewPager.SimpleOnPageChangeListener simpleOnPageChangeListener;
@@ -170,10 +171,22 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         };
+        onItemLongClickListener = new ListView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                setTagAdapter.getIsSelected().remove(position);
+                setTagAdapter.getStrings().remove(position);
+                Log.v("wilbert", "remove isselect strings successfully");
+                setTagAdapter.notifyDataSetChanged();
+
+                return true;
+            }
+        };
     }
 
     private void addOtherTag() {
-        if(!addTagEditText.getText().equals("")) {
+        if(!addTagEditText.getText().toString().equals("")) {
             setTagAdapter.getStrings().add(addTagEditText.getText().toString());
             setTagAdapter.getIsSelected().put(setTagAdapter.getStrings().size()-1, false);
             setTagAdapter.notifyDataSetChanged();
@@ -200,12 +213,13 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SetTagAdapter.ViewHolder viewHolder = (SetTagAdapter.ViewHolder)view.getTag();
+                SetTagAdapter.ViewHolder viewHolder = (SetTagAdapter.ViewHolder) view.getTag();
                 viewHolder.checkBox.toggle();
                 setTagAdapter.getIsSelected().put(position, viewHolder.checkBox.isChecked());
 //                tag_on_click_listener(position);
             }
         });
+        listView.setOnItemLongClickListener(onItemLongClickListener);
         //setTagPopUpWindow.showAsDropDown(v);
         int[] location = new int[2];
         v.getLocationOnScreen(location);
