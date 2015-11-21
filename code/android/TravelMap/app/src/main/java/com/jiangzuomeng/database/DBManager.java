@@ -23,14 +23,21 @@ public class DBManager {
         return user;
     }
 
-    public static List<Integer> queryTravelListByUserId(int Userid) {
+    public static List<Integer> queryTravelListIdByUserId(int Userid) {
         List<Integer> travelList = new ArrayList<>();
         //get the travel list by user id
 
         return  travelList;
     }
 
-    public static List<Integer> queryTravelItemListByTravelId(int Travelid) {
+    public static List<Travel> queryTravelListByUserId(int Userid) {
+        List<Travel> travelList = new ArrayList<>();
+        //get the travel list by user id
+
+        return  travelList;
+    }
+
+    public static List<Integer> queryTravelItemListIdByTravelId(int Travelid) {
         List<Integer> travelItemList = new ArrayList<>();
 
         return travelItemList;
@@ -47,7 +54,7 @@ public class DBManager {
         return comment;
     }
 
-    public static List<Integer> queryCommentListByTravelItemId(int TravelItemid) {
+    public static List<Integer> queryCommentListIdByTravelItemId(int TravelItemid) {
         List<Integer> commentList = new ArrayList<>();
 
         return commentList;
