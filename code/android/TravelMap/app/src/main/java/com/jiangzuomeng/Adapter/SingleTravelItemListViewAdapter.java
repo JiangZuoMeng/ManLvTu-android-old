@@ -12,6 +12,7 @@ import com.jiangzuomeng.travelmap.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,11 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         initData();
     }
 
+    public void setup(HashMap<String, Object> initialData) {
+        for (Map.Entry item : initialData.entrySet()) {
+            addItem(item.getKey(), item.getValue());
+        }
+    }
     public void addItem(Object imageId, Object description) {
         Map<String, Object> map = new HashMap<>();
         map.put("image", imageId);
