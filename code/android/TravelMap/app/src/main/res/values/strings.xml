@@ -85,6 +85,9 @@
     <string name="title_activity_album_viewer">AlbumViewerActivity</string>
     <string name="dialogTitle">请输入旅图的名称</string>
     <string name="confirm">确定</string>
+    <string name="createItemTextHint">这一刻的想法...</string>
+    <string name="addOthers">添加</string>
+    <string name="location">所在位置</string>
 
     <!-- String for single travel activity-->
     <string name="action_add_new_position">添加新的坐标点</string>

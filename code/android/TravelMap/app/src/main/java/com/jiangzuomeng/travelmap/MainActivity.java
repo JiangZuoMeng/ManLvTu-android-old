@@ -34,11 +34,13 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.Toast;
 import com.jiangzuomeng.Adapter.DrawerAdapter;
+import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.MyLayout.CustomViewPager;
 
 import java.util.ArrayList;
@@ -60,11 +62,15 @@ public class MainActivity extends AppCompatActivity {
             "遇见","美食","酒店"
     };
     ListView.OnItemClickListener onItemClickListener = null;
+    ListView.OnItemLongClickListener onItemLongClickListener;
     PopupWindow setTagPopUpWindow;
     TabLayout.OnTabSelectedListener onTabSelectedListener;
     ViewPager.SimpleOnPageChangeListener simpleOnPageChangeListener;
     Button.OnClickListener btnOnclickListener;
     Button.OnLongClickListener btnOnLongClickListener;
+    Button addOtherTagBtn;
+    EditText addTagEditText;
+    SetTagAdapter setTagAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.set_tag:
                         set_tag_click(v);
                         break;
+                    case R.id.addOtherTagBtn:
+                        addOtherTag();
                 }
             }
         };
@@ -163,6 +171,27 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         };
+        onItemLongClickListener = new ListView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                setTagAdapter.getIsSelected().remove(position);
+                setTagAdapter.getStrings().remove(position);
+                Log.v("wilbert", "remove isselect strings successfully");
+                setTagAdapter.notifyDataSetChanged();
+
+                return true;
+            }
+        };
+    }
+
+    private void addOtherTag() {
+        if(!addTagEditText.getText().toString().equals("")) {
+            setTagAdapter.getStrings().add(addTagEditText.getText().toString());
+            setTagAdapter.getIsSelected().put(setTagAdapter.getStrings().size()-1, false);
+            setTagAdapter.notifyDataSetChanged();
+            addTagEditText.setText("");
+        }
     }
 
     private void set_tag_click(View v) {
@@ -173,13 +202,24 @@ public class MainActivity extends AppCompatActivity {
         setTagPopUpWindow.setOutsideTouchable(true);
         setTagPopUpWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
-        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.item_single_text, strs));
+        List<String> strings = new ArrayList<>();
+        addOtherTagBtn = (Button)popView.findViewById(R.id.addOtherTagBtn);
+        addOtherTagBtn.setOnClickListener(btnOnclickListener);
+        addTagEditText = (EditText)popView.findViewById(R.id.AddTagEditText);
+        for (int i = 0; i < 5; i++)
+        strings.add(Integer.toString(i));
+        setTagAdapter = new SetTagAdapter(strings, this);
+        listView.setAdapter(setTagAdapter);
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                tag_on_click_listener(position);
+                SetTagAdapter.ViewHolder viewHolder = (SetTagAdapter.ViewHolder) view.getTag();
+                viewHolder.checkBox.toggle();
+                setTagAdapter.getIsSelected().put(position, viewHolder.checkBox.isChecked());
+//                tag_on_click_listener(position);
             }
         });
+        listView.setOnItemLongClickListener(onItemLongClickListener);
         //setTagPopUpWindow.showAsDropDown(v);
         int[] location = new int[2];
         v.getLocationOnScreen(location);
@@ -217,35 +257,18 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
+                    state = State.OnTrip;
                 }
             });
             builder.show();
-/*
-        final PopupWindow popupWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
-                                                        ActionBar.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setTouchable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
-        Button button = (Button)popView.findViewById(R.id.start_trip_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupWindow.dismiss();
-                //fab.setBackgroundResource(R.mipmap.ic_camera_enhance_black_48dp);
-                fab.setBackground(getResources().getDrawable(R.mipmap.ic_camera_enhance_black_48dp));
-                state = State.OnTrip;
-            }
-        });
-//        popupWindow.showAsDropDown(view, 0, 0, Gravity.TOP|Gravity.CENTER);
-        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-*/
         }
         else {
             //// TODO: 2015/10/27 camera
             Toast toast = Toast.makeText(getApplicationContext(), "start the camera", Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
+            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
             toast.show();
+            Intent intent = new Intent(this, CreateNewItemActivity.class);
+            startActivity(intent);
         }
 
     }
