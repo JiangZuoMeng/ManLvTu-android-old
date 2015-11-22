@@ -25,6 +25,7 @@ import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.Polyline;
 import com.amap.api.maps2d.model.PolylineOptions;
 import com.jiangzuomeng.Adapter.SingleTravelItemListViewAdapter;
+import com.jiangzuomeng.dataManager.DataManager;
 
 import java.util.ArrayList;
 
@@ -74,7 +75,9 @@ public class SingleTravelActivity
         listView_drawer.setOnItemLongClickListener(this);
         listView_drawer.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
-        Intent intent = getIntent();
+        Integer travelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
+        singleTravelItemAdapter.setup(DataManager.getInstance(getApplicationContext())
+                .queryTravelItemListByTravelId(travelId));
         listView_drawer.setAdapter(singleTravelItemAdapter);
         initPopupWindow();
 

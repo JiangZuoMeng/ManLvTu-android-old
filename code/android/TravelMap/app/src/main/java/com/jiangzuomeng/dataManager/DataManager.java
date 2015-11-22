@@ -35,14 +35,32 @@ public class DataManager {
     public long addNewTravel(Travel travel) {
         return dbManager.addNewTravel(travel);
     }
-
-    public long addNewTravel(TravelItem travelItem) {
+    public long addNewTravelItem(TravelItem travelItem) {
         return dbManager.addNewTravelItem(travelItem);
+    }
+    public long addNewUser(User user) {
+        return dbManager.addNewUser(user);
+    }
+    public long addNewComment(Comment comment) {
+        return dbManager.addNewComment(comment);
     }
 
     public User queryUserByUserName(String userName) {
         User user = dbManager.queryUserByUsername(userName);
         return user;
+    }
+    public Travel queryTravelByTravelId(int travelId) {
+        return dbManager.queryTravelByTravelId(travelId);
+    }
+    public TravelItem queryTravelItemByTravelItemId(int travelItemid) {
+        TravelItem travelItem = dbManager.queryTravelItemByTravelItemId(travelItemid);
+
+        return travelItem;
+    }
+    public Comment queryCommentByCommentId(int commentid) {
+        Comment comment = dbManager.queryCommentByCommentId(commentid);
+
+        return comment;
     }
     public List<Integer> queryTravelIdListByUserId(int userId) {
         List<Integer> travelList = dbManager.queryTravelIdListByUserId(userId);
@@ -50,38 +68,28 @@ public class DataManager {
 
         return travelList;
     }
+    public List<Integer> queryTravelItemIdListByTravelId(int travelid) {
+        List<Integer> travelItemIdList = dbManager.queryTravelItemIdListByTravelId(travelid);
 
+        return travelItemIdList;
+    }
+    public List<Integer> queryCommentIdListByTravelItemId(int travelItemid) {
+        List<Integer> commentList = dbManager.queryCommentIdListByTravelItemId(travelItemid);
+
+        return commentList;
+    }
     public List<Travel> queryTravelListByUserId(int userId) {
         List<Travel> travelList = dbManager.queryTravelListByUserId(userId);
         //get the travel list by user id
 
         return  travelList;
     }
-
-
-    public List<Integer> queryTravelItemIdListByTravelId(int travelid) {
-        List<Integer> travelItemIdList = dbManager.queryTravelItemIdListByTravelId(travelid);
-
-        return travelItemIdList;
+    public List<TravelItem> queryTravelItemListByTravelId(int travelId) {
+        return dbManager.queryTravelItemListByTravelId(travelId);
     }
-    public TravelItem queryTravelItemByTravelItemId(int travelItemid) {
-        TravelItem travelItem = dbManager.queryTravelItemByTravelItemId(travelItemid);
-
-        return travelItem;
+    public List<Comment> queryCommentListByTravelItemId(int travelItemId) {
+        return dbManager.queryCommentListByTravelItemId(travelItemId);
     }
-
-    public Comment queryCommentByCommentId(int commentid) {
-        Comment comment = dbManager.queryCommentByCommentId(commentid);
-
-        return comment;
-    }
-
-    public List<Integer> queryCommentListIdByTravelItemId(int travelItemid) {
-        List<Integer> commentList = dbManager.queryCommentIdListByTravelItemId(travelItemid);
-
-        return commentList;
-    }
-
     public int queryLikeNumByTravelItemId(int TravelItemid) {
         int likeNum = 0;
 
