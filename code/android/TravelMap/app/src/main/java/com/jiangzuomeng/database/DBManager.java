@@ -48,25 +48,17 @@ public class DBManager {
         ContentValues values = travel.makeInsertSQLContentValues();
         return database.insert(Travel.TRAVEL_TABLE_NAME, null, values);
     }
-
     public long addNewTravelItem(TravelItem travelItem) {
         ContentValues values = travelItem.makeInsertSQLContentValues();
         return database.insert(TravelItem.TRAVEL_ITEM_TABLE_NAME, null, values);
     }
-
     public long addNewComment(Comment comment) {
         ContentValues values = comment.makeInsertSQLContentValues();
         return database.insert(Comment.COMMENT_TABLE_NAME, null, values);
     }
 
     public User queryUserById(int userId) {
-
-        String[] projection = {
-                "id",
-                "username",
-                "password",
-        };
-        Cursor cursor = database.query(User.USER_TABLE_NAME, projection,
+        Cursor cursor = database.query(User.USER_TABLE_NAME, null,
                 "WHERE id = " + String.valueOf(userId), null, null, null, null);
 
         if (cursor.getCount() < 1)
@@ -77,14 +69,8 @@ public class DBManager {
         cursor.close();
         return user;
     }
-
     public User queryUserByUsername(String username) {
-        String[] projection = {
-                "id",
-                "username",
-                "password",
-        };
-        Cursor cursor = database.query(User.USER_TABLE_NAME, projection,
+        Cursor cursor = database.query(User.USER_TABLE_NAME, null,
                 "username = ?", new String[] {username}, null, null, null);
 
         if (cursor.getCount() < 1)
@@ -95,37 +81,100 @@ public class DBManager {
         cursor.close();
         return user;
     }
+    public Travel queryTravelByTravelId(int travelId) {
+        Cursor cursor = database.query(Travel.TRAVEL_TABLE_NAME, null,
+                "id = ?", new String[] {String.valueOf(travelId)}, null, null, null);
 
-    public List<Integer> queryTravelListByUserId(int Userid) {
-        List<Integer> travelList = new ArrayList<>();
-        //get the travel list by user id
+        if (cursor.getCount() < 1)
+            return null;
 
-        return travelList;
+        cursor.moveToFirst();
+        Travel travel = new Travel();
+        travel.id = cursor.getInt(cursor.getColumnIndex("id"));
+        travel.userId = cursor.getInt(cursor.getColumnIndex("userId"));
+        travel.name = cursor.getString(cursor.getColumnIndex("name"));
+        cursor.close();
+        return travel;
     }
+    public TravelItem queryTravelItemByTravelItemId(int travelItemId) {
+        Cursor cursor = database.query(TravelItem.TRAVEL_ITEM_TABLE_NAME, null,
+                "id = ?", new String[] {String.valueOf(travelItemId)}, null, null, null);
 
-    public List<Integer> queryTravelItemListByTravelId(int Travelid) {
-        List<Integer> travelItemList = new ArrayList<>();
+        if (cursor.getCount() < 1)
+            return null;
 
-        return travelItemList;
-    }
-    public TravelItem queryTravelItemByTravelItemId(int TravelItemid) {
-        TravelItem travelItem = null;
-
+        cursor.moveToFirst();
+        TravelItem travelItem = new TravelItem();
+        travelItem.id = cursor.getInt(cursor.getColumnIndex("id"));
+        travelItem.travelId = cursor.getInt(cursor.getColumnIndex("travelId"));
+        travelItem.label = cursor.getString(cursor.getColumnIndex("label"));
+        travelItem.like = cursor.getInt(cursor.getColumnIndex("like"));
+        travelItem.locationLat = cursor.getDouble(cursor.getColumnIndex("locationLat"));
+        travelItem.locationLng = cursor.getDouble(cursor.getColumnIndex("locationLng"));
+        travelItem.text = cursor.getString(cursor.getColumnIndex("text"));
+        travelItem.media = cursor.getString(cursor.getColumnIndex("media"));
+        travelItem.time = cursor.getString(cursor.getColumnIndex("time"));
+        cursor.close();
         return travelItem;
     }
+    public Comment queryCommentByCommentId(int commentId) {
+        Cursor cursor = database.query(Comment.COMMENT_TABLE_NAME, null,
+                "id = ?", new String[] {String.valueOf(commentId)}, null, null, null);
 
-    public Comment queryCommentByCommentId(int Commentid) {
-        Comment comment = null;
+        if (cursor.getCount() < 1)
+            return null;
 
+        cursor.moveToFirst();
+        Comment comment = new Comment();
+        comment.id = cursor.getInt(cursor.getColumnIndex("id"));
+        comment.travelItemId = cursor.getInt(cursor.getColumnIndex("travelItemId"));
+        comment.userId = cursor.getInt(cursor.getColumnIndex("userId"));
+        comment.text = cursor.getString(cursor.getColumnIndex("text"));
+        cursor.close();
         return comment;
     }
+    public List<Integer> queryTravelIdListByUserId(int userId) {
+        List<Integer> travelIdList = new ArrayList<>();
 
-    public List<Integer> queryCommentListByTravelItemId(int TravelItemid) {
-        List<Integer> commentList = new ArrayList<>();
+        Cursor cursor = database.query(Travel.TRAVEL_TABLE_NAME, new String[]{"id"},
+                "userId = ?", new String[]{String.valueOf(userId)}, null, null, null);
 
-        return commentList;
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            travelIdList.add(cursor.getInt(cursor.getColumnIndex("id")));
+            cursor.moveToNext();
+        }
+
+        return travelIdList;
     }
+    public List<Integer> queryTravelItemIdListByTravelId(int travelId) {
+        List<Integer> travelItemIdList = new ArrayList<>();
 
+        Cursor cursor = database.query(TravelItem.TRAVEL_ITEM_TABLE_NAME, new String[]{"id"},
+                "travelId = ?", new String[]{String.valueOf(travelId)}, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            travelItemIdList.add(cursor.getInt(cursor.getColumnIndex("id")));
+            cursor.moveToNext();
+        }
+
+        return travelItemIdList;
+    }
+    public List<Integer> queryCommentIdListByTravelItemId(int travelItemId) {
+        List<Integer> commentIdList = new ArrayList<>();
+
+        Cursor cursor = database.query(Comment.COMMENT_TABLE_NAME, new String[]{"id"},
+                "travelItemId = ?", new String[]{String.valueOf(travelItemId)}, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            commentIdList.add(cursor.getInt(cursor.getColumnIndex("id")));
+            cursor.moveToNext();
+        }
+
+        return commentIdList;
+    }
     public int queryLikeNumByTravelItemId(int TravelItemid) {
         int likeNum = 0;
 

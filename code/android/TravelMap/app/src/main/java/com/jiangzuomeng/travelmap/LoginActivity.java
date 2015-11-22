@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -320,16 +321,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             if (user == null) {
                 userExist = false;
+
+                // register new user if user not exist
                 if (dbManager.addNewUser(new User(0, mUsername, mPassword)) >= 0) {
                     return true;
                 }
                 return false;
             }
-
             if (user.password.equals(mPassword))
                 return true;
 
-            // TODO: register the new account here.
             dbManager.closeDB();
             return false;
         }

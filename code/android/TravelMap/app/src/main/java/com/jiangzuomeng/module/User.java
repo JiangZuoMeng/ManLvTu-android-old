@@ -35,7 +35,7 @@ public class User implements ManLvTuSQLDataType {
     }
 
 
-    public String makeQueryByUsernameSQLString() {
+    public static String queryByUsernameSQLString() {
         return null;
     }
 
