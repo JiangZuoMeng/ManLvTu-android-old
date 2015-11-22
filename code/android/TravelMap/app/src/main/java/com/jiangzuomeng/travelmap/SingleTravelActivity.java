@@ -33,6 +33,7 @@ public class SingleTravelActivity
         implements AMap.OnMapClickListener, AdapterView.OnItemLongClickListener
         ,AdapterView.OnItemClickListener, AMap.OnMarkerDragListener {
 
+    public static final String INTENT_TRAVEL_KEY = "travelId";
     private MapView mapView;
     private AMap aMap;
     private Polyline polyline;
@@ -73,6 +74,7 @@ public class SingleTravelActivity
         listView_drawer.setOnItemLongClickListener(this);
         listView_drawer.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
+        Intent intent = getIntent();
         listView_drawer.setAdapter(singleTravelItemAdapter);
         initPopupWindow();
 
