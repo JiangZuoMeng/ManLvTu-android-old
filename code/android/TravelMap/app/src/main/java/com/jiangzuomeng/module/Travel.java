@@ -24,7 +24,10 @@ public class Travel implements ManLvTuSQLDataType {
 
     @Override
     public ContentValues makeInsertSQLContentValues() {
-        return null;
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("userId", this.userId);
+        contentValues.put("name", this.name);
+        return contentValues;
     }
 
     public static String makeCreateTableSQLString() {
