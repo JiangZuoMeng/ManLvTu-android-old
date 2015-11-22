@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.net.Uri;
@@ -69,6 +70,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
     ListView tagListView;
 
     DataManager dataManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +112,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 switch (position) {
                     case 0:
                         //start camera
-                        Uri fileUri = getOutImageFileUri();
+                        fileUri = getOutImageFileUri();
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
                         startActivityForResult(intent, CAMERA);
@@ -249,18 +251,21 @@ public class CreateNewItemActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode  == CAMERA) {
             if(resultCode == RESULT_OK) {
-                Bundle bundle = data.getExtras();
-                Bitmap bitmap = (Bitmap)bundle.get("data");
-                ImageView imageView = new ImageView(this);
-                Resources resources = getResources();
-                DisplayMetrics displayMetrics = resources.getDisplayMetrics();
-                float px = 90 * (displayMetrics.densityDpi / 160f);
-                imageView.setLayoutParams(new LinearLayout.LayoutParams((int)px, (int)px));
-                imageView.setImageBitmap(bitmap);
-                imageView.setPadding(5, 5, 5, 5);
-                imageView.setId(ID_START+imageIds.size()+1);
-                pictureLinearLayout.addView(imageView);
-                imageView.setOnLongClickListener(onLongClickListener);
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
+                    ImageView imageView = new ImageView(this);
+                    Resources resources = getResources();
+                    DisplayMetrics displayMetrics = resources.getDisplayMetrics();
+                    float px = 90 * (displayMetrics.densityDpi / 160f);
+                    imageView.setLayoutParams(new LinearLayout.LayoutParams((int)px, (int)px));
+                    imageView.setImageBitmap(bitmap);
+                    imageView.setPadding(5, 5, 5, 5);
+                    imageView.setId(ID_START+imageIds.size()+1);
+                    pictureLinearLayout.addView(imageView);
+                    imageView.setOnLongClickListener(onLongClickListener);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
