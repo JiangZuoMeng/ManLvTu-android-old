@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.module.TravelItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,6 @@ public class CreateNewItemActivity extends AppCompatActivity {
     AdapterView.OnItemClickListener onItemClickListener;
     ImageView.OnLongClickListener onLongClickListener;
     ListView.OnItemLongClickListener onItemLongClickListener;
-    Spinner spinner;
     LinearLayout pictureLinearLayout;
     Uri fileUri;
     AlertDialog.Builder builder;
@@ -68,24 +68,41 @@ public class CreateNewItemActivity extends AppCompatActivity {
     String tagTemp;
     EditText addTagEditText;
     ListView tagListView;
+    EditText itemTextEditText;
 
+    Double locationLng;
+    Double locationLat;
     DataManager dataManager;
-
+    List<String> imageStringList;
+    List<String> labelStringList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_item);
 
         dataManager = DataManager.getInstance(getApplication());
-
+        imageStringList = new ArrayList<>();
+        labelStringList = new ArrayList<>();
         initMyListener();
+        initMyAdapter();
         image = (ImageView)findViewById(R.id.Select_image);
         image.setOnClickListener(onClickListener);
         pictureLinearLayout = (LinearLayout)findViewById(R.id.createItemPictureLinearLayout);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        itemTextEditText = (EditText)findViewById(R.id.ItemTexteditText);
         setTagBtn = (Button)findViewById(R.id.set_Tag_Btn);
         setTagBtn.setOnClickListener(onClickListener);
+
+        Bundle bundle = getIntent().getExtras();
+        locationLat = bundle.getDouble(MainActivity.LOCATION_LAT_KEY);
+        locationLng = bundle.getDouble(MainActivity.LOCATION_LNG_KEY);
+    }
+
+    private void initMyAdapter() {
+        List<String> strings = new ArrayList<>();
+        for (int i = 0; i < 5; i++)
+            strings.add(Integer.toString(i));
+        setTagAdapter = new SetTagAdapter(strings, this);
     }
 
     private void initMyListener() {
@@ -198,10 +215,6 @@ public class CreateNewItemActivity extends AppCompatActivity {
         addOtherTagBtn = (Button)popView.findViewById(R.id.addOtherTagBtn);
         addOtherTagBtn.setOnClickListener(onClickListener);
         addTagEditText = (EditText)popView.findViewById(R.id.AddTagEditText);
-        List<String> strings = new ArrayList<>();
-        for (int i = 0; i < 5; i++)
-            strings.add(Integer.toString(i));
-        setTagAdapter = new SetTagAdapter(strings, this);
         tagListView.setAdapter(setTagAdapter);
         tagListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
@@ -223,7 +236,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
         ListView listView = (ListView)popView.findViewById(R.id.camera_select_listview);
         builder.setView(popView);
         String string[] = new String[] {"拍照", "选择照片"};
-        listView.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, string));
+        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, string));
         listView.setOnItemClickListener(onItemClickListener);
         dialog = builder.show();
     }
@@ -235,10 +248,44 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.action_confirm:
+                String editText = itemTextEditText.getText().toString();
+                String imageString = null;
+                if (imageStringList.size() > 0)
+                    imageString = imageStringList.get(0).toString();
+                for (int i = 1; i < imageStringList.size(); i++) {
+                    imageString = ";"+imageStringList.get(i).toString();
+                }
+                labelStringList = getLabelStringList();
+                String labelString = null;
+                if (labelStringList.size() > 0)
+                    labelString = labelStringList.get(0).toString();
+                for (int i = 1; i < labelStringList.size(); i++) {
+                    labelString = ";" + labelStringList.get(i).toString();
+                }
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                TravelItem travelItem = new TravelItem();
+                travelItem.text = editText;
+                travelItem.label = labelString;
+                travelItem.locationLat = locationLat;
+                travelItem.locationLng = locationLng;
+                travelItem.media = imageString;
+                travelItem.time = timeStamp;
+                long temp = dataManager.addNewTravel(travelItem);
                 finish();
                 break;
         }
         return true;
+    }
+
+    private List<String> getLabelStringList() {
+        List<String> tagString = new ArrayList<>();
+        for (int i = 0; i < setTagAdapter.getIsSelectList().size() && i < setTagAdapter
+                .getStrings().size(); i++) {
+            if (setTagAdapter.getIsSelectList().get(i)) {
+                tagString.add(setTagAdapter.getStrings().get(i));
+            }
+        }
+        return tagString;
     }
 
     @Override
@@ -252,6 +299,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
         if (requestCode  == CAMERA) {
             if(resultCode == RESULT_OK) {
                 try {
+                    imageStringList.add(fileUri.toString());
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
                     ImageView imageView = new ImageView(this);
                     Resources resources = getResources();
@@ -271,6 +319,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
             Uri uri = data.getData();
             try {
+                imageStringList.add(uri.toString());
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 Resources resources = getResources();
                 DisplayMetrics displayMetrics = resources.getDisplayMetrics();
