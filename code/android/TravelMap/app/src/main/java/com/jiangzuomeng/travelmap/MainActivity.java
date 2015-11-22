@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     DrawerAdapter drawerAdapter;
 
     DataManager dataManager;
+    List<Travel> travelList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     }
 
     private void initMyAdapter() {
-        List<Travel> travelList = dataManager.queryTravelListByUserId(userId);
+        travelList = dataManager.queryTravelListByUserId(userId);
         List<Uri> uriList = new ArrayList<>();
         List<String> nameList = new ArrayList<>();
         for (Travel travel : travelList) {
@@ -148,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this,SingleTravelActivity.class);
+                intent.putExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, travelList.get(position).id);
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 startActivity(intent);
