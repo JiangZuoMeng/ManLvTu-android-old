@@ -320,7 +320,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             if (user == null) {
                 userExist = false;
-                if (dbManager.addNewUser(new User(0, mUsername, mPassword, -1)) >= 0) {
+                if (dbManager.addNewUser(new User(0, mUsername, mPassword)) >= 0) {
                     return true;
                 }
                 return false;

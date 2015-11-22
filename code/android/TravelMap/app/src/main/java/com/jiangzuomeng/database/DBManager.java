@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jiangzuomeng.module.Comment;
+import com.jiangzuomeng.module.ManLvTuSQLDataType;
 import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.module.TravelItem;
 import com.jiangzuomeng.module.User;
@@ -25,8 +26,6 @@ public class DBManager {
         user.id = cursor.getInt(cursor.getColumnIndex("id"));
         user.username = cursor.getString(cursor.getColumnIndex("username"));
         user.password = cursor.getString(cursor.getColumnIndex("password"));
-        user.firstTravelId = cursor.getInt(cursor.getColumnIndex("firstTravelId"));
-
         return user;
     }
 
@@ -42,18 +41,22 @@ public class DBManager {
     }
 
     public long addNewUser(User user) {
-        ContentValues values = new ContentValues();
-        values.put("username", user.username);
-        values.put("password", user.password);
-        values.put("firstTravelId", user.firstTravelId);
-        return database.insert(DBHelper.USER_TABLE_NAME, null, values);
+        ContentValues values = user.makeInsertSQLContentValues();
+        return database.insert(User.USER_TABLE_NAME, null, values);
     }
     public long addNewTravel(Travel travel) {
-        return 0;
+        ContentValues values = travel.makeInsertSQLContentValues();
+        return database.insert(Travel.TRAVEL_TABLE_NAME, null, values);
     }
 
-    public long addNewTravel(TravelItem travelItem) {
-        return 0;
+    public long addNewTravelItem(TravelItem travelItem) {
+        ContentValues values = travelItem.makeInsertSQLContentValues();
+        return database.insert(TravelItem.TRAVEL_ITEM_TABLE_NAME, null, values);
+    }
+
+    public long addNewComment(Comment comment) {
+        ContentValues values = comment.makeInsertSQLContentValues();
+        return database.insert(Comment.COMMENT_TABLE_NAME, null, values);
     }
 
     public User queryUserById(int userId) {
@@ -62,9 +65,8 @@ public class DBManager {
                 "id",
                 "username",
                 "password",
-                "firstTravelId",
         };
-        Cursor cursor = database.query(DBHelper.USER_TABLE_NAME, projection,
+        Cursor cursor = database.query(User.USER_TABLE_NAME, projection,
                 "WHERE id = " + String.valueOf(userId), null, null, null, null);
 
         if (cursor.getCount() < 1)
@@ -81,9 +83,8 @@ public class DBManager {
                 "id",
                 "username",
                 "password",
-                "firstTravelId",
         };
-        Cursor cursor = database.query(DBHelper.USER_TABLE_NAME, projection,
+        Cursor cursor = database.query(User.USER_TABLE_NAME, projection,
                 "username = ?", new String[] {username}, null, null, null);
 
         if (cursor.getCount() < 1)
