@@ -32,8 +32,16 @@ public class DataManager {
         netWorkManager = new NetWorkManager();
     }
 
+    public long addNewTravel(Travel travel) {
+        return dbManager.addNewTravel(travel);
+    }
+
+    public long addNewTravel(TravelItem travelItem) {
+        return dbManager.addNewTravelItem(travelItem);
+    }
+
     public User queryUserByUserName(String userName) {
-        User user = null;
+        User user = dbManager.queryUserByUsername(userName);
         return user;
     }
     public List<Integer> queryTravelIdListByUserId(int userId) {

@@ -52,7 +52,7 @@ public class DBManager {
         return 0;
     }
 
-    public long addNewTravel(TravelItem travelItem) {
+    public long addNewTravelItem(TravelItem travelItem) {
         return 0;
     }
 

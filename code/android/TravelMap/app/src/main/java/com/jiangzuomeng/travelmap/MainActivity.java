@@ -1,6 +1,7 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,10 +26,15 @@ import android.widget.Toast;
 import com.jiangzuomeng.Adapter.DrawerAdapter;
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.MyLayout.CustomViewPager;
+import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.database.DBManager;
 import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.module.TravelItem;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +42,7 @@ enum State{
         OnTrip,NotOnTrip
         }
 public class MainActivity extends AppCompatActivity {
+    public static final int TRAVEL_ITEM_REQUEST_CODE = 234212;
 
     int userId;
     String userName;
@@ -62,17 +69,18 @@ public class MainActivity extends AppCompatActivity {
 
     DrawerAdapter drawerAdapter;
 
+    DataManager dataManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        dataManager = DataManager.getInstance(getApplication());
         state = State.NotOnTrip;
         userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
-
+        userId = dataManager.queryUserByUserName(userName).id;
         initMyListener();
         initMyAdapter();
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
@@ -254,15 +262,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     state = State.OnTrip;
+                    /*Travel travel = new Travel();
+                    dataManager.addNewTravel(travel);*/
                 }
             });
             builder.show();
         }
         else {
             //// TODO: 2015/10/27 camera
-            Toast toast = Toast.makeText(getApplicationContext(), "start the camera", Toast.LENGTH_LONG);
+            /*Toast toast = Toast.makeText(getApplicationContext(), "start the camera", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
-            toast.show();
+            toast.show();*/
             Intent intent = new Intent(this, CreateNewItemActivity.class);
             startActivity(intent);
         }
@@ -285,5 +295,8 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+    }
 }

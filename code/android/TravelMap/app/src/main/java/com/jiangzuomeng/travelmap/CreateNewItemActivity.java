@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,11 +30,16 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.jiangzuomeng.Adapter.SetTagAdapter;
+import com.jiangzuomeng.dataManager.DataManager;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -41,6 +47,8 @@ public class CreateNewItemActivity extends AppCompatActivity {
     private static final int CAMERA = 1000;
     private static final int PICK_IMAGE_REQUEST = 1234;
     private static  final int ID_START = 234;
+    public static final int TRAVEL_ITEM_RESULT_SUCCESS_CODE = 4354;
+    public static  final int TRAVEL_ITEM_RESULT_FAIL_CODE = 4355;
     ImageView image;
     View.OnClickListener onClickListener;
     AdapterView.OnItemClickListener onItemClickListener;
@@ -59,10 +67,15 @@ public class CreateNewItemActivity extends AppCompatActivity {
     String tagTemp;
     EditText addTagEditText;
     ListView tagListView;
+
+    DataManager dataManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_item);
+
+        dataManager = DataManager.getInstance(getApplication());
+
         initMyListener();
         image = (ImageView)findViewById(R.id.Select_image);
         image.setOnClickListener(onClickListener);
@@ -97,7 +110,9 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 switch (position) {
                     case 0:
                         //start camera
+                        Uri fileUri = getOutImageFileUri();
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
                         startActivityForResult(intent, CAMERA);
                         dialog.dismiss();
                         break;
@@ -118,7 +133,6 @@ public class CreateNewItemActivity extends AppCompatActivity {
             @Override
             public boolean onLongClick(View v) {
                 pictureLinearLayout.removeView(v);
-                Bundle bundle = new Bundle();
                 return true;
             }
         };
@@ -141,6 +155,25 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 return true;
             }
         };
+    }
+
+    private Uri getOutImageFileUri() {
+        return Uri.fromFile(getOutputImageFile());
+    }
+
+    private File getOutputImageFile() {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "TravelMap");
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaFile;
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                "IMG_"+ timeStamp + ".jpg");
+        return mediaFile;
     }
 
     private void addOtherTag(View v) {
@@ -249,6 +282,5 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
     }
 }
