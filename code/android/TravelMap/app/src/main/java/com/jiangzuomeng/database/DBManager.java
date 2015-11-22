@@ -229,4 +229,21 @@ public class DBManager {
     public int removeCommentByCommentId(int commentId) {
         return database.delete(Comment.COMMENT_TABLE_NAME, "id = ?", new String[] {String.valueOf(commentId)});
     }
+
+    public int updateComment(Comment comment) {
+        return database.update(Comment.COMMENT_TABLE_NAME, comment.makeInsertSQLContentValues(),
+                "id = ?", new String[]{String.valueOf(comment.id)});
+    }
+    public int updateTravelItem(TravelItem travelItem) {
+        return database.update(TravelItem.TRAVEL_ITEM_TABLE_NAME, travelItem.makeInsertSQLContentValues(),
+                "id = ?", new String[] {String.valueOf(travelItem.id)});
+    }
+    public int updateTravel(Travel travel) {
+        return database.update(Travel.TRAVEL_TABLE_NAME, travel.makeInsertSQLContentValues(),
+                "id = ?", new String[] {String.valueOf(travel.id)});
+    }
+    public int updateUser(User user) {
+        return database.update(User.USER_TABLE_NAME, user.makeInsertSQLContentValues(),
+                "id = ?", new String[] {String.valueOf(user.id)});
+    }
 }

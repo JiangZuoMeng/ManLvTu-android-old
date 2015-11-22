@@ -79,8 +79,8 @@ public class SingleTravelActivity
         listView_drawer.setOnItemLongClickListener(this);
         listView_drawer.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
-        /*currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);*/
-        currentTravelId = 0;
+        currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
+        /*currentTravelId = 0;*/
         initPopupWindow();
 
         // setup map
@@ -105,7 +105,7 @@ public class SingleTravelActivity
         aMap.clear();
         for (TravelItem travelItem : travelItemList) {
             LatLng latLng= new LatLng(travelItem.locationLat, travelItem.locationLng);
-            addMarker(new MarkerOptions().position(latLng));
+            addMarker(new MarkerOptions().position(latLng).draggable(true));
         }
         linkMarkersOfMap();
     }
@@ -207,7 +207,7 @@ public class SingleTravelActivity
                 travelItem.text = getResources().getString(R.string.single_travel_default_list_view_item_description);
                 travelItem.locationLng = aMap.getCameraPosition().target.longitude;
                 travelItem.locationLat = aMap.getCameraPosition().target.latitude;
-                long result = DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
+                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
                 initData();
                 break;
             case R.id.action_lock_map:
@@ -241,6 +241,10 @@ public class SingleTravelActivity
     }
     @Override
     public void onMarkerDragEnd(Marker marker) {
+        TravelItem targetTravelItem = travelItemList.get(markers.indexOf(marker));
 
+        DataManager.getInstance(getApplicationContext()).updateTravelItem(targetTravelItem);
+
+        initData();
     }
 }
