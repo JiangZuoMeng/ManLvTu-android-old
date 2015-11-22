@@ -48,6 +48,13 @@ public class DBManager {
         values.put("firstTravelId", user.firstTravelId);
         return database.insert(DBHelper.USER_TABLE_NAME, null, values);
     }
+    public long addNewTravel(Travel travel) {
+        return 0;
+    }
+
+    public long addNewTravel(TravelItem travelItem) {
+        return 0;
+    }
 
     public User queryUserById(int userId) {
 

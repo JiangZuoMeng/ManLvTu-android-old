@@ -29,7 +29,6 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
     public SingleTravelItemListViewAdapter(Context c) {
         data = new ArrayList<>();
         context = c;
-        initData();
     }
 
     public void setup(HashMap<String, Object> initialData) {
@@ -45,25 +44,6 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
     }
     public void removeItem(int index) {
         data.remove(index);
-    }
-
-    private void initData() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("image", R.drawable.test2_show);
-        map.put("title", "长隆");
-        data.add(map);
-        map = new HashMap<>();
-        map.put("image",R.drawable.test3_show);
-        map.put("title", "XX两日游");
-        data.add(map);
-        map = new HashMap<>();
-        map.put("image", R.drawable.test4_show);
-        map.put("title", "广州");
-        data.add(map);
-        map = new HashMap<>();
-        map.put("image",R.drawable.test1_show);
-        map.put("title", "XX");
-        data.add(map);
     }
 
     @Override
