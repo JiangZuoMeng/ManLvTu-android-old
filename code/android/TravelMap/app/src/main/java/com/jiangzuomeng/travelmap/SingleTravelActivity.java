@@ -103,6 +103,7 @@ public class SingleTravelActivity
         listView_drawer.setAdapter(singleTravelItemAdapter);
 
         aMap.clear();
+        markers.clear();
         for (TravelItem travelItem : travelItemList) {
             LatLng latLng= new LatLng(travelItem.locationLat, travelItem.locationLng);
             addMarker(new MarkerOptions().position(latLng).draggable(true));
@@ -242,6 +243,9 @@ public class SingleTravelActivity
     @Override
     public void onMarkerDragEnd(Marker marker) {
         TravelItem targetTravelItem = travelItemList.get(markers.indexOf(marker));
+
+        targetTravelItem.locationLat = marker.getPosition().latitude;
+        targetTravelItem.locationLng = marker.getPosition().longitude;
 
         DataManager.getInstance(getApplicationContext()).updateTravelItem(targetTravelItem);
 
