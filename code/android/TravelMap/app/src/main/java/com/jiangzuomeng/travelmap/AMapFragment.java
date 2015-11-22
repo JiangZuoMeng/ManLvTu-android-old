@@ -1,6 +1,7 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -61,6 +62,12 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     }
     private ShowPictureAdapter showPictureAdapter;
     HorizontalScrollView horizontalScrollView;
+
+    public interface MainActivityListener {
+        public void notifyLocation(double locationLng, double locationLat);
+    }
+    MainActivityListener mainActivityListener;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_amap, container, false);
@@ -149,6 +156,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 /*            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin_drop_black_24dp))
                     .title("my location"));*/
             current_marker = aMap.addMarker(new MarkerOptions().position(latLng).title("my location"));
+            mainActivityListener.notifyLocation(aMapLocation.getLongitude(), aMapLocation.getLatitude());
         }
     }
 
@@ -290,6 +298,16 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             current_marker.hideInfoWindow();
         Log.v("wilbert", "map click " + current_marker.isInfoWindowShown());
         //horizontalScrollView.fullScroll(View.FOCUS_RIGHT);
+    }
+
+    @Override
+    public  void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mainActivityListener = (MainActivityListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnmainActivitylistener");
+        }
     }
 
 }

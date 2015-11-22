@@ -4,10 +4,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
@@ -38,18 +42,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.datatype.Duration;
+
 enum State{
         OnTrip,NotOnTrip
         }
-public class MainActivity extends AppCompatActivity {
-    public static final int TRAVEL_ITEM_REQUEST_CODE = 234212;
-
+public class MainActivity extends AppCompatActivity implements AMapFragment.MainActivityListener {
+    public  static final String LOCATION_LNG_KEY = "locationlng";
+    public  static final String LOCATION_LAT_KEY = "locationlat";
     int userId;
     String userName;
     CollectionPagerAdapter pagerAdapter;
     ViewPager viewPager;
     TabLayout tabLayout;
     State state;
+    double locationLng = 0;
+    double locationLat = 0;
     FloatingActionButton fab;
     FloatingActionButton tag;
     String []strs = new String[] {
@@ -70,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     DrawerAdapter drawerAdapter;
 
     DataManager dataManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,15 +117,26 @@ public class MainActivity extends AppCompatActivity {
         ListView listView_drawer = (ListView)findViewById(R.id.drawer_listview);
         listView_drawer.setAdapter(drawerAdapter);
         listView_drawer.setOnItemClickListener(onItemClickListener);
+
+        TabLayout.Tab tab = tabLayout.getTabAt(0);
+        tab.setText("No Travel On");
+
     }
 
     private void initMyAdapter() {
-        List<String> imageList = new ArrayList<>();
-        List<String> titleList = new ArrayList<>();
-
-
-
-        drawerAdapter = new DrawerAdapter(imageList, titleList, this);
+        List<Travel> travelList = dataManager.queryTravelListByUserId(userId);
+        List<Uri> uriList = new ArrayList<>();
+        List<String> nameList = new ArrayList<>();
+        for (Travel travel : travelList) {
+            Uri uri = null;
+            if (!dataManager.queryTravelItemListByTravelId(travel.id).isEmpty()) {
+                TravelItem travelItem = dataManager.queryTravelItemListByTravelId(travel.id).get(0);
+                uri = Uri.parse(travelItem.media);
+            }
+            uriList.add(uri);
+            nameList.add(travel.name);
+        }
+        drawerAdapter = new DrawerAdapter(uriList, nameList, this);
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
@@ -255,25 +275,42 @@ public class MainActivity extends AppCompatActivity {
         if (state == State.NotOnTrip) {
         View popView= getLayoutInflater().inflate(R.layout.popup_create_travel,null);
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final EditText nameEdittext = (EditText)popView.findViewById(R.id.travelNameEditText);
             builder.setView(popView);
             builder.setIcon(R.mipmap.apple_touch_icon);
             builder.setTitle(R.string.dialogTitle);
             builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    if (nameEdittext.getText().toString().equals("")) {
+                        Toast toast = Toast.makeText(MainActivity.this, "请输入旅途名称", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 0);
+                        toast.show();
+                        return;
+                    }
                     state = State.OnTrip;
-                    /*Travel travel = new Travel();
-                    dataManager.addNewTravel(travel);*/
+                    Travel travel = new Travel();
+                    travel.userId = userId;
+                    travel.name = nameEdittext.getText().toString();
+                    long temp = dataManager.addNewTravel(travel);
+
+                    initMyAdapter();
+                    drawerAdapter.notifyDataSetChanged();
+
+                    Log.v("wilbert", "travel " + temp);
+                    TabLayout.Tab tab = tabLayout.getTabAt(0);
+                    tab.setText(nameEdittext.getText().toString());
                 }
             });
             builder.show();
         }
         else {
             //// TODO: 2015/10/27 camera
-            /*Toast toast = Toast.makeText(getApplicationContext(), "start the camera", Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
-            toast.show();*/
             Intent intent = new Intent(this, CreateNewItemActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putDouble(LOCATION_LAT_KEY, locationLat);
+            bundle.putDouble(LOCATION_LNG_KEY, locationLng);
+            intent.putExtras(bundle);
             startActivity(intent);
         }
 
@@ -298,5 +335,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+    }
+
+    @Override
+    public void notifyLocation(double locationLng, double locationLat) {
+        this.locationLat = locationLat;
+        this.locationLng = locationLng;
     }
 }

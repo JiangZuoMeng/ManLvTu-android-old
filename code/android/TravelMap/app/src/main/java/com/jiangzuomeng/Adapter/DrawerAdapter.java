@@ -1,7 +1,11 @@
 package com.jiangzuomeng.Adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.media.Image;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,49 +13,52 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.travelmap.R;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.FormatFlagsConversionMismatchException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by wilbert on 2015/10/31.
  */
 public class DrawerAdapter  extends BaseAdapter{
+    public static final  String TITLE = "title";
+    public static final  String IMAGE = "image";
     List<Map<String, Object>> bs;
+    List<Uri> uriList = new ArrayList<>();
+    List<String> nameList = new ArrayList<>();
     public final class content {
     public ImageView image;
     public TextView title;
     }
     public Context context;
-    public DrawerAdapter(List<String> imageList, List<String> titleList, Context c) {
+    public DrawerAdapter(List<Uri> uriList, List<String> nameList, Context c) {
         bs = new ArrayList<>();
         context = c;
-        initData(imageList, titleList);
+
+        this.uriList = uriList;
+        this.nameList = nameList;
+        initData();
     }
 
-    private void initData(List<String>imageList, List<String> titleList) {
+    private void initData() {
         //// TODO: 2015/11/21
 
         Map<String, Object> map = new HashMap<>();
-        map.put("image",R.drawable.test2_show);
-        map.put("title", "长隆");
-        bs.add(map);
-        map = new HashMap<>();
-        map.put("image",R.drawable.test3_show);
-        map.put("title", "XX两日游");
-        bs.add(map);
-        map = new HashMap<>();
-        map.put("image", R.drawable.test4_show);
-        map.put("title", "广州");
-        bs.add(map);
-        map = new HashMap<>();
-        map.put("image",R.drawable.test1_show);
-        map.put("title", "XX");
-        bs.add(map);
+        for (int i = 0; i < nameList.size(); i++) {
+            map = new HashMap<>();
+            map.put(TITLE, nameList.get(i));
+            map.put(IMAGE, uriList.get(i));
+            bs.add(map);
+        }
     }
 
     @Override
@@ -81,9 +88,13 @@ public class DrawerAdapter  extends BaseAdapter{
         } else {
             z = (content)convertView.getTag();
         }
-        Image image = null;
-        z.image.setImageResource((Integer)bs.get(position).get("image"));
-        z.title.setText((String) bs.get(position).get("title"));
+            Uri uri = (Uri)bs.get(position).get(IMAGE);
+            if (uri == null) {
+                uri = Uri.parse("file:///storage/sdcard0/Pictures/TravelMap/IMG_20151122_213829.jpg");
+                Log.v("wilbert", uri.toString());
+                z.image.setImageURI(uri);
+            }
+        z.title.setText((String) bs.get(position).get(TITLE));
         return convertView;
     }
 }
