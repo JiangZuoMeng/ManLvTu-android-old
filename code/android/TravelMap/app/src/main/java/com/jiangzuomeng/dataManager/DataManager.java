@@ -96,4 +96,16 @@ public class DataManager {
         return likeNum;
     }
 
+    public int removeUserByUserId(int userId) {
+        return dbManager.removeUserByUserId(userId);
+    }
+    public int removeTravelByTravelId(int travelId) {
+        return dbManager.removeTravelByTravelId(travelId);
+    }
+    public int removeTravelItemByTravelItemId(int travelItemId) {
+        return dbManager.removeTravelItemByTravelItemId(travelItemId);
+    }
+    public int removeCommentByCommentId(int commentId) {
+        return dbManager.removeCommentByCommentId(commentId);
+    }
 }

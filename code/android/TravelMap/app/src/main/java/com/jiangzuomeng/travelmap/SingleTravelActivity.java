@@ -40,8 +40,8 @@ public class SingleTravelActivity
     private MapView mapView;
     private AMap aMap;
     private Polyline polyline;
-    private ArrayList<LatLng> markersLocation = new ArrayList<>();
     private ArrayList<Marker> markers = new ArrayList<>();
+    List<TravelItem> travelItemList;
     private boolean isMapMovable = true;
     private ListView listView_drawer;
     PopupWindow popupWindow;
@@ -57,11 +57,12 @@ public class SingleTravelActivity
             switch (v.getId()) {
                 case R.id.SingleTravelActivityListViewPopupDeleteButton:
                     popupWindow.dismiss();
-                    markers.remove(listViewClickPosition).remove();
-                    markersLocation.remove(listViewClickPosition);
-                    singleTravelItemAdapter.removeItem(listViewClickPosition);
-                    linkMarkersOfMap();
-                    listView_drawer.setAdapter(singleTravelItemAdapter);
+
+                    TravelItem targetTravelItem = travelItemList.get(listViewClickPosition);
+                    DataManager.getInstance(getApplicationContext()).removeTravelItemByTravelItemId(
+                            targetTravelItem.id
+                    );
+                    initData();
                     break;
             }
         }
@@ -96,12 +97,12 @@ public class SingleTravelActivity
         initData();
     }
     private void initData() {
-        List<TravelItem> travelItemList = DataManager.getInstance(getApplicationContext())
+        travelItemList = DataManager.getInstance(getApplicationContext())
                 .queryTravelItemListByTravelId(currentTravelId);
         singleTravelItemAdapter.setup(travelItemList);
         listView_drawer.setAdapter(singleTravelItemAdapter);
 
-        //aMap.clear();
+        aMap.clear();
         for (TravelItem travelItem : travelItemList) {
             LatLng latLng= new LatLng(travelItem.locationLat, travelItem.locationLng);
             addMarker(new MarkerOptions().position(latLng));
@@ -131,16 +132,21 @@ public class SingleTravelActivity
         popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
     }
     private void addMarker(MarkerOptions markerOptions) {
-        markersLocation.add(markerOptions.getPosition());
         markers.add(aMap.addMarker(markerOptions));
     }
     private void linkMarkersOfMap() {
         if (polyline != null) {
             polyline.remove();
         }
-        polyline = aMap.addPolyline(new PolylineOptions()
-                .addAll(markersLocation)
-                .color(getResources().getColor(R.color.single_travel_polyline_color)));
+
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .color(getResources().getColor(R.color.single_travel_polyline_color));
+
+        for (Marker marker: markers) {
+            polylineOptions.add(marker.getPosition());
+        }
+
+        polyline = aMap.addPolyline(polylineOptions);
     }
     /**
      * 方法必须重写
@@ -201,7 +207,7 @@ public class SingleTravelActivity
                 travelItem.text = getResources().getString(R.string.single_travel_default_list_view_item_description);
                 travelItem.locationLng = aMap.getCameraPosition().target.longitude;
                 travelItem.locationLat = aMap.getCameraPosition().target.latitude;
-                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
+                long result = DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
                 initData();
                 break;
             case R.id.action_lock_map:
@@ -231,10 +237,6 @@ public class SingleTravelActivity
     }
     @Override
     public void onMarkerDrag(Marker marker) {
-        int markerIndex = markers.indexOf(marker);
-        if (markerIndex < 0)
-            return;
-        markersLocation.set(markerIndex, marker.getPosition());
         linkMarkersOfMap();
     }
     @Override

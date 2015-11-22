@@ -216,4 +216,17 @@ public class DBManager {
 
         return commentArrayList;
     }
+
+    public int removeUserByUserId(int userId) {
+        return database.delete(User.USER_TABLE_NAME, "id = ?", new String[] {String.valueOf(userId)});
+    }
+    public int removeTravelByTravelId(int travelId) {
+        return database.delete(Travel.TRAVEL_TABLE_NAME, "id = ?", new String[] {String.valueOf(travelId)});
+    }
+    public int removeTravelItemByTravelItemId(int travelItemId) {
+        return database.delete(TravelItem.TRAVEL_ITEM_TABLE_NAME, "id = ?", new String[] {String.valueOf(travelItemId)});
+    }
+    public int removeCommentByCommentId(int commentId) {
+        return database.delete(Comment.COMMENT_TABLE_NAME, "id = ?", new String[] {String.valueOf(commentId)});
+    }
 }
