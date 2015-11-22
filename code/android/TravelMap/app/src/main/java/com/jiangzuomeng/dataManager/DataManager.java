@@ -77,7 +77,7 @@ public class DataManager {
     }
 
     public List<Integer> queryCommentListIdByTravelItemId(int travelItemid) {
-        List<Integer> commentList = dbManager.queryCommentListIdByTravelItemId(travelItemid);
+        List<Integer> commentList = dbManager.queryCommentIdListByTravelItemId(travelItemid);
 
         return commentList;
     }

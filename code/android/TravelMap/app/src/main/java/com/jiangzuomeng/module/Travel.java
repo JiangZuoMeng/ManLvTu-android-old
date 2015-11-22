@@ -1,21 +1,42 @@
 package com.jiangzuomeng.module;
 
+import android.content.ContentValues;
+
 /**
  * Created by ekuri-PC on 2015/11/21.
  */
-public class Travel {
+public class Travel implements ManLvTuSQLDataType {
+    public static final String TRAVEL_TABLE_NAME = "travel";
     public int id;
-    public int mainTravelItemId;
-    public int firstTravelItemId;
-    public int lastTravelId;
-    public int nextTravelId;
+    public int userId;
+    public String name;
 
-    public Travel (int id, int mainTravelItemId, int firstTravelItemId, int lastTravelId,
-                   int nextTravelId) {
+    public Travel (int id, int userId, String name) {
         this.id = id;
-        this.mainTravelItemId = mainTravelItemId;
-        this.firstTravelItemId = firstTravelItemId;
-        this.lastTravelId = lastTravelId;
-        this.nextTravelId = nextTravelId;
+        this.userId = userId;
+        this.name = name;
+    }
+
+    public Travel () {
+
+    }
+
+
+    @Override
+    public ContentValues makeInsertSQLContentValues() {
+        return null;
+    }
+
+    public static String makeCreateTableSQLString() {
+        return "CREATE TABLE IF NOT EXISTS " + TRAVEL_TABLE_NAME +
+                "(id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, name TEXT)";
+    }
+
+    public String makeQueryByTrvelIdSQLString() {
+        return null;
+    }
+
+    public String makeQueryByUserIdSQLString() {
+        return null;
     }
 }
