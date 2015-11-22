@@ -33,6 +33,7 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
     }
 
     public void setup(List<TravelItem> initialData) {
+        data.clear();
         for (TravelItem item : initialData) {
             addItem(item.media, item.text);
         }

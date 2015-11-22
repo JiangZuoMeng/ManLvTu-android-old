@@ -44,6 +44,7 @@ public class SingleTravelActivity
     private ListView listView_drawer;
     PopupWindow popupWindow;
     private int listViewClickPosition = 0;
+    private int currentTravelId;
     SingleTravelItemListViewAdapter singleTravelItemAdapter;
 
 
@@ -75,10 +76,8 @@ public class SingleTravelActivity
         listView_drawer.setOnItemLongClickListener(this);
         listView_drawer.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
-        Integer travelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
-        singleTravelItemAdapter.setup(DataManager.getInstance(getApplicationContext())
-                .queryTravelItemListByTravelId(travelId));
-        listView_drawer.setAdapter(singleTravelItemAdapter);
+        currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
+        initData();
         initPopupWindow();
 
         // setup map
@@ -93,14 +92,17 @@ public class SingleTravelActivity
         supportActionBar.setTitle("在生物岛");
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
     }
-
+    private void initData() {
+        singleTravelItemAdapter.setup(DataManager.getInstance(getApplicationContext())
+                .queryTravelItemListByTravelId(currentTravelId));
+        listView_drawer.setAdapter(singleTravelItemAdapter);
+    }
     private void setupMap() {
         aMap.moveCamera(CameraUpdateFactory.zoomTo(14));
         aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
         aMap.setOnMapClickListener(this);
         aMap.setOnMarkerDragListener(this);
     }
-
     private void initPopupWindow() {
         View popViewContent = getLayoutInflater().inflate(R.layout.popup_window_for_single_travel_view_list_item, null);
 
@@ -117,13 +119,11 @@ public class SingleTravelActivity
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
     }
-
     private void addMarker(MarkerOptions markerOptions) {
         markersLocation.add(markerOptions.getPosition());
         markers.add(aMap.addMarker(markerOptions));
         linkMarkersOfMap();
     }
-
     private void linkMarkersOfMap() {
         if (polyline != null) {
             polyline.remove();
@@ -132,7 +132,6 @@ public class SingleTravelActivity
                 .addAll(markersLocation)
                 .color(getResources().getColor(R.color.single_travel_polyline_color)));
     }
-
     /**
      * 方法必须重写
      */
@@ -141,7 +140,6 @@ public class SingleTravelActivity
         super.onResume();
         mapView.onResume();
     }
-
     /**
      * 方法必须重写
      */
@@ -150,7 +148,6 @@ public class SingleTravelActivity
         super.onPause();
         mapView.onPause();
     }
-
     /**
      * 方法必须重写
      */
@@ -159,7 +156,6 @@ public class SingleTravelActivity
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
-
     /**
      * 方法必须重写
      */
@@ -168,19 +164,16 @@ public class SingleTravelActivity
         super.onDestroy();
         mapView.onDestroy();
     }
-
     @Override
     public void onMapClick(LatLng latLng) {
-        addMarker(new MarkerOptions().position(latLng));
+        //addMarker(new MarkerOptions().position(latLng));
     }
-
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         listViewClickPosition = position;
         popupWindow.showAsDropDown(view, view.getWidth() / 2, -view.getHeight() / 2);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -209,24 +202,20 @@ public class SingleTravelActivity
         }
         return true;
     }
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, AlbumViewerActivity.class);
         startActivity(intent);
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.single_travel_activity_actionbar_menu, menu);
         return true;
     }
-
     @Override
     public void onMarkerDragStart(Marker marker) {
 
     }
-
     @Override
     public void onMarkerDrag(Marker marker) {
         int markerIndex = markers.indexOf(marker);
@@ -235,7 +224,6 @@ public class SingleTravelActivity
         markersLocation.set(markerIndex, marker.getPosition());
         linkMarkersOfMap();
     }
-
     @Override
     public void onMarkerDragEnd(Marker marker) {
 
