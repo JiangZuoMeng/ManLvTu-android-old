@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jiangzuomeng.module.TravelItem;
 import com.jiangzuomeng.travelmap.R;
 
 import java.util.ArrayList;
@@ -31,9 +32,10 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         context = c;
     }
 
-    public void setup(HashMap<String, Object> initialData) {
-        for (Map.Entry item : initialData.entrySet()) {
-            addItem(item.getKey(), item.getValue());
+    public void setup(List<TravelItem> initialData) {
+        data.clear();
+        for (TravelItem item : initialData) {
+            addItem(item.media, item.text);
         }
     }
     public void addItem(Object imageId, Object description) {
@@ -73,7 +75,9 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         } else {
             z = (content)convertView.getTag();
         }
-        z.image.setImageResource((Integer) data.get(position).get("image"));
+
+        /*z.image.setImageResource((Integer) data.get(position).get("image"));*/
+        z.image.setImageResource(R.drawable.ic_mood_black_24dp);
         z.title.setText((String) data.get(position).get("title"));
         return convertView;
     }

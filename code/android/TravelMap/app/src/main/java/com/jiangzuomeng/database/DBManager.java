@@ -192,4 +192,28 @@ public class DBManager {
 
         return travelArrayList;
     }
+
+    public List<TravelItem> queryTravelItemListByTravelId(int travelId) {
+        List<Integer> travelItemIdList = queryTravelItemIdListByTravelId(travelId);
+
+        ArrayList<TravelItem> travelItemArrayList = new ArrayList<>();
+
+        for (Integer id : travelItemIdList) {
+            travelItemArrayList.add(queryTravelItemByTravelItemId(id));
+        }
+
+        return travelItemArrayList;
+    }
+
+    public List<Comment> queryCommentListByTravelItemId(int travelItemId) {
+        List<Integer> commentIdList = queryCommentIdListByTravelItemId(travelItemId);
+
+        ArrayList<Comment> commentArrayList = new ArrayList<>();
+
+        for (Integer id : commentIdList) {
+            commentArrayList.add(queryCommentByCommentId(id));
+        }
+
+        return commentArrayList;
+    }
 }
