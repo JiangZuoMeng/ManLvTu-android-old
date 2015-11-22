@@ -1,6 +1,7 @@
 package com.jiangzuomeng.Adapter;
 
 import android.content.Context;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jiangzuomeng.travelmap.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,13 +27,15 @@ public class DrawerAdapter  extends BaseAdapter{
     public TextView title;
     }
     public Context context;
-    public DrawerAdapter(Context c) {
+    public DrawerAdapter(List<String> imageList, List<String> titleList, Context c) {
         bs = new ArrayList<>();
         context = c;
-        initData();
+        initData(imageList, titleList);
     }
 
-    private void initData() {
+    private void initData(List<String>imageList, List<String> titleList) {
+        //// TODO: 2015/11/21
+
         Map<String, Object> map = new HashMap<>();
         map.put("image",R.drawable.test2_show);
         map.put("title", "长隆");
@@ -77,8 +81,9 @@ public class DrawerAdapter  extends BaseAdapter{
         } else {
             z = (content)convertView.getTag();
         }
+        Image image = null;
         z.image.setImageResource((Integer)bs.get(position).get("image"));
-        z.title.setText((String)bs.get(position).get("title"));
+        z.title.setText((String) bs.get(position).get("title"));
         return convertView;
     }
 }
