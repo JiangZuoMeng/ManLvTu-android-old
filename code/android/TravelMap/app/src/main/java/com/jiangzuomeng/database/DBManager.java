@@ -181,4 +181,7 @@ public class DBManager {
         return likeNum;
     }
 
+    public List<Travel> queryTravelListByUserId(int userId) {
+        List<Integer>
+    }
 }
