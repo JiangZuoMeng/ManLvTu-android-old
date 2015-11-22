@@ -182,6 +182,14 @@ public class DBManager {
     }
 
     public List<Travel> queryTravelListByUserId(int userId) {
-        List<Integer>
+        List<Integer> travelIdList = queryTravelIdListByUserId(userId);
+
+        ArrayList<Travel> travelArrayList = new ArrayList<>();
+
+        for (Integer id : travelIdList) {
+            travelArrayList.add(queryTravelByTravelId(id));
+        }
+
+        return travelArrayList;
     }
 }
