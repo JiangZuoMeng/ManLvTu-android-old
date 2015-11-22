@@ -15,4 +15,8 @@ public class User {
         this.password = password;
         this.firstTravelId = firstTravelId;
     }
+
+    public User() {
+
+    }
 }

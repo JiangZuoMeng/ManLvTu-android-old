@@ -38,10 +38,9 @@ enum State{
 public class MainActivity extends AppCompatActivity {
 
     int userId;
-
+    String userName;
     CollectionPagerAdapter pagerAdapter;
     ViewPager viewPager;
-    ActionBar actionBar;
     TabLayout tabLayout;
     State state;
     FloatingActionButton fab;
@@ -71,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         state = State.NotOnTrip;
+        userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
 
         initMyListener();
         initMyAdapter();
@@ -107,12 +106,7 @@ public class MainActivity extends AppCompatActivity {
         List<String> imageList = new ArrayList<>();
         List<String> titleList = new ArrayList<>();
 
-        List<Travel> travelList = DBManager.queryTravelListByUserId(userId);
-        for (Travel travel :travelList) {
-            TravelItem travelItem = DBManager.queryTravelItemByTravelItemId(travel.mainTravelItemId);
-            imageList.add(travelItem.image);
-            titleList.add(travelItem.text);
-        }
+
 
         drawerAdapter = new DrawerAdapter(imageList, titleList, this);
         List<String> strings = new ArrayList<>();
@@ -291,4 +285,5 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
 }
