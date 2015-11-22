@@ -130,6 +130,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
                     case 0:
                         //start camera
                         fileUri = getOutImageFileUri();
+                        Log.v("wilbert", fileUri.toString());
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
                         startActivityForResult(intent, CAMERA);
@@ -270,7 +271,8 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 travelItem.locationLng = locationLng;
                 travelItem.media = imageString;
                 travelItem.time = timeStamp;
-                long temp = dataManager.addNewTravel(travelItem);
+                long temp = dataManager.addNewTravelItem(travelItem);
+                Log.v("wilbert", "travel item " + temp);
                 finish();
                 break;
         }

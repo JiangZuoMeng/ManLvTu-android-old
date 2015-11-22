@@ -4,12 +4,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
@@ -122,12 +124,19 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     }
 
     private void initMyAdapter() {
-        List<String> imageList = new ArrayList<>();
-        List<String> titleList = new ArrayList<>();
-
-
-
-        drawerAdapter = new DrawerAdapter(imageList, titleList, this);
+        List<Travel> travelList = dataManager.queryTravelListByUserId(userId);
+        List<Uri> uriList = new ArrayList<>();
+        List<String> nameList = new ArrayList<>();
+        for (Travel travel : travelList) {
+            Uri uri = null;
+            if (!dataManager.queryTravelItemListByTravelId(travel.id).isEmpty()) {
+                TravelItem travelItem = dataManager.queryTravelItemListByTravelId(travel.id).get(0);
+                uri = Uri.parse(travelItem.media);
+            }
+            uriList.add(uri);
+            nameList.add(travel.name);
+        }
+        drawerAdapter = new DrawerAdapter(uriList, nameList, this);
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
@@ -284,6 +293,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     travel.userId = userId;
                     travel.name = nameEdittext.getText().toString();
                     long temp = dataManager.addNewTravel(travel);
+
+                    initMyAdapter();
+                    drawerAdapter.notifyDataSetChanged();
+
+                    Log.v("wilbert", "travel " + temp);
                     TabLayout.Tab tab = tabLayout.getTabAt(0);
                     tab.setText(nameEdittext.getText().toString());
                 }
