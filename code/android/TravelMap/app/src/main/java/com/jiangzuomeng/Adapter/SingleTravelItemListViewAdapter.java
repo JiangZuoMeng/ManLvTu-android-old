@@ -75,7 +75,9 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         } else {
             z = (content)convertView.getTag();
         }
-        z.image.setImageResource((Integer) data.get(position).get("image"));
+
+        /*z.image.setImageResource((Integer) data.get(position).get("image"));*/
+        z.image.setImageResource(R.drawable.ic_mood_black_24dp);
         z.title.setText((String) data.get(position).get("title"));
         return convertView;
     }

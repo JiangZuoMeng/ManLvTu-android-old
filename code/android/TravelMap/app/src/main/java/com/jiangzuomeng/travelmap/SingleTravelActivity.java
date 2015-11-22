@@ -26,8 +26,10 @@ import com.amap.api.maps2d.model.Polyline;
 import com.amap.api.maps2d.model.PolylineOptions;
 import com.jiangzuomeng.Adapter.SingleTravelItemListViewAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.module.TravelItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SingleTravelActivity
         extends AppCompatActivity
@@ -76,8 +78,8 @@ public class SingleTravelActivity
         listView_drawer.setOnItemLongClickListener(this);
         listView_drawer.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
-        currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
-        initData();
+        /*currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);*/
+        currentTravelId = 0;
         initPopupWindow();
 
         // setup map
@@ -91,11 +93,20 @@ public class SingleTravelActivity
         supportActionBar.setDisplayHomeAsUpEnabled(true);
         supportActionBar.setTitle("在生物岛");
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
+        initData();
     }
     private void initData() {
-        singleTravelItemAdapter.setup(DataManager.getInstance(getApplicationContext())
-                .queryTravelItemListByTravelId(currentTravelId));
+        List<TravelItem> travelItemList = DataManager.getInstance(getApplicationContext())
+                .queryTravelItemListByTravelId(currentTravelId);
+        singleTravelItemAdapter.setup(travelItemList);
         listView_drawer.setAdapter(singleTravelItemAdapter);
+
+        //aMap.clear();
+        for (TravelItem travelItem : travelItemList) {
+            LatLng latLng= new LatLng(travelItem.locationLat, travelItem.locationLng);
+            addMarker(new MarkerOptions().position(latLng));
+        }
+        linkMarkersOfMap();
     }
     private void setupMap() {
         aMap.moveCamera(CameraUpdateFactory.zoomTo(14));
@@ -122,7 +133,6 @@ public class SingleTravelActivity
     private void addMarker(MarkerOptions markerOptions) {
         markersLocation.add(markerOptions.getPosition());
         markers.add(aMap.addMarker(markerOptions));
-        linkMarkersOfMap();
     }
     private void linkMarkersOfMap() {
         if (polyline != null) {
@@ -181,15 +191,18 @@ public class SingleTravelActivity
                 finish();
                 break;
             case R.id.action_add_new_position:
-                addMarker(new MarkerOptions()
+                /*addMarker(new MarkerOptions()
                                 .position(aMap.getCameraPosition().target)
                                 .draggable(true)
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                );
-                linkMarkersOfMap();
-                singleTravelItemAdapter.addItem(R.drawable.ic_mood_black_24dp,
-                        getResources().getString(R.string.single_travel_default_list_view_item_description));
-                listView_drawer.setAdapter(singleTravelItemAdapter);
+                );*/
+                TravelItem travelItem = new TravelItem();
+                travelItem.travelId = currentTravelId;
+                travelItem.text = getResources().getString(R.string.single_travel_default_list_view_item_description);
+                travelItem.locationLng = aMap.getCameraPosition().target.longitude;
+                travelItem.locationLat = aMap.getCameraPosition().target.latitude;
+                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
+                initData();
                 break;
             case R.id.action_lock_map:
                 isMapMovable = !isMapMovable;
