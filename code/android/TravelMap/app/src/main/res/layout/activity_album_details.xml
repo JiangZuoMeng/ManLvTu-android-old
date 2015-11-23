@@ -60,7 +60,7 @@
             android:id="@+id/comments"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_weight="6"
+            android:layout_weight="10"
             />
         <RelativeLayout
             android:id="@+id/fuck"
@@ -75,7 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/album_button"
-                android:text="发送"
+                android:text="@string/album_details_send"
                 android:textColor="@android:color/white"
                 android:layout_alignParentRight="true"
                 style="?android:borderlessButtonStyle" />

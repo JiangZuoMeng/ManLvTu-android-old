@@ -72,11 +72,13 @@
         </activity>
         <activity
             android:name=".AlbumViewerActivity"
-            android:label="@string/title_activity_main" >
+            android:label="@string/title_activity_album" >
         </activity>
         <activity android:name=".CreateNewItemActivity" >
         </activity>
         <activity android:name=".AlbumDetailsActivity"/>
+        <activity android:name=".NotificationActivity"
+            android:label="@string/title_activity_notification"/>
     </application>
 
 </manifest>

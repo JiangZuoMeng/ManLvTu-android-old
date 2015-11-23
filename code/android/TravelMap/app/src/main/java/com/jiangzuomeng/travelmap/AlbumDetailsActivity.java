@@ -2,6 +2,7 @@ package com.jiangzuomeng.travelmap;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -19,7 +20,11 @@ public class AlbumDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_details);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         commentsView = (ListView) findViewById(R.id.comments);
+
         SimpleAdapter adapter = new SimpleAdapter(this, getTmpData(), R.layout.album_item,
                             new String[]{"album_item_userlogo", "cmmnt_user", "cmmnt_text", "cmmnt_time"},
                             new int[]{R.id.album_item_userlogo, R.id.cmmnt_user, R.id.cmmnt_text, R.id.cmmnt_time});
@@ -80,4 +85,13 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         return data;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return true;
+    }
 }
