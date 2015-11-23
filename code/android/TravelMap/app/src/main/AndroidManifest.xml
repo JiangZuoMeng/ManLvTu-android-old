@@ -75,6 +75,7 @@
             android:label="@string/title_activity_albumviewer"
             android:parentActivityName=".MainActivity">
         </activity>
+        <activity android:name=".AlbumDetailsActivity"/>
     </application>
 
 </manifest>
