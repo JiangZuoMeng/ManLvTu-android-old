@@ -40,8 +40,8 @@ public class SingleTravelActivity
     private MapView mapView;
     private AMap aMap;
     private Polyline polyline;
-    private ArrayList<LatLng> markersLocation = new ArrayList<>();
     private ArrayList<Marker> markers = new ArrayList<>();
+    List<TravelItem> travelItemList;
     private boolean isMapMovable = true;
     private ListView listView_drawer;
     PopupWindow popupWindow;
@@ -57,11 +57,12 @@ public class SingleTravelActivity
             switch (v.getId()) {
                 case R.id.SingleTravelActivityListViewPopupDeleteButton:
                     popupWindow.dismiss();
-                    markers.remove(listViewClickPosition).remove();
-                    markersLocation.remove(listViewClickPosition);
-                    singleTravelItemAdapter.removeItem(listViewClickPosition);
-                    linkMarkersOfMap();
-                    listView_drawer.setAdapter(singleTravelItemAdapter);
+
+                    TravelItem targetTravelItem = travelItemList.get(listViewClickPosition);
+                    DataManager.getInstance(getApplicationContext()).removeTravelItemByTravelItemId(
+                            targetTravelItem.id
+                    );
+                    initData();
                     break;
             }
         }
@@ -78,8 +79,8 @@ public class SingleTravelActivity
         listView_drawer.setOnItemLongClickListener(this);
         listView_drawer.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
-        /*currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);*/
-        currentTravelId = 0;
+        currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
+        /*currentTravelId = 0;*/
         initPopupWindow();
 
         // setup map
@@ -96,15 +97,16 @@ public class SingleTravelActivity
         initData();
     }
     private void initData() {
-        List<TravelItem> travelItemList = DataManager.getInstance(getApplicationContext())
+        travelItemList = DataManager.getInstance(getApplicationContext())
                 .queryTravelItemListByTravelId(currentTravelId);
         singleTravelItemAdapter.setup(travelItemList);
         listView_drawer.setAdapter(singleTravelItemAdapter);
 
-        //aMap.clear();
+        aMap.clear();
+        markers.clear();
         for (TravelItem travelItem : travelItemList) {
             LatLng latLng= new LatLng(travelItem.locationLat, travelItem.locationLng);
-            addMarker(new MarkerOptions().position(latLng));
+            addMarker(new MarkerOptions().position(latLng).draggable(true));
         }
         linkMarkersOfMap();
     }
@@ -131,16 +133,21 @@ public class SingleTravelActivity
         popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
     }
     private void addMarker(MarkerOptions markerOptions) {
-        markersLocation.add(markerOptions.getPosition());
         markers.add(aMap.addMarker(markerOptions));
     }
     private void linkMarkersOfMap() {
         if (polyline != null) {
             polyline.remove();
         }
-        polyline = aMap.addPolyline(new PolylineOptions()
-                .addAll(markersLocation)
-                .color(getResources().getColor(R.color.single_travel_polyline_color)));
+
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .color(getResources().getColor(R.color.single_travel_polyline_color));
+
+        for (Marker marker: markers) {
+            polylineOptions.add(marker.getPosition());
+        }
+
+        polyline = aMap.addPolyline(polylineOptions);
     }
     /**
      * 方法必须重写
@@ -231,14 +238,17 @@ public class SingleTravelActivity
     }
     @Override
     public void onMarkerDrag(Marker marker) {
-        int markerIndex = markers.indexOf(marker);
-        if (markerIndex < 0)
-            return;
-        markersLocation.set(markerIndex, marker.getPosition());
         linkMarkersOfMap();
     }
     @Override
     public void onMarkerDragEnd(Marker marker) {
+        TravelItem targetTravelItem = travelItemList.get(markers.indexOf(marker));
 
+        targetTravelItem.locationLat = marker.getPosition().latitude;
+        targetTravelItem.locationLng = marker.getPosition().longitude;
+
+        DataManager.getInstance(getApplicationContext()).updateTravelItem(targetTravelItem);
+
+        initData();
     }
 }

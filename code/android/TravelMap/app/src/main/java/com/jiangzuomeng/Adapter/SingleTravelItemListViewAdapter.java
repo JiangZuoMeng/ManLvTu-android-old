@@ -1,6 +1,7 @@
 package com.jiangzuomeng.Adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,7 +78,13 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         }
 
         /*z.image.setImageResource((Integer) data.get(position).get("image"));*/
-        z.image.setImageResource(R.drawable.ic_mood_black_24dp);
+        String uriString = (String) data.get(position).get("image");
+        if (uriString == null) {
+            z.image.setImageResource(R.drawable.ic_mood_black_24dp);
+        } else {
+            z.image.setImageURI(Uri.parse(uriString));
+        }
+
         z.title.setText((String) data.get(position).get("title"));
         return convertView;
     }

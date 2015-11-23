@@ -19,7 +19,12 @@ public class Comment implements ManLvTuSQLDataType {
 
     @Override
     public ContentValues makeInsertSQLContentValues() {
-        return null;
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("userId", this.userId);
+        contentValues.put("travelItemId", this.travelItemId);
+        contentValues.put("text", this.text);
+        contentValues.put("time", this.time);
+        return contentValues;
     }
 
     public static String makeCreateTableSQLString() {
