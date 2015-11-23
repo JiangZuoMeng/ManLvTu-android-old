@@ -2,15 +2,17 @@ package com.jiangzuomeng.travelmap;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import uk.co.senab.photoview.PhotoView;
 
@@ -29,7 +31,7 @@ public class AlbumViewerActivity extends AppCompatActivity {
         ViewGroup indicators = (ViewGroup) findViewById(R.id.album_indicators);
 
         final int IMAGE_COUNT = 3;
-
+        // 添加图片的指示器
         indicatorViews = new ImageView[IMAGE_COUNT];
         for (int i = 0; i < IMAGE_COUNT; ++i) {
             ImageView imageView = new ImageView(this);
@@ -48,7 +50,7 @@ public class AlbumViewerActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.album_pager);
 
 
-
+        // 添加图片
         imageViews = new PhotoView[IMAGE_COUNT];
         int[] imgId = new int[] {R.drawable.photo0, R.drawable.photo1, R.drawable.photo2};
         for (int i = 0; i < IMAGE_COUNT; ++i) {
@@ -60,7 +62,9 @@ public class AlbumViewerActivity extends AppCompatActivity {
             imageViews[i] = imageView;
         }
 
+        // 设置ViewPager
         viewPager.setAdapter(new AlbumViewerAdapter());
+        // Change the indicator
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int selected) {
@@ -74,6 +78,15 @@ public class AlbumViewerActivity extends AppCompatActivity {
             }
         });
 
+        // Test comment button
+        Button commentBtn = (Button) findViewById(R.id.album_comment_btn);
+        commentBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(AlbumViewerActivity.this, R.id.album_comment_btn, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
 
@@ -82,8 +95,7 @@ public class AlbumViewerActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-                /*NavUtils.navigateUpFromSameTask(this);
-                return true;*/
+                return true;
         }
         return true;
 //        return super.onOptionsItemSelected(item);

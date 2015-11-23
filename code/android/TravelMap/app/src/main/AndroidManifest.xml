@@ -76,6 +76,7 @@
         </activity>
         <activity android:name=".CreateNewItemActivity" >
         </activity>
+        <activity android:name=".AlbumDetailsActivity"/>
     </application>
 
 </manifest>
