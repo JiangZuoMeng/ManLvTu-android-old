@@ -15,10 +15,6 @@
         completions."
     </string>
     <string name="title_activity_main">漫旅图</string>
-<<<<<<< HEAD
-=======
-
->>>>>>> master
     <string name="title_activity_albumviewer">AlbumViewer </string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
