@@ -265,6 +265,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 }
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 TravelItem travelItem = new TravelItem();
+                travelItem.travelId = MainActivity.currentTravelId;
                 travelItem.text = editText;
                 travelItem.label = labelString;
                 travelItem.locationLat = locationLat;
@@ -272,6 +273,8 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 travelItem.media = imageString;
                 travelItem.time = timeStamp;
                 long temp = dataManager.addNewTravelItem(travelItem);
+                travelItem = dataManager.queryTravelItemByTravelItemId((int) temp);
+
                 Log.v("wilbert", "travel item " + temp);
                 finish();
                 break;

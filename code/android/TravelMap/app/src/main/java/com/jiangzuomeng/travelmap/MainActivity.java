@@ -50,6 +50,7 @@ enum State{
 public class MainActivity extends AppCompatActivity implements AMapFragment.MainActivityListener {
     public  static final String LOCATION_LNG_KEY = "locationlng";
     public  static final String LOCATION_LAT_KEY = "locationlat";
+    public static int currentTravelId;
     int userId;
     String userName;
     CollectionPagerAdapter pagerAdapter;
@@ -130,8 +131,10 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         List<String> nameList = new ArrayList<>();
         for (Travel travel : travelList) {
             Uri uri = null;
-            if (!dataManager.queryTravelItemListByTravelId(travel.id).isEmpty()) {
-                TravelItem travelItem = dataManager.queryTravelItemListByTravelId(travel.id).get(0);
+
+            List<TravelItem> travelItemList = dataManager.queryTravelItemListByTravelId(travel.id);
+            if (!travelItemList.isEmpty()) {
+                TravelItem travelItem = travelItemList.get(0);
                 uri = Uri.parse(travelItem.media);
             }
             uriList.add(uri);
@@ -294,12 +297,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     Travel travel = new Travel();
                     travel.userId = userId;
                     travel.name = nameEdittext.getText().toString();
-                    long temp = dataManager.addNewTravel(travel);
+                    currentTravelId = (int) dataManager.addNewTravel(travel);
 
                     initMyAdapter();
                     drawerAdapter.notifyDataSetChanged();
 
-                    Log.v("wilbert", "travel " + temp);
                     TabLayout.Tab tab = tabLayout.getTabAt(0);
                     tab.setText(nameEdittext.getText().toString());
                 }
