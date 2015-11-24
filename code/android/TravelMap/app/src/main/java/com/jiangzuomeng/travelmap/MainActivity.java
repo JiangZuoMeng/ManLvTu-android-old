@@ -1,17 +1,13 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
@@ -20,7 +16,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.app.ActionBar;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,18 +26,11 @@ import com.jiangzuomeng.Adapter.DrawerAdapter;
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.MyLayout.CustomViewPager;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.database.DBManager;
 import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.module.TravelItem;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.datatype.Duration;
 
 enum State{
         OnTrip,NotOnTrip
@@ -50,6 +38,7 @@ enum State{
 public class MainActivity extends AppCompatActivity implements AMapFragment.MainActivityListener {
     public  static final String LOCATION_LNG_KEY = "locationlng";
     public  static final String LOCATION_LAT_KEY = "locationlat";
+    public  static int travelId;
     int userId;
     String userName;
     CollectionPagerAdapter pagerAdapter;
@@ -74,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     Button addOtherTagBtn;
     EditText addTagEditText;
     SetTagAdapter setTagAdapter;
+    ListView listView_drawer;
 
     DrawerAdapter drawerAdapter;
 
@@ -92,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
         userId = dataManager.queryUserByUserName(userName).id;
         initMyListener();
-        initMyAdapter();
+        initdrawerAdapter();
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
         viewPager = (CustomViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
@@ -115,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        ListView listView_drawer = (ListView)findViewById(R.id.drawer_listview);
+        listView_drawer = (ListView)findViewById(R.id.drawer_listview);
         listView_drawer.setAdapter(drawerAdapter);
         listView_drawer.setOnItemClickListener(onItemClickListener);
 
@@ -124,14 +114,15 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
 
     }
 
-    private void initMyAdapter() {
+    private void initdrawerAdapter() {
         travelList = dataManager.queryTravelListByUserId(userId);
         List<Uri> uriList = new ArrayList<>();
         List<String> nameList = new ArrayList<>();
         for (Travel travel : travelList) {
             Uri uri = null;
-            if (!dataManager.queryTravelItemListByTravelId(travel.id).isEmpty()) {
-                TravelItem travelItem = dataManager.queryTravelItemListByTravelId(travel.id).get(0);
+            List<TravelItem> travelItemList = dataManager.queryTravelItemListByTravelId(travel.id);
+            if (!travelItemList.isEmpty()) {
+                TravelItem travelItem = travelItemList.get(0);
                 uri = Uri.parse(travelItem.media);
             }
             uriList.add(uri);
@@ -253,11 +244,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         builder.show();
     }
 
-    private void tag_on_click_listener(int position) {
+/*    private void tag_on_click_listener(int position) {
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         tab.setText(strs[position]);
         setTagPopUpWindow.dismiss();
-    }
+    }*/
 
     private void fab_long_click(View v) {
         if (state == State.OnTrip) {
@@ -294,12 +285,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     Travel travel = new Travel();
                     travel.userId = userId;
                     travel.name = nameEdittext.getText().toString();
-                    long temp = dataManager.addNewTravel(travel);
+                    travelId = (int)dataManager.addNewTravel(travel);
 
-                    initMyAdapter();
-                    drawerAdapter.notifyDataSetChanged();
+                    initdrawerAdapter();
+                    listView_drawer.setAdapter(drawerAdapter);
 
-                    Log.v("wilbert", "travel " + temp);
                     TabLayout.Tab tab = tabLayout.getTabAt(0);
                     tab.setText(nameEdittext.getText().toString());
                 }
@@ -337,6 +327,12 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initdrawerAdapter();
+        listView_drawer.setAdapter(drawerAdapter);
     }
 
     @Override

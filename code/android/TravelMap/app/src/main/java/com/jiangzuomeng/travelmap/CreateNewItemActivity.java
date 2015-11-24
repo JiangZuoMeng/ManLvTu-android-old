@@ -38,11 +38,16 @@ import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.module.TravelItem;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 
 public class CreateNewItemActivity extends AppCompatActivity {
@@ -51,6 +56,11 @@ public class CreateNewItemActivity extends AppCompatActivity {
     private static  final int ID_START = 234;
     public static final int TRAVEL_ITEM_RESULT_SUCCESS_CODE = 4354;
     public static  final int TRAVEL_ITEM_RESULT_FAIL_CODE = 4355;
+
+    public static final String IMAGEVIEW = "imageView";
+    public static final String URISTRING = "uriString";
+    int countStart = 0;
+
     ImageView image;
     View.OnClickListener onClickListener;
     AdapterView.OnItemClickListener onItemClickListener;
@@ -61,6 +71,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
     AlertDialog.Builder builder;
     AlertDialog dialog;
     List<Integer> imageIds = new ArrayList<>();
+    List<HashMap<String, Object>> imageIdStringList = new ArrayList<>();
     Button setTagBtn;
     PopupWindow setTagPopUpWindow;
     Button addOtherTagBtn;
@@ -83,6 +94,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
         dataManager = DataManager.getInstance(getApplication());
         imageStringList = new ArrayList<>();
         labelStringList = new ArrayList<>();
+
         initMyListener();
         initMyAdapter();
         image = (ImageView)findViewById(R.id.Select_image);
@@ -152,6 +164,19 @@ public class CreateNewItemActivity extends AppCompatActivity {
         onLongClickListener = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                HashMap<String, Object> hashMap = new HashMap<>();
+                int delete = -1;
+                for (int i = 0; i < imageIdStringList.size(); i++) {
+                    hashMap = imageIdStringList.get(i);
+                    ImageView imageView = (ImageView)hashMap.get(IMAGEVIEW);
+                    if (imageView.getId() == v.getId()) {
+                        delete = i;
+                        break;
+                    }
+                }
+                if (delete != -1) {
+                    imageIdStringList.remove(delete);
+                }
                 pictureLinearLayout.removeView(v);
                 return true;
             }
@@ -251,18 +276,16 @@ public class CreateNewItemActivity extends AppCompatActivity {
             case R.id.action_confirm:
                 String editText = itemTextEditText.getText().toString();
                 String imageString = null;
-                if (imageStringList.size() > 0)
-                    imageString = imageStringList.get(0).toString();
-                for (int i = 1; i < imageStringList.size(); i++) {
-                    imageString = ";"+imageStringList.get(i).toString();
+                if (imageIdStringList.size() > 0) {
+                    HashMap<String , Object> hashMap = imageIdStringList.get(0);
+                    imageString = (String)hashMap.get(URISTRING);
                 }
+
                 labelStringList = getLabelStringList();
                 String labelString = null;
                 if (labelStringList.size() > 0)
                     labelString = labelStringList.get(0).toString();
-                for (int i = 1; i < labelStringList.size(); i++) {
-                    labelString = ";" + labelStringList.get(i).toString();
-                }
+
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 TravelItem travelItem = new TravelItem();
                 travelItem.text = editText;
@@ -271,6 +294,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 travelItem.locationLng = locationLng;
                 travelItem.media = imageString;
                 travelItem.time = timeStamp;
+                travelItem.travelId = MainActivity.travelId;
                 long temp = dataManager.addNewTravelItem(travelItem);
                 Log.v("wilbert", "travel item " + temp);
                 finish();
@@ -300,43 +324,45 @@ public class CreateNewItemActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode  == CAMERA) {
             if(resultCode == RESULT_OK) {
-                try {
-                    imageStringList.add(fileUri.toString());
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
-                    ImageView imageView = new ImageView(this);
-                    Resources resources = getResources();
-                    DisplayMetrics displayMetrics = resources.getDisplayMetrics();
-                    float px = 90 * (displayMetrics.densityDpi / 160f);
-                    imageView.setLayoutParams(new LinearLayout.LayoutParams((int)px, (int)px));
-                    imageView.setImageBitmap(bitmap);
-                    imageView.setPadding(5, 5, 5, 5);
-                    imageView.setId(ID_START+imageIds.size()+1);
-                    pictureLinearLayout.addView(imageView);
-                    imageView.setOnLongClickListener(onLongClickListener);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                addImageFromUri(fileUri);
             }
         }
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            try {
-                imageStringList.add(uri.toString());
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                Resources resources = getResources();
-                DisplayMetrics displayMetrics = resources.getDisplayMetrics();
-                float px = 90 * (displayMetrics.densityDpi / 160f);
-                ImageView imageView = new ImageView(this);
-                imageView.setLayoutParams(new LinearLayout.LayoutParams((int) px, (int) px));
-                imageView.setImageBitmap(bitmap);
-                imageView.setId(ID_START+imageIds.size()+1);
+            addImageFromUri(uri);
+        }
+    }
 
-                imageView.setPadding(5, 5, 5, 5);
-                pictureLinearLayout.addView(imageView);
-                imageView.setOnLongClickListener(onLongClickListener);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void addImageFromUri(Uri fileUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(fileUri);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+//                    options.inSampleSize = 8;
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+            float bitmapHeight = options.outHeight;
+            Resources resources = getResources();
+            DisplayMetrics displayMetrics = resources.getDisplayMetrics();
+            float px = 90 * (displayMetrics.densityDpi / 160f);
+            int sampleSize = (int)(bitmapHeight / px);
+            options.inSampleSize = sampleSize;
+            options.inJustDecodeBounds = false;
+            inputStream = getContentResolver().openInputStream(fileUri);
+            bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+            ImageView imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            imageView.setId(ID_START + countStart);
+            imageView.setPadding(10, 10, 10, 10);
+            imageView.setLayoutParams(new LinearLayout.LayoutParams((int) px, (int) px));
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put(IMAGEVIEW, imageView);
+            hashMap.put(URISTRING, fileUri.toString());
+            imageIdStringList.add(hashMap);
+            countStart++;
+            imageView.setOnLongClickListener(onLongClickListener);
+            pictureLinearLayout.addView(imageView);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 }
