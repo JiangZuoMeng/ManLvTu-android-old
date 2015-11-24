@@ -94,4 +94,9 @@
     <string name="action_add_new_position">添加新的坐标点</string>
     <string name="action_lock_map">锁定地图与解锁</string>
     <string name="single_travel_default_list_view_item_description">未完成编辑，长按编辑或删除</string>
+    <string name="album_comment">评论</string>
+    <string name="album_like">赞</string>
+    <string name="album_details_send">发送</string>
+    <string name="title_activity_notification">消息</string>
+    <string name="title_activity_album">相册</string>
 </resources>
