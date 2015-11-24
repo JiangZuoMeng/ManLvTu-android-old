@@ -39,21 +39,24 @@ import java.util.zip.DeflaterInputStream;
 public class DrawerAdapter  extends BaseAdapter{
     public static final  String TITLE = "title";
     public static final  String IMAGE = "image";
+    public static final  String TRAVEL_ID = "travelId";
     List<Map<String, Object>> bs;
     List<Uri> uriList = new ArrayList<>();
     List<String> nameList = new ArrayList<>();
     List<Bitmap> bitmapList = new ArrayList<>();
+    List<Integer> travelIdList = new ArrayList<>();
     public final class content {
     public ImageView image;
     public TextView title;
     }
     public Context context;
-    public DrawerAdapter(List<Uri> uriList, List<String> nameList, Context c) {
+    public DrawerAdapter(List<Integer> travelIdList, List<Uri> uriList, List<String> nameList, Context c) {
         bs = new ArrayList<>();
         context = c;
 
         this.uriList = uriList;
         this.nameList = nameList;
+        this.travelIdList = travelIdList;
         initData();
     }
 
@@ -65,6 +68,7 @@ public class DrawerAdapter  extends BaseAdapter{
             map = new HashMap<>();
             map.put(TITLE, nameList.get(i));
             map.put(IMAGE, uriList.get(i));
+            map.put(TRAVEL_ID, travelIdList.get(i));
             bs.add(map);
         }
 
@@ -128,5 +132,8 @@ public class DrawerAdapter  extends BaseAdapter{
         z.image.setImageBitmap(bitmap);
         z.title.setText((String) bs.get(position).get(TITLE));
         return convertView;
+    }
+    public List<Integer> getTravelIdList() {
+        return travelIdList;
     }
 }

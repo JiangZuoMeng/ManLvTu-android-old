@@ -91,7 +91,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_item);
 
-        dataManager = DataManager.getInstance(getApplication());
+        dataManager = DataManager.getInstance(getApplicationContext());
         imageStringList = new ArrayList<>();
         labelStringList = new ArrayList<>();
 
@@ -294,7 +294,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 travelItem.locationLng = locationLng;
                 travelItem.media = imageString;
                 travelItem.time = timeStamp;
-                travelItem.travelId = MainActivity.travelId;
+                travelItem.travelId = MainActivity.currentTravelId;
                 long temp = dataManager.addNewTravelItem(travelItem);
                 Log.v("wilbert", "travel item " + temp);
                 finish();

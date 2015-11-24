@@ -1,6 +1,7 @@
 package com.jiangzuomeng.travelmap;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +9,8 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Switch;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
@@ -38,6 +42,9 @@ import com.amap.api.services.geocoder.GeocodeQuery;
 import com.amap.api.services.geocoder.GeocodeResult;
 import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeResult;
+import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.module.Travel;
+import com.jiangzuomeng.module.TravelItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +54,7 @@ import java.util.List;
  */
 public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener,
         GeocodeSearch.OnGeocodeSearchListener {
+    public  static final int UPDATE = 35344;
     private MapView mapView;
     private AMap aMap;
     private OnLocationChangedListener mlistener;
@@ -55,8 +63,25 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     private LayoutInflater layoutInflater;
     private Marker current_marker = null;
     private GeocodeSearch geocoderSearch;
-    private List<Marker> markers;
+    private List<Marker> markerList;
+    double locationLng = 0;
+    double locationLat = 0;
+    public Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case UPDATE:
+                    Bundle bundle = msg.getData();
+                    locationLat = bundle.getDouble(MainActivity.LOCATION_LAT_KEY);
+                    locationLng = bundle.getDouble(MainActivity.LOCATION_LNG_KEY);
+                    initData();
+                    setUpMap();
+            }
+        }
+    };
 
+    DataManager dataManager;
+    List<Travel> travelList = new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_amap, container, false);
@@ -64,17 +89,19 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
         mapView.onCreate(savedInstanceState);
         aMap = mapView.getMap();
         layoutInflater = LayoutInflater.from(getActivity());
-        setUpMap();
+        dataManager = DataManager.getInstance(getActivity().getApplicationContext());
         initData();
+        setUpMap();
         return view;
     }
 
     private void initData() {
-        markers = new ArrayList<>();
+        markerList = new ArrayList<>();
         imageIds = new int[]{
                 R.drawable.test1, R.drawable.test2, R.drawable.test3,
                 R.drawable.test4
         };
+        travelList = dataManager.queryTravelListByUserId(MainActivity.userId);
     }
 
     private void setUpMap() {
@@ -103,20 +130,23 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     }
 
     private void addMarkers() {
-        geocoderSearch = new GeocodeSearch(getActivity());
+        /*geocoderSearch = new GeocodeSearch(getActivity());
         geocoderSearch.setOnGeocodeSearchListener(this);
         GeocodeQuery query = new GeocodeQuery("广州", "广州");// 第一个参数表示地址，第二个参数表示查询城市，中文或者中文全拼，citycode、adcode，
-        geocoderSearch.getFromLocationNameAsyn(query);// 设置同步地理编码请求
-        query = new GeocodeQuery("上海", "上海");
-        geocoderSearch.getFromLocationNameAsyn(query);
-        query = new GeocodeQuery("北京", "北京");
-        geocoderSearch.getFromLocationNameAsyn(query);
-        query = new GeocodeQuery("汕头", "汕头");
-        geocoderSearch.getFromLocationNameAsyn(query);
-        query = new GeocodeQuery("珠海", "珠海");
-        geocoderSearch.getFromLocationNameAsyn(query);
-        query = new GeocodeQuery("南京 ", "南京");
-        geocoderSearch.getFromLocationNameAsyn(query);
+        geocoderSearch.getFromLocationNameAsyn(query);// 设置同步地理编码请求*/
+        for (Travel travel : travelList) {
+            List<TravelItem> travelItemList = dataManager.queryTravelItemListByTravelId(travel.id);
+            if (!travelItemList.isEmpty()) {
+                TravelItem travelItem = travelItemList.get(0);
+                LatLng latLng = new LatLng(travelItem.locationLat, travelItem.locationLng);
+                Marker marker = aMap.addMarker(new MarkerOptions().position(latLng));
+                markerList.add(marker);
+            } else {
+                LatLng latLng = new LatLng(locationLat, locationLng);
+                Marker marker = aMap.addMarker(new MarkerOptions().position(latLng));
+                markerList.add(marker);
+            }
+        }
     }
 
     @Override
@@ -207,6 +237,11 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
         super.onDestroy();
         mapView.onDestroy();
     }
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((MainActivity)activity).setHandler(handler);
+    }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
@@ -227,7 +262,7 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     public void onGeocodeSearched(GeocodeResult geocodeResult, int i) {
         if (i == 0) {
             LatLonPoint point = geocodeResult.getGeocodeAddressList().get(0).getLatLonPoint();
-            markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))));
+            markerList.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))));
             /*markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bookmark_black_24dp))
                     .title("my location")));*/

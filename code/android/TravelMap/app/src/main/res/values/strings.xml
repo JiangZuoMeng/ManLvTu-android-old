@@ -94,4 +94,6 @@
     <string name="action_add_new_position">添加新的坐标点</string>
     <string name="action_lock_map">锁定地图与解锁</string>
     <string name="single_travel_default_list_view_item_description">未完成编辑，长按编辑或删除</string>
+    <string name="delete_confirm">确定删除?</string>
+    <string name="cancle">取消</string>
 </resources>

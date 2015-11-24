@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -38,8 +40,8 @@ enum State{
 public class MainActivity extends AppCompatActivity implements AMapFragment.MainActivityListener {
     public  static final String LOCATION_LNG_KEY = "locationlng";
     public  static final String LOCATION_LAT_KEY = "locationlat";
-    public  static int travelId;
-    int userId;
+    public static int currentTravelId;
+    public static  int userId;
     String userName;
     CollectionPagerAdapter pagerAdapter;
     ViewPager viewPager;
@@ -64,11 +66,16 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     EditText addTagEditText;
     SetTagAdapter setTagAdapter;
     ListView listView_drawer;
+    ListView setTagListView = null;
 
     DrawerAdapter drawerAdapter;
 
     DataManager dataManager;
     List<Travel> travelList;
+    Handler handler = new Handler();
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        dataManager = DataManager.getInstance(getApplication());
+        dataManager = DataManager.getInstance(getApplicationContext());
         state = State.NotOnTrip;
         userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
         userId = dataManager.queryUserByUserName(userName).id;
@@ -108,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         listView_drawer = (ListView)findViewById(R.id.drawer_listview);
         listView_drawer.setAdapter(drawerAdapter);
         listView_drawer.setOnItemClickListener(onItemClickListener);
-
+        listView_drawer.setOnItemLongClickListener(onItemLongClickListener);
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         tab.setText("No Travel On");
 
@@ -118,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         travelList = dataManager.queryTravelListByUserId(userId);
         List<Uri> uriList = new ArrayList<>();
         List<String> nameList = new ArrayList<>();
+        List<Integer> travelIdList = new ArrayList<>();
         for (Travel travel : travelList) {
             Uri uri = null;
             List<TravelItem> travelItemList = dataManager.queryTravelItemListByTravelId(travel.id);
@@ -127,8 +135,9 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             }
             uriList.add(uri);
             nameList.add(travel.name);
+            travelIdList.add(travel.id);
         }
-        drawerAdapter = new DrawerAdapter(uriList, nameList, this);
+        drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
@@ -198,9 +207,34 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         };
         onItemLongClickListener = new ListView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                setTagAdapter.removeAt(position);
-                setTagAdapter.notifyDataSetChanged();
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                switch (parent.getId()) {
+                    case R.id.tag_listView:
+                        setTagAdapter.removeAt(position);
+                        setTagAdapter.notifyDataSetChanged();
+                        break;
+                    case R.id.drawer_listview:
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle(R.string.delete_confirm);
+                        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dataManager.removeTravelByTravelId(drawerAdapter.getTravelIdList().
+                                        get(position));
+                                initdrawerAdapter();
+                                listView_drawer.setAdapter(drawerAdapter);
+                            }
+                        });
+                        builder.setNegativeButton(R.string.cancle, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
+                        builder.show();
+                        break;
+                    default:
+                    }
                 return true;
             }
         };
@@ -220,12 +254,12 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(popView);
         builder.setTitle("请选择筛选标签");
-        ListView listView = (ListView)popView.findViewById(R.id.tag_listView);
+        setTagListView = (ListView)popView.findViewById(R.id.tag_listView);
         addOtherTagBtn = (Button)popView.findViewById(R.id.addOtherTagBtn);
         addOtherTagBtn.setOnClickListener(btnOnclickListener);
         addTagEditText = (EditText)popView.findViewById(R.id.AddTagEditText);
-        listView.setAdapter(setTagAdapter);
-        listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+        setTagListView.setAdapter(setTagAdapter);
+        setTagListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 SetTagAdapter.ViewHolder viewHolder = (SetTagAdapter.ViewHolder) view.getTag();
@@ -234,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
 //                tag_on_click_listener(position);
             }
         });
-        listView.setOnItemLongClickListener(onItemLongClickListener);
+        setTagListView.setOnItemLongClickListener(onItemLongClickListener);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -285,11 +319,18 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     Travel travel = new Travel();
                     travel.userId = userId;
                     travel.name = nameEdittext.getText().toString();
-                    travelId = (int)dataManager.addNewTravel(travel);
+                    currentTravelId = (int) dataManager.addNewTravel(travel);
 
                     initdrawerAdapter();
                     listView_drawer.setAdapter(drawerAdapter);
 
+                    Message message = new Message();
+                    message.what = AMap_MySelf_Fragment.UPDATE;
+                    Bundle bundle = new Bundle();
+                    bundle.putDouble(LOCATION_LAT_KEY, locationLat);
+                    bundle.putDouble(LOCATION_LNG_KEY, locationLng);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
                     TabLayout.Tab tab = tabLayout.getTabAt(0);
                     tab.setText(nameEdittext.getText().toString());
                 }
