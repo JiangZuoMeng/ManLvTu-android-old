@@ -44,6 +44,7 @@ public class SingleTravelActivity
         ,AdapterView.OnItemClickListener, AMap.OnMarkerDragListener {
 
     public static final String INTENT_TRAVEL_KEY = "travelId";
+    public static final String INTENT_TRAVEL_ITEM_KEY = "travelItemId";
     private MapView mapView;
     private AMap aMap;
     private Polyline polyline;
@@ -181,6 +182,7 @@ public class SingleTravelActivity
     public void onResume() {
         super.onResume();
         mapView.onResume();
+        initData();
     }
     /**
      * 方法必须重写
@@ -250,6 +252,7 @@ public class SingleTravelActivity
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, AlbumViewerActivity.class);
+        intent.putExtra(INTENT_TRAVEL_ITEM_KEY, travelItemList.get(position).id);
         startActivity(intent);
     }
     @Override

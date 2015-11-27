@@ -2,14 +2,12 @@ package com.jiangzuomeng.travelmap;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -24,14 +22,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.Spinner;
-import android.widget.Switch;
-import android.widget.Toast;
 
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
@@ -39,15 +33,12 @@ import com.jiangzuomeng.module.TravelItem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 
 public class CreateNewItemActivity extends AppCompatActivity {
@@ -86,17 +77,24 @@ public class CreateNewItemActivity extends AppCompatActivity {
     DataManager dataManager;
     List<String> imageStringList;
     List<String> labelStringList;
+
+    boolean isCreateNewTravelItem = true;
+    TravelItem currentTravelItem = new TravelItem();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_item);
+        init();
+    }
 
+    private void init() {
+        initEventListener();
+        initTagAdapter();
         dataManager = DataManager.getInstance(getApplicationContext());
         imageStringList = new ArrayList<>();
         labelStringList = new ArrayList<>();
 
-        initMyListener();
-        initMyAdapter();
         image = (ImageView)findViewById(R.id.Select_image);
         image.setOnClickListener(onClickListener);
         pictureLinearLayout = (LinearLayout)findViewById(R.id.createItemPictureLinearLayout);
@@ -105,19 +103,30 @@ public class CreateNewItemActivity extends AppCompatActivity {
         setTagBtn = (Button)findViewById(R.id.set_Tag_Btn);
         setTagBtn.setOnClickListener(onClickListener);
 
+        currentTravelItem.id = getIntent().getIntExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, -1);
+        if (currentTravelItem.id != -1) {
+            isCreateNewTravelItem = false;
+            currentTravelItem = dataManager.queryTravelItemByTravelItemId(currentTravelItem.id);
+            addImageFromUri(Uri.parse(currentTravelItem.media));
+            itemTextEditText.setText(currentTravelItem.text);
+            locationLat = currentTravelItem.locationLat;
+            locationLng = currentTravelItem.locationLng;
+            return;
+        }
+
         Bundle bundle = getIntent().getExtras();
         locationLat = bundle.getDouble(MainActivity.LOCATION_LAT_KEY);
         locationLng = bundle.getDouble(MainActivity.LOCATION_LNG_KEY);
     }
 
-    private void initMyAdapter() {
+    private void initTagAdapter() {
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
         setTagAdapter = new SetTagAdapter(strings, this);
     }
 
-    private void initMyListener() {
+    private void initEventListener() {
         onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -287,15 +296,20 @@ public class CreateNewItemActivity extends AppCompatActivity {
                     labelString = labelStringList.get(0).toString();
 
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                TravelItem travelItem = new TravelItem();
-                travelItem.text = editText;
-                travelItem.label = labelString;
-                travelItem.locationLat = locationLat;
-                travelItem.locationLng = locationLng;
-                travelItem.media = imageString;
-                travelItem.time = timeStamp;
-                travelItem.travelId = MainActivity.currentTravelId;
-                long temp = dataManager.addNewTravelItem(travelItem);
+                currentTravelItem.text = editText;
+                currentTravelItem.label = labelString;
+                currentTravelItem.locationLat = locationLat;
+                currentTravelItem.locationLng = locationLng;
+                currentTravelItem.media = imageString;
+                currentTravelItem.time = timeStamp;
+                long temp;
+                if (isCreateNewTravelItem) {
+                    currentTravelItem.travelId = MainActivity.currentTravelId;
+                    temp = dataManager.addNewTravelItem(currentTravelItem);
+                } else {
+                    temp = dataManager.updateTravelItem(currentTravelItem);
+                }
+
                 Log.v("wilbert", "travel item " + temp);
                 finish();
                 break;
