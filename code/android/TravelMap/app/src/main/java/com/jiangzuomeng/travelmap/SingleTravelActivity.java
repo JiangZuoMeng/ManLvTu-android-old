@@ -71,6 +71,14 @@ public class SingleTravelActivity
                     );
                     initData();
                     break;
+
+                case R.id.SingleTravelActivityListViewPopupEditButton:
+                    popupWindow.dismiss();
+
+                    Intent intent = new Intent(getApplicationContext(), CreateNewItemActivity.class);
+                    intent.putExtra(INTENT_TRAVEL_KEY, travelItemList.get(listViewClickPosition).id);
+                    startActivity(intent);
+                    break;
             }
         }
     };

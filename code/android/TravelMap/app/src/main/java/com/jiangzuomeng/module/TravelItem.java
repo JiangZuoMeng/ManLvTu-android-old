@@ -22,7 +22,7 @@ public class TravelItem implements ManLvTuSQLDataType {
     }
 
     @Override
-    public ContentValues makeInsertSQLContentValues() {
+    public ContentValues makeSQLContentValues() {
         ContentValues contentValues = new ContentValues();
         contentValues.put("travelId", this.travelId);
         contentValues.put("label", this.label);

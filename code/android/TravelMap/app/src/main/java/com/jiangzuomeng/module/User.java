@@ -22,7 +22,7 @@ public class User implements ManLvTuSQLDataType {
     }
 
     @Override
-    public ContentValues makeInsertSQLContentValues() {
+    public ContentValues makeSQLContentValues() {
         ContentValues contentValues = new ContentValues();
         contentValues.put("username", this.username);
         contentValues.put("password", this.password);
@@ -33,7 +33,6 @@ public class User implements ManLvTuSQLDataType {
         return "CREATE TABLE IF NOT EXISTS " + USER_TABLE_NAME +
                 "(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)";
     }
-
 
     public static String queryByUsernameSQLString() {
         return null;

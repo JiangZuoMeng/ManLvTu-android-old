@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jiangzuomeng.module.Comment;
-import com.jiangzuomeng.module.ManLvTuSQLDataType;
 import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.module.TravelItem;
 import com.jiangzuomeng.module.User;
@@ -41,19 +40,19 @@ public class DBManager {
     }
 
     public long addNewUser(User user) {
-        ContentValues values = user.makeInsertSQLContentValues();
+        ContentValues values = user.makeSQLContentValues();
         return database.insert(User.USER_TABLE_NAME, null, values);
     }
     public long addNewTravel(Travel travel) {
-        ContentValues values = travel.makeInsertSQLContentValues();
+        ContentValues values = travel.makeSQLContentValues();
         return database.insert(Travel.TRAVEL_TABLE_NAME, null, values);
     }
     public long addNewTravelItem(TravelItem travelItem) {
-        ContentValues values = travelItem.makeInsertSQLContentValues();
+        ContentValues values = travelItem.makeSQLContentValues();
         return database.insert(TravelItem.TRAVEL_ITEM_TABLE_NAME, null, values);
     }
     public long addNewComment(Comment comment) {
-        ContentValues values = comment.makeInsertSQLContentValues();
+        ContentValues values = comment.makeSQLContentValues();
         return database.insert(Comment.COMMENT_TABLE_NAME, null, values);
     }
 
@@ -231,19 +230,19 @@ public class DBManager {
     }
 
     public int updateComment(Comment comment) {
-        return database.update(Comment.COMMENT_TABLE_NAME, comment.makeInsertSQLContentValues(),
+        return database.update(Comment.COMMENT_TABLE_NAME, comment.makeSQLContentValues(),
                 "id = ?", new String[]{String.valueOf(comment.id)});
     }
     public int updateTravelItem(TravelItem travelItem) {
-        return database.update(TravelItem.TRAVEL_ITEM_TABLE_NAME, travelItem.makeInsertSQLContentValues(),
+        return database.update(TravelItem.TRAVEL_ITEM_TABLE_NAME, travelItem.makeSQLContentValues(),
                 "id = ?", new String[] {String.valueOf(travelItem.id)});
     }
     public int updateTravel(Travel travel) {
-        return database.update(Travel.TRAVEL_TABLE_NAME, travel.makeInsertSQLContentValues(),
+        return database.update(Travel.TRAVEL_TABLE_NAME, travel.makeSQLContentValues(),
                 "id = ?", new String[] {String.valueOf(travel.id)});
     }
     public int updateUser(User user) {
-        return database.update(User.USER_TABLE_NAME, user.makeInsertSQLContentValues(),
+        return database.update(User.USER_TABLE_NAME, user.makeSQLContentValues(),
                 "id = ?", new String[] {String.valueOf(user.id)});
     }
 }

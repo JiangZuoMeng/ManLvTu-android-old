@@ -18,7 +18,7 @@ public class Comment implements ManLvTuSQLDataType {
     }
 
     @Override
-    public ContentValues makeInsertSQLContentValues() {
+    public ContentValues makeSQLContentValues() {
         ContentValues contentValues = new ContentValues();
         contentValues.put("userId", this.userId);
         contentValues.put("travelItemId", this.travelItemId);
