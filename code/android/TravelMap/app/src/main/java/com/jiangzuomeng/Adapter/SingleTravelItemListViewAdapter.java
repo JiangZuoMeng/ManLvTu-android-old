@@ -1,7 +1,12 @@
 package com.jiangzuomeng.Adapter;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +17,8 @@ import android.widget.TextView;
 import com.jiangzuomeng.module.TravelItem;
 import com.jiangzuomeng.travelmap.R;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +29,22 @@ import java.util.Map;
  * Created by ekuri-PC on 2015/11/1.
  */
 public class SingleTravelItemListViewAdapter extends BaseAdapter {
+    public Bitmap getBitmapFromUri(View view, Uri uri, int scaledWidth) throws FileNotFoundException {
+        InputStream inputStream = view.getContext().getContentResolver().openInputStream(uri);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+        float bitmapHeight = options.outHeight;
+        Resources resources = view.getContext().getResources();
+        DisplayMetrics displayMetrics = resources.getDisplayMetrics();
+        float px = 90 * (displayMetrics.densityDpi / 160f);
+        int sampleSize = (int)(bitmapHeight / px);
+        options.inSampleSize = sampleSize;
+        options.inJustDecodeBounds = false;
+        inputStream = view.getContext().getContentResolver().openInputStream(uri);
+        return BitmapFactory.decodeStream(inputStream, null, options);
+    }
+
     List<Map<String, Object>> data;
     public final class content {
         public ImageView image;
@@ -82,7 +105,11 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         if (uriString == null) {
             z.image.setImageResource(R.drawable.ic_mood_black_24dp);
         } else {
-            z.image.setImageURI(Uri.parse(uriString));
+            try {
+                z.image.setImageBitmap(getBitmapFromUri(convertView, Uri.parse(uriString), 0));
+            } catch (FileNotFoundException e) {
+                Log.v("ekuri", e.toString());
+            }
         }
 
         z.title.setText((String) data.get(position).get("title"));

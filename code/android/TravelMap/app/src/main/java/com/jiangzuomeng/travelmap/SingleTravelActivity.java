@@ -1,11 +1,15 @@
 package com.jiangzuomeng.travelmap;
 
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +20,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import com.amap.api.maps2d.AMap;
+import com.amap.api.maps2d.CameraUpdate;
 import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
@@ -28,6 +33,8 @@ import com.jiangzuomeng.Adapter.SingleTravelItemListViewAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.module.TravelItem;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,12 +111,21 @@ public class SingleTravelActivity
 
         aMap.clear();
         markers.clear();
+
+        if (!travelItemList.isEmpty()) {
+            aMap.moveCamera(CameraUpdateFactory.changeLatLng(
+                    new LatLng(travelItemList.get(0).locationLat, travelItemList.get(0).locationLng)));
+        }
+
         for (TravelItem travelItem : travelItemList) {
             LatLng latLng= new LatLng(travelItem.locationLat, travelItem.locationLng);
             addMarker(new MarkerOptions().position(latLng).draggable(true));
         }
         linkMarkersOfMap();
     }
+
+
+
     private void setupMap() {
         aMap.moveCamera(CameraUpdateFactory.zoomTo(14));
         aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
