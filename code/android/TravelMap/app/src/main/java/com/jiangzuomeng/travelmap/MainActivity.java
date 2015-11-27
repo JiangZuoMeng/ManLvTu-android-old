@@ -131,7 +131,9 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             List<TravelItem> travelItemList = dataManager.queryTravelItemListByTravelId(travel.id);
             if (!travelItemList.isEmpty()) {
                 TravelItem travelItem = travelItemList.get(0);
-                uri = Uri.parse(travelItem.media);
+                if (travelItem.media != null) {
+                    uri = Uri.parse(travelItem.media);
+                }
             }
             uriList.add(uri);
             nameList.add(travel.name);
