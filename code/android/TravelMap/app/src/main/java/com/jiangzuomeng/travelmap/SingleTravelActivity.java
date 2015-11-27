@@ -102,6 +102,12 @@ public class SingleTravelActivity
         supportActionBar.setTitle("在生物岛");
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
         initData();
+
+        // tend to move camera to location of first item
+        if (!travelItemList.isEmpty()) {
+            aMap.moveCamera(CameraUpdateFactory.changeLatLng(
+                    new LatLng(travelItemList.get(0).locationLat, travelItemList.get(0).locationLng)));
+        }
     }
     private void initData() {
         travelItemList = DataManager.getInstance(getApplicationContext())
@@ -111,11 +117,6 @@ public class SingleTravelActivity
 
         aMap.clear();
         markers.clear();
-
-        if (!travelItemList.isEmpty()) {
-            aMap.moveCamera(CameraUpdateFactory.changeLatLng(
-                    new LatLng(travelItemList.get(0).locationLat, travelItemList.get(0).locationLng)));
-        }
 
         for (TravelItem travelItem : travelItemList) {
             LatLng latLng= new LatLng(travelItem.locationLat, travelItem.locationLng);

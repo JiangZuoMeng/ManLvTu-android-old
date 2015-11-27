@@ -66,7 +66,7 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         Map<String, Object> map = new HashMap<>();
         map.put("image", imageId);
         map.put("title", description);
-        data.add(0, map);
+        data.add(map);
     }
     public void removeItem(int index) {
         data.remove(index);
