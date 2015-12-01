@@ -94,4 +94,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         }
         return true;
     }
+
+    private class DownloadAlbum extends {
+    }
 }
