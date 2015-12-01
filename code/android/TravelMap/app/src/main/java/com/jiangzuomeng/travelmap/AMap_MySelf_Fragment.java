@@ -125,7 +125,7 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
         aMap.animateCamera(cameraUpdate);
         CameraUpdate update = CameraUpdateFactory.changeLatLng(new LatLng(30, 104));
         aMap.animateCamera(update);
-        addMarkers();
+         addMarkers();
         // aMap.setMyLocationType()
     }
 

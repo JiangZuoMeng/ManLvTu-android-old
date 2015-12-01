@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     };
     ListView.OnItemClickListener onItemClickListener = null;
     ListView.OnItemLongClickListener onItemLongClickListener;
-    PopupWindow setTagPopUpWindow;
     TabLayout.OnTabSelectedListener onTabSelectedListener;
     ViewPager.SimpleOnPageChangeListener simpleOnPageChangeListener;
     Button.OnClickListener btnOnclickListener;
@@ -104,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         fab.setLongClickable(true);
         fab.setOnClickListener(btnOnclickListener);
         fab.setOnLongClickListener(btnOnLongClickListener);
+        fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
 
         tag = (FloatingActionButton) findViewById(R.id.set_tag);
         tag.setOnClickListener(btnOnclickListener);
@@ -205,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             @Override
             public boolean onLongClick(View v) {
                 fab_long_click(v);
+                fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
                 return true;
             }
         };
@@ -295,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
             toast.show();
             state = State.NotOnTrip;
-            fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
+            fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
         } else {
 
         }
@@ -336,12 +337,13 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     handler.sendMessage(message);
                     TabLayout.Tab tab = tabLayout.getTabAt(0);
                     tab.setText(nameEdittext.getText().toString());
+                    fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
+
                 }
             });
             builder.show();
         }
         else {
-            //// TODO: 2015/10/27 camera
             Intent intent = new Intent(this, CreateNewItemActivity.class);
             Bundle bundle = new Bundle();
             bundle.putDouble(LOCATION_LAT_KEY, locationLat);
