@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -374,6 +375,14 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         super.onResume();
         initdrawerAdapter();
         listView_drawer.setAdapter(drawerAdapter);
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_notification:
+                Intent intent = new Intent(this, NotificationActivity.class);
+                startActivity(intent);
+        }
+        return true;
     }
 
     @Override
