@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.jiangzuomeng.module.AsyncTaskItem;
 import com.jiangzuomeng.module.Comment;
 import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.module.TravelItem;
@@ -33,6 +34,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
         // comment table
         db.execSQL(Comment.makeCreateTableSQLString());
+
+        // AsyncTaskItem table
+        db.execSQL(AsyncTaskItem.makeCreateTableSQLString());
     }
 
     @Override
