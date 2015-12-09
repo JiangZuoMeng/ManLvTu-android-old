@@ -14,70 +14,112 @@ function User() {
     this.initRoute = function (app) {
         var prefix = '/user/';
         app.get(prefix + 'query', function (req, res) {
+            var result = { request : 'query', target : 'user' };
             if (!req.query.username) {
-                res.end('missing arguement');
+                result.result = 'invalid request';
+                res.end(JSON.stringify(result));
                 return;
             }
             database.get('select id, username, password from user where username = ?', [req.query.username], function (error, row) {
-                    res.write('query user:\n');
                     if (error) {
-                        res.write('failed\n');
+                        result.result = 'server failed';
                     } else {
                         if (row) {
-                            res.write('id: ' + row.id + '\n');
-                            res.write('username: ' + row.username + '\n');
-                            res.write('password: ' + row.password);
+                            result.result = 'success';
+                            result.data = { id : row.id, username : row.username, password : row.password };
                         } else {
-                            res.write('no such user');
+                            result.result = 'not exist';
                         }
                     }
-                    res.end();
+                    res.end(JSON.stringify(result));
             })
         });
         
         app.get(prefix + 'add', function (req, res) {
+            var result = { request : 'add', target : 'user' };
             if (!(req.query.username && req.query.password)) {
-                res.end('missing arguement');
+                result.result = 'invalid request';
+                res.end(JSON.stringify(result));
                 return;
             }
             database.run('insert into user (username, password) values (?, ?)', [req.query.username, req.query.password], function (error) {
-                res.setHeader('Content-Type', 'text/plain');
                 if (error) {
-                    res.write('add user failed:\n');
+                    result.result = 'server failed';
                 } else {
-                    res.write('add user successfully:\n');
+                    result.result = 'success';
                 }
-                res.end();
+                res.end(JSON.stringify(result));
             });
         });
         
         app.get(prefix + 'remove', function (req, res) {
+            var result = { request : 'remove', target : 'user' };
             if (!req.query.id) {
-                res.end('missing arguement');
+                result.result = 'invalid request';
+                res.end(JSON.stringify(result));
                 return;
             }
             database.run('delete from user where id = ?', [req.query.id], function (error) {
-                res.write('remove user: ');
                 if (error) {
-                    res.end('failed');
+                    result.result = 'server failed';
                 } else {
-                    res.end('successfully');
+                    result.result = 'success';
                 }
+                res.end(JSON.stringify(result));
             })
         });
         
         app.get(prefix + 'update', function (req, res) {
+            var result = { request : 'update', target : 'user' };
             if (!(req.query.id && req.query.username && req.query.password)) {
-                res.end('missing arguement');
+                result.result = 'invalid request';
+                res.end(JSON.stringify(result));
                 return;
             }
             database.run('update user set username = ?, password = ? where id = ?', [req.query.username, req.query.password, req.query.id], function (error) {
-                res.write('update user: ');
                 if (error) {
-                    res.end('failed');
+                    result.result = 'server failed';
                 } else {
-                    res.end('successfully');
+                    result.result = 'success';
                 }
+                res.end(JSON.stringify(result));
+            });
+        });
+
+        app.get(prefix + 'login', function (req, res) {
+            var result = { request : 'login', target : 'user' };
+            if (!(req.query.username && req.query.password)) {
+                result.result = 'invalid request';
+                res.end(JSON.stringify(result));
+                return;
+            }
+            database.get('select id, username, password from user where username = ? and password = ?', [req.query.username, req.query.password], function (error, row) {
+                if (error) {
+                    result.result = 'server failed';
+                } else if (row) {
+                    result.result = 'success';
+                    result.data = { id : row.id, username : row.username };
+                } else {
+                    result.result = 'not exist';
+                }
+                res.end(JSON.stringify(result));
+            });
+        });
+
+        app.get(prefix + 'register', function (req, res) {
+            var result = { request : 'register', target : 'user' };
+            if (!(req.query.username && req.query.password)) {
+                result.result = 'invalid request';
+                res.end(JSON.stringify(result));
+                return;
+            }
+            database.run('insert into user (username, password) values (?, ?)', [req.query.username, req.query.password], function (error) {
+                if (error) {
+                    result.result = 'server failed';
+                } else {
+                    result.result = 'success';
+                }
+                res.end(JSON.stringify(result));
             });
         });
     }
