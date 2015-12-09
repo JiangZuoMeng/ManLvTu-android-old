@@ -12,15 +12,20 @@ var database = new DataBase(modals);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.get('/', function(req, res) {
-    res.render('index.jade');
+app.get('/user', function(req, res) {
+    res.render('user.jade');
 });
 
-app.get('/login', function(req, res) {
-    res.end('login');
+app.get('/travel', function(req, res) {
+    res.render('travel.jade');
 });
-app.get('/register', function(req, res) {
-    res.end('register');
+
+app.get('/travelItem', function(req, res) {
+    res.render('travelItem.jade');
+});
+
+app.get('/comment', function(req, res) {
+    res.render('comment.jade');
 });
 
 var server = app.listen(3000, '192.168.150.1', function() {
