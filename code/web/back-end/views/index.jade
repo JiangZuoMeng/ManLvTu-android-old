@@ -1,0 +1,25 @@
+extends layout
+
+block content
+    h1 add user
+    form(action='/user/add', method='get')
+        input(type='text', name='username')
+        input(type='text', name='password')
+        input(type='submit')
+
+    h1 query user
+    form(action='/user/query', method='get')
+        input(type='text', name='username')
+        input(type='submit')
+
+    h1 remove user
+    form(action='/user/remove', method='get')
+        input(type='text', name='id')
+        input(type='submit')
+
+    h1 update user
+    form(action='/user/update', method='get')
+        input(type='text', name='id')
+        input(type='text', name='username')
+        input(type='text', name='password')
+        input(type='submit')
