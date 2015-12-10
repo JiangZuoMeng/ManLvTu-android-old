@@ -34,7 +34,7 @@ public class Comment implements ManLvTuSQLDataType {
 
     public static String makeCreateTableSQLString() {
         return "CREATE TABLE IF NOT EXISTS " + COMMENT_TABLE_NAME +
-                "(id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER," +
+                "(id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, travelItemId INTEGER, " +
                 "text TEXT, time TEXT)";
     }
 
