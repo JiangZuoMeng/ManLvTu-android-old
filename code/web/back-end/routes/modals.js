@@ -2,6 +2,7 @@ var User = require('./user.js');
 var Travel = require('./travel.js');
 var TravelItem = require('./travelItem.js');
 var Comment = require('./comment.js');
+var Counter = require('./counter.js');
 
 function Modal() {
 	// load local modules
@@ -9,6 +10,7 @@ function Modal() {
 	travel = new Travel();
 	travelItem = new TravelItem();
 	comment = new Comment();
+	counter = new Counter();
 	
 	this.initRoute = function(app) {
 		user.initRoute(app);
@@ -22,6 +24,7 @@ function Modal() {
 		travel.initDataBase(database);
 		travelItem.initDataBase(database);
 		comment.initDataBase(database);
+		counter.initDataBase(database);
 	}
 }
 

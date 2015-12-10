@@ -35,23 +35,6 @@ function User() {
             })
         });
         
-        app.get(prefix + 'add', function (req, res) {
-            var result = { request : 'add', target : 'user' };
-            if (!(req.query.username && req.query.password)) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('insert into user (username, password) values (?, ?)', [req.query.username, req.query.password], function (error) {
-                if (error) {
-                    result.result = 'server failed';
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            });
-        });
-        
         app.get(prefix + 'remove', function (req, res) {
             var result = { request : 'remove', target : 'user' };
             if (!req.query.id) {
@@ -113,13 +96,38 @@ function User() {
                 res.end(JSON.stringify(result));
                 return;
             }
-            database.run('insert into user (username, password) values (?, ?)', [req.query.username, req.query.password], function (error) {
+
+            // get user count
+            var count;
+            database.get('select count from counter where name = ?', ['user'], function (error, row) {
                 if (error) {
                     result.result = 'server failed';
+                    console.log('database error: ' + error.toString());
+                    res.end(JSON.stringify(result));
+                    return;
+                } else {
+                    count = row.count;
+                    console.log('user count: ' + row.toString());
+                }
+            });
+
+            // insert new user into database
+            database.run('insert into user (id, username, password) values (?, ?)', [count, req.query.username, req.query.password], function (error) {
+                if (error) {
+                    result.result = 'server failed';
+                    console.log('database error: ' + error.toString());
                 } else {
                     result.result = 'success';
                 }
                 res.end(JSON.stringify(result));
+            });
+
+            // update user count
+            count++;
+            database.run('update counter set count = ? where name = ?', [count, 'user'], function (error) {
+                if (error) {
+                    console.log('update user count failed: ' + error.toString());
+                }
             });
         });
     }
