@@ -6,11 +6,13 @@ var database = new Database();
 var target_global = 'user';
 
 router.get('/remove', function (req, res) {
-    
+    var user = { id: req.query.id, tableName : target_global, request : 'remove'};
+    database.remove(user, res);
 });
 
 router.get('/update', function (req, res) {
-    
+    var user = { id: req.query.id, tableName : target_global, request : 'update', condition : 'username = ?, password = ? where id = ?', values : [req.query.username, req.query.password]};
+    database.update(user, res);
 });
 
 router.get('/login', function (req, res) {

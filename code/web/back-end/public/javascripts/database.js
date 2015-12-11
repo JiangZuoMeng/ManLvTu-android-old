@@ -38,18 +38,67 @@ function Database() {
 
 		eventEmitter.on('updateCounter', function (count) {
 			Database.prototype.db.run('update counter set count = ? where name = ?', [count + 1, who.tableName], function (error) {
+				if (error) {
+					eventEmitter.emit('finished', error, null, who, res);
+					return;
+				}
 				eventEmitter.emit('reget', count);
 			});
 		});
 
 		eventEmitter.on('insert', function (count) {
 			Database.prototype.db.run('insert into ' + who.tableName + ' ' + who.condition, who.values.concat([count]), function (error) {
+				if (error) {
+					eventEmitter.emit('finished', error, null, who, res);
+					return;
+				}
 				eventEmitter.emit('updateCounter', count);
 			});
 		});
 
 		Database.prototype.db.get('select count from counter where name = ?', [who.tableName], function (error, row) {
+			if (error) {
+				eventEmitter.emit('finished', error, null, who, res);
+				return;
+			}
 			eventEmitter.emit('insert', row.count);
+		});
+	}
+
+	this.update = function(who, res) {
+		var eventEmitter = new EventEmitter();
+		eventEmitter.on('finished', response);
+
+		eventEmitter.on('reget', function (id) {
+			Database.prototype.db.get('select * from ' + who.tableName + ' where id = ?', [id], function (error, row) {
+				eventEmitter.emit('finished', error, row, who, res);
+			});
+		});
+
+		Database.prototype.db.run('update ' + who.tableName + ' set ' + who.condition, who.values.concat([who.id]), function (error) {
+			if (error) {
+				eventEmitter.emit('finished', error, null, who, res);
+				return;
+			}
+			eventEmitter.emit('reget', who.id);
+		});
+	}
+
+	this.remove = function(who, res) {
+		var eventEmitter = new EventEmitter();
+		eventEmitter.on('finished', response);
+
+		eventEmitter.on('delete', function (row) {
+			Database.prototype.db.run('delete from ' + who.tableName + ' where id = ?', [who.id], function(error) {
+				eventEmitter.emit('finished', error, row, who, res);
+			});
+		});
+		Database.prototype.db.get('select * from ' + who.tableName + ' where id = ?', [who.id], function (error, row) {
+			if (error) {
+				eventEmitter.emit('finished', error, null, who, res);
+				return;
+			}
+			eventEmitter.emit('delete', row);
 		});
 	}
 }
