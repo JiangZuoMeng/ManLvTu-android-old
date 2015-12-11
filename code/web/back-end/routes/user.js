@@ -7,8 +7,6 @@ router.get('/', function(req, res, next) {
 module.exports = router;
 */
 
-
-
 function User() {
     var database;
     this.initRoute = function (app) {
@@ -89,6 +87,7 @@ function User() {
             });
         });
 
+        // register user -start
         app.get(prefix + 'register', function (req, res) {
             var result = { request : 'register', target : 'user' };
             if (!(req.query.username && req.query.password)) {
@@ -97,39 +96,67 @@ function User() {
                 return;
             }
 
-            // get user count
-            var count;
-            database.get('select count from counter where name = ?', ['user'], function (error, row) {
+            // find whether a user already exists -start
+            database.get('select * from user where username = ?', [req.query.username], function (error, row) {
                 if (error) {
                     result.result = 'server failed';
                     console.log('database error: ' + error.toString());
                     res.end(JSON.stringify(result));
                     return;
+                } else if (row) {
+                    result.result = 'already exist';
+                    res.end(JSON.stringify(result));
+                    return;
                 } else {
-                    count = row.count;
-                    console.log('user count: ' + row.toString());
-                }
-            });
+                    // get user count -start
+                    var count;
+                    database.get('select count from counter where name = ?', ['user'], function (error, row) {
+                        if (error) {
+                            result.result = 'server failed';
+                            console.log('database error: ' + error.toString());
+                            res.end(JSON.stringify(result));
+                            return;
+                        } else {
+                            if (row) {
+                                count = row.count;
+                                console.log('user count: ' + row.count);
 
-            // insert new user into database
-            database.run('insert into user (id, username, password) values (?, ?)', [count, req.query.username, req.query.password], function (error) {
-                if (error) {
-                    result.result = 'server failed';
-                    console.log('database error: ' + error.toString());
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            });
+                                // insert new user into database -start
+                                database.run('insert into user (id, username, password) values (?, ?, ?)', [count, req.query.username, req.query.password], function (error) {
+                                    if (error) {
+                                        result.result = 'server failed';
+                                        console.log('database error: ' + error.toString());
+                                        res.end(JSON.stringify(result));
+                                        return;
+                                    } else {
+                                        result.result = 'success';
+                                        count++;
+                                        console.log('user count is: ' + count);
+                                        // update user count
+                                        database.run('update counter set count = ? where name = ?', [count, 'user'], function (error) {
+                                            if (error) {
+                                                console.log('update user count failed: ' + error.toString());
+                                            }
+                                        });
+                                    }
+                                    res.end(JSON.stringify(result));
+                                });
+                                // insert new user into database -end
 
-            // update user count
-            count++;
-            database.run('update counter set count = ? where name = ?', [count, 'user'], function (error) {
-                if (error) {
-                    console.log('update user count failed: ' + error.toString());
+                            } else {
+                                console.log('get user count failed');
+                                result.result = 'server failed';
+                                res.end(JSON.stringify(result));
+                                return;
+                            }
+                        }
+                    });
+                    // get user count -end
                 }
             });
+            // find whether a user already exists -end
         });
+        // register user -end
     }
     
     this.initDataBase = function (database_para) {
