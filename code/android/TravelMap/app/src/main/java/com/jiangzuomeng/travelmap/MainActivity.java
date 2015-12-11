@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         state = State.NotOnTrip;
         userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
         userId = dataManager.queryUserByUserName(userName).id;
+
         initMyListener();
         initdrawerAdapter();
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);

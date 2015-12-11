@@ -107,7 +107,9 @@ public class CreateNewItemActivity extends AppCompatActivity {
         if (currentTravelItem.id != -1) {
             isCreateNewTravelItem = false;
             currentTravelItem = dataManager.queryTravelItemByTravelItemId(currentTravelItem.id);
-            addImageFromUri(Uri.parse(currentTravelItem.media));
+            if (currentTravelItem.media != null) {
+                addImageFromUri(Uri.parse(currentTravelItem.media));
+            }
             itemTextEditText.setText(currentTravelItem.text);
             locationLat = currentTravelItem.locationLat;
             locationLng = currentTravelItem.locationLng;
@@ -355,6 +357,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
     }
 
     private void addImageFromUri(Uri fileUri) {
+        if (fileUri == null) return;
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             BitmapFactory.Options options = new BitmapFactory.Options();

@@ -46,8 +46,8 @@ public class DrawerAdapter  extends BaseAdapter{
     List<Bitmap> bitmapList = new ArrayList<>();
     List<Integer> travelIdList = new ArrayList<>();
     public final class content {
-    public ImageView image;
-    public TextView title;
+        public ImageView image;
+        public TextView title;
     }
     public Context context;
     public DrawerAdapter(List<Integer> travelIdList, List<Uri> uriList, List<String> nameList, Context c) {

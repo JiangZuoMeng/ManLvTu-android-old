@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">漫旅图</string>
-    
+
     <!-- Strings related to login -->
     <string name="prompt_email">用户名</string>
     <string name="prompt_password">密码</string>
