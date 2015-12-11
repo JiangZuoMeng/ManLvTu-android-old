@@ -66,16 +66,17 @@
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
-        <activity android:name=".SingleTravelActivity"></activity>
+            android:label="@string/title_activity_settings" />
+        <activity android:name=".SingleTravelActivity" />
         <activity
             android:name=".AlbumViewerActivity"
-            android:label="@string/title_activity_album"></activity>
-        <activity android:name=".CreateNewItemActivity"></activity>
+            android:label="@string/title_activity_album" />
+        <activity android:name=".CreateNewItemActivity" />
         <activity android:name=".AlbumDetailsActivity" />
         <activity
             android:name=".NotificationActivity"
             android:label="@string/title_activity_notification" />
+        <activity android:name=".TestNetworkActivity"></activity>
     </application>
 
 </manifest>
