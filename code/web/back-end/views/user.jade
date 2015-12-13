@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    h1 register
+    form(action='/user/register', method='get')
+        input(type='text', name='username')
+        input(type='text', name='password')
+        input(type='submit')
+
+    h1 login
+    form(action='/user/login', method='get')
+        input(type='text', name='username')
+        input(type='text', name='password')
+        input(type='submit')
+
+    h1 remove user
+    form(action='/user/remove', method='get')
+        input(type='text', name='id')
+        input(type='submit')
+
+    h1 update user
+    form(action='/user/update', method='get')
+        input(type='text', name='id')
+        input(type='text', name='username')
+        input(type='text', name='password')
+        input(type='submit')
