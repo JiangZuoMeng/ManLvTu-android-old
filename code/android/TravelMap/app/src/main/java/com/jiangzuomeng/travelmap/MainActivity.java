@@ -31,7 +31,7 @@ import com.jiangzuomeng.MyLayout.CustomViewPager;
 import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.module.TravelItem;
-
+import com.jiangzuomeng.module.StaticStrings;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +77,26 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         this.handler = handler;
     }
 
+    Handler netWorkHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+//                case StaticStrings.ADD_NEW_TRAVEL:
+                    currentTravelId = 23;
+                    initdrawerAdapter();
+                    listView_drawer.setAdapter(drawerAdapter);
+                    Message message = new Message();
+                    message.what = AMap_MySelf_Fragment.UPDATE;
+                    Bundle bundle = new Bundle();
+                    bundle.putDouble(LOCATION_LAT_KEY, locationLat);
+                    bundle.putDouble(LOCATION_LNG_KEY, locationLng);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                    TabLayout.Tab tab = tabLayout.getTabAt(0);
+                    tab.setText("test network successfully");
+                    //tab.setText(nameEdittext.getText().toString());
+                    fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -324,21 +344,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     Travel travel = new Travel();
                     travel.userId = userId;
                     travel.name = nameEdittext.getText().toString();
-                    currentTravelId = (int) dataManager.addNewTravel(travel);
-
-                    initdrawerAdapter();
-                    listView_drawer.setAdapter(drawerAdapter);
-
-                    Message message = new Message();
-                    message.what = AMap_MySelf_Fragment.UPDATE;
-                    Bundle bundle = new Bundle();
-                    bundle.putDouble(LOCATION_LAT_KEY, locationLat);
-                    bundle.putDouble(LOCATION_LNG_KEY, locationLng);
-                    message.setData(bundle);
-                    handler.sendMessage(message);
-                    TabLayout.Tab tab = tabLayout.getTabAt(0);
-                    tab.setText(nameEdittext.getText().toString());
-                    fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
+                    dataManager.addNewTravel(travel, netWorkHandler);
 
                 }
             });

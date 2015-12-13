@@ -235,7 +235,8 @@ public class SingleTravelActivity
                 travelItem.text = getResources().getString(R.string.single_travel_default_list_view_item_description);
                 travelItem.locationLng = aMap.getCameraPosition().target.longitude;
                 travelItem.locationLat = aMap.getCameraPosition().target.latitude;
-                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
+                // TODO: 2015/12/13 use network , should add handler as para
+//                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
                 initData();
                 break;
             case R.id.action_lock_map:

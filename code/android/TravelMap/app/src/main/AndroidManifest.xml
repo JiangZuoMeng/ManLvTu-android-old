@@ -42,11 +42,11 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name">
-            <intent-filter>
+            <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>-->
         </activity>
         <activity
             android:name=".MainActivity"
@@ -76,7 +76,13 @@
         <activity
             android:name=".NotificationActivity"
             android:label="@string/title_activity_notification" />
-        <activity android:name=".TestNetworkActivity"></activity>
+        <activity android:name=".TestNetworkActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

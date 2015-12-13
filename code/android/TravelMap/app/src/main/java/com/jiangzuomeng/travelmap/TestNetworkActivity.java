@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.module.Comment;
 import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.module.TravelItem;
@@ -34,6 +35,7 @@ public class TestNetworkActivity extends AppCompatActivity {
             }
         }
     };
+    DataManager dataManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,39 +44,15 @@ public class TestNetworkActivity extends AppCompatActivity {
         button = (Button)findViewById(R.id.testNetworkbutton);
         textView = (TextView)findViewById(R.id.testNetworktextView);
         netWorkManager = new NetWorkManager();
+        dataManager = DataManager.getInstance(getApplicationContext());
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            netWorkManager.addNewUser(new User());
-                            netWorkManager.addNewComment(new Comment());
-                            netWorkManager.addNewTravel(new Travel());
-                            netWorkManager.addNewTravelItem(new TravelItem());
-
-                            netWorkManager.queryTravelByTravelId(10);
-                            netWorkManager.queryCommentByCommentId(10);
-                            netWorkManager.queryTravelItemByTravelItemId(10);
-                            netWorkManager.queryUserById(10);
-                            netWorkManager.queryUserByUsername("etes");
-
-                            netWorkManager.removeCommentByCommentId(10);
-                            netWorkManager.removeTravelByTravelId(10);
-                            netWorkManager.removeTravelItemByTravelItemId(10);
-                            netWorkManager.removeUserByUserId(10);
-
-                            netWorkManager.updateComment(new Comment());
-                            netWorkManager.updateTravel(new Travel());
-                            netWorkManager.updateTravelItem(new TravelItem());
-                            netWorkManager.updateUser(new User());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                thread.start();
+                TravelItem travelItem = new TravelItem();
+                travelItem.text = "test travelitem network";
+                travelItem.media = "asdfadfadfa";
+                travelItem.time = "asdfadfadfwerwe";
+                dataManager.addNewTravelItem(travelItem, handler);
             }
         });
     }

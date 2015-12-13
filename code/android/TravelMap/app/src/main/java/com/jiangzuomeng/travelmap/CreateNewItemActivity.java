@@ -311,15 +311,14 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 currentTravelItem.locationLng = locationLng;
                 currentTravelItem.media = imageString;
                 currentTravelItem.time = timeStamp;
-                long temp;
+                // TODO: 2015/12/13 use network and should add some para
+/*                long temp;
                 if (isCreateNewTravelItem) {
                     currentTravelItem.travelId = MainActivity.currentTravelId;
                     temp = dataManager.addNewTravelItem(currentTravelItem);
                 } else {
                     temp = dataManager.updateTravelItem(currentTravelItem);
-                }
-
-                Log.v("wilbert", "travel item " + temp);
+                }*/
                 finish();
                 break;
         }

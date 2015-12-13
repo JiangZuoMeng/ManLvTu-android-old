@@ -7,7 +7,7 @@ import com.jiangzuomeng.module.Comment;
 import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.module.TravelItem;
 import com.jiangzuomeng.module.User;
-
+import com.jiangzuomeng.module.StaticStrings;
 import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
@@ -114,9 +114,9 @@ public class NetWorkManager {
         return getStringFromUrl(url);*/
     }
 
-    public User queryUserByUsername(String username) {
+    public String queryUserByUsername(String username) {
         // TODO: 2015/12/11
-        return new User();
+        return "test    ";
     }
 
     public String queryTravelByTravelId(int travelId) throws IOException {
