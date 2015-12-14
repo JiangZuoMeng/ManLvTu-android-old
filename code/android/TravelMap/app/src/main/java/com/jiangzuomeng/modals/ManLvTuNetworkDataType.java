@@ -22,12 +22,16 @@ public abstract class ManLvTuNetworkDataType {
             case StaticStrings.QUERY:
                 url = getQueryUrl();
                 break;
+            case StaticStrings.QUERY_ALL:
+                url = getQueryAllUrl();
+                break;
         }
         return url;
     }
 
     public abstract URL getAddUrl() throws MalformedURLException;
-    public abstract URL getQueryUrl();
+    public abstract URL getQueryUrl() throws MalformedURLException;
     public abstract URL getUpdateUrl() throws MalformedURLException;
     public abstract URL getRemoveUrl() throws MalformedURLException;
+    public abstract URL getQueryAllUrl() throws MalformedURLException;
 }

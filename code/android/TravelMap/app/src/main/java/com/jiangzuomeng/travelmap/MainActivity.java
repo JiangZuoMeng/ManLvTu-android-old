@@ -243,8 +243,9 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                         builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dataManager.removeTravelByTravelId(drawerAdapter.getTravelIdList().
-                                        get(position));
+                                // TODO: 2015/12/14 network
+                                /*dataManager.removeTravelByTravelId(drawerAdapter.getTravelIdList().
+                                        get(position));*/
                                 initdrawerAdapter();
                                 listView_drawer.setAdapter(drawerAdapter);
                             }

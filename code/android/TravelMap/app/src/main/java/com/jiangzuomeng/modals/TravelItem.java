@@ -1,11 +1,17 @@
 package com.jiangzuomeng.modals;
 
 import android.content.ContentValues;
+import android.net.Uri;
+import android.text.method.HideReturnsTransformationMethod;
+
+import java.lang.annotation.Retention;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Created by ekuri-PC on 2015/11/21.
  */
-public class TravelItem implements ManLvTuSQLDataType {
+public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     public static final String TRAVEL_ITEM_TABLE_NAME = "travelItem";
     public int id;
     public int travelId;
@@ -48,5 +54,76 @@ public class TravelItem implements ManLvTuSQLDataType {
 
     public String makeQueryByTravelIdSQLString() {
         return null;
+    }
+
+    @Override
+    public URL getAddUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.TRAVEL_ITEM)
+                .appendPath(StaticStrings.ADD)
+                .appendQueryParameter(StaticStrings.TRAVEL_ID, Integer.toString(travelId))
+                .appendQueryParameter(StaticStrings.LABEL, label)
+                .appendQueryParameter(StaticStrings.TIME, time)
+                .appendQueryParameter(StaticStrings.LOCATION_LAT, Double.toString(locationLat))
+                .appendQueryParameter(StaticStrings.LOCATION_LNG, Double.toString(locationLng))
+                .appendQueryParameter(StaticStrings.LIKE, Integer.toString(like))
+                .appendQueryParameter(StaticStrings.TEXT, text)
+                .appendQueryParameter(StaticStrings.MEDIA, media);
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getQueryUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.TRAVEL_ITEM).appendPath(StaticStrings.QUERY)
+                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getUpdateUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.TRAVEL_ITEM).appendPath(StaticStrings.UPDATE)
+                .appendQueryParameter(StaticStrings.ID, Integer.toString(id))
+                .appendQueryParameter(StaticStrings.TRAVEL_ID, Integer.toString(travelId))
+                .appendQueryParameter(StaticStrings.LABEL, label)
+                .appendQueryParameter(StaticStrings.TIME, time)
+                .appendQueryParameter(StaticStrings.LOCATION_LAT, Double.toString(locationLat))
+                .appendQueryParameter(StaticStrings.LOCATION_LNG, Double.toString(locationLng))
+                .appendQueryParameter(StaticStrings.LIKE, Integer.toString(like))
+                .appendQueryParameter(StaticStrings.TEXT, text)
+                .appendQueryParameter(StaticStrings.MEDIA, media);
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getRemoveUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.TRAVEL_ITEM).appendPath(StaticStrings.REMOVE)
+                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getQueryAllUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.TRAVEL_ITEM).appendPath(StaticStrings.QUERY_ALL)
+                .appendQueryParameter(StaticStrings.TRAVEL_ID, Integer.toString(travelId));
+        URL url = new URL(builder.build().toString());
+        return url;
     }
 }
