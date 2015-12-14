@@ -3,6 +3,10 @@ package com.jiangzuomeng.modals;
 import android.content.ContentValues;
 import android.net.Uri;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -15,16 +19,27 @@ public class Travel extends ManLvTuNetworkDataType implements ManLvTuSQLDataType
     public int userId;
     public String name;
 
-    public Travel (int id, int userId, String name) {
-        this.id = id;
-        this.userId = userId;
-        this.name = name;
+    public static Travel fromJson(String json, boolean withId) throws JSONException {
+        Travel result = new Travel();
+        JSONTokener parser = new JSONTokener(json);
+        JSONObject jsonObject = (JSONObject) parser.nextValue();
+        if (withId)
+            result.id = jsonObject.getInt("id");
+        result.userId = jsonObject.getInt("userId");
+        result.name = jsonObject.getString("name");
+        return result;
     }
 
-    public Travel () {
+    public String toJson(boolean withId) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
 
+        if (withId)
+            jsonObject.put("id", id);
+        jsonObject.put("userId", this.userId);
+        jsonObject.put("name", this.name);
+
+        return jsonObject.toString();
     }
-
 
     @Override
     public ContentValues makeSQLContentValues() {
@@ -37,14 +52,6 @@ public class Travel extends ManLvTuNetworkDataType implements ManLvTuSQLDataType
     public static String makeCreateTableSQLString() {
         return "CREATE TABLE IF NOT EXISTS " + TRAVEL_TABLE_NAME +
                 "(id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, name TEXT)";
-    }
-
-    public String makeQueryByTrvelIdSQLString() {
-        return null;
-    }
-
-    public String makeQueryByUserIdSQLString() {
-        return null;
     }
 
     @Override
