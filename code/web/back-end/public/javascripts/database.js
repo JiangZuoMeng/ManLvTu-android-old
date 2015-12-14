@@ -127,7 +127,7 @@ function createCounterTable(database) {
 		}
 	});
 }
-Database.prototype.db = new sqlite3.Database('data.sqlite3', function (error) {
+Database.prototype.db = new sqlite3.Database('./data/data.sqlite3', function (error) {
 	if (error) {
 		console.error('Open database failed: ' + error.toString());
 		return;

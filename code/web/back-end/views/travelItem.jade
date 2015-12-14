@@ -73,4 +73,10 @@ block content
             p media
                 input(type='text', name='media')
             input(type='submit')
+            
+        h3 file upload
+        form(action='/upload', enctype='multipart/form-data', method='post')
+            p file
+                input(type='file' name='file')
+            input(type='submit') 
     
