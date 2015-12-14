@@ -15,6 +15,9 @@ import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,7 +44,7 @@ public class DataManager {
         netWorkManager = new NetWorkManager();
     }
 
-    public boolean login(String userName, String passWord) throws IOException {
+    public boolean login(String userName, String passWord) throws IOException, JSONException {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(StaticStrings.HTTP)
                 .encodedAuthority(StaticStrings.host)
@@ -51,8 +54,11 @@ public class DataManager {
                 .appendQueryParameter(StaticStrings.PASSWORD, passWord);
         URL url = new URL(builder.build().toString());
         String dataString = netWorkManager.getDataFromUrl(url);
-
-
+        JSONObject jsonObject = new JSONObject(dataString);
+        String result = jsonObject.getString("result");
+        if (result.equals("success"))
+            return true;
+        return false;
     }
 
     public void addNewUser(User user, Handler handler) {

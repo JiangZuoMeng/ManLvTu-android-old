@@ -30,9 +30,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.database.DBManager;
 import com.jiangzuomeng.modals.User;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -185,6 +189,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+            DataManager dataManager = DataManager.getInstance(getApplicationContext());
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
@@ -315,6 +320,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
 
+            DataManager dataManager = DataManager.getInstance(getApplicationContext());
             DBManager dbManager = new DBManager(getApplicationContext());
             User user = dbManager.queryUserByUsername(mUsername);
 
