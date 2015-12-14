@@ -1,15 +1,22 @@
 package com.jiangzuomeng.dataManager;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 
 import com.jiangzuomeng.database.DBManager;
-import com.jiangzuomeng.module.Comment;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
-import com.jiangzuomeng.module.User;
+import com.jiangzuomeng.modals.Comment;
+import com.jiangzuomeng.modals.ManLvTuNetworkDataType;
+import com.jiangzuomeng.modals.StaticStrings;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -19,7 +26,7 @@ public class DataManager {
     private static DataManager dataManager = null;
     private DBManager dbManager;
     private NetWorkManager netWorkManager;
-
+    private Bundle bundle = new Bundle();
     public static DataManager getInstance(Context context) {
         if (dataManager == null) {
             dataManager = new DataManager(context);
@@ -32,29 +39,30 @@ public class DataManager {
         netWorkManager = new NetWorkManager();
     }
 
-    public long addNewTravel(Travel travel) {
-        return dbManager.addNewTravel(travel);
+
+    public void addNewTravel(Travel travel,Handler handler) {
     }
-    public long addNewTravelItem(TravelItem travelItem) {
-        return dbManager.addNewTravelItem(travelItem);
+    public void addNewTravelItem(TravelItem travelItem, Handler handler) {
+//        return dbManager.addNewTravelItem(travelItem);
     }
-    public long addNewUser(User user) {
-        return dbManager.addNewUser(user);
+    public void addNewUser(User user, Handler handler) {
+        runThreadByKey(StaticStrings.ADD, handler, user);
+//        return dbManager.addNewUser(user);
     }
-    public long addNewComment(Comment comment) {
-        return dbManager.addNewComment(comment);
+    public void addNewComment(Comment comment,Handler handler) {
+//        return dbManager.addNewComment(comment);
     }
 
-    public User queryUserByUserName(String userName) {
-        User user = dbManager.queryUserByUsername(userName);
-        return user;
+    public void queryUserByUserName(String userName, Handler handler) {
     }
-    public Travel queryTravelByTravelId(int travelId) {
-        return dbManager.queryTravelByTravelId(travelId);
+
+    public void queryUserByUserId(int id, Handler handler) {
+
+    }
+    public void queryTravelByTravelId(int travelId, Handler handler) {
     }
     public TravelItem queryTravelItemByTravelItemId(int travelItemid) {
         TravelItem travelItem = dbManager.queryTravelItemByTravelItemId(travelItemid);
-
         return travelItem;
     }
     public Comment queryCommentByCommentId(int commentid) {
@@ -120,5 +128,47 @@ public class DataManager {
     }
     public int updateUser(User user) {
         return dbManager.updateUser(user);
+    }
+
+    public class MyThread implements Runnable {
+        Handler handler;
+        public MyThread(Handler handler) {
+            this.handler = handler;
+        }
+        @Override
+        public void run() {
+            Message message = new Message();
+            message.what = StaticStrings.ADD_NEW_TRAVEL_ITEM;
+            bundle.clear();
+            String jsonString = null;
+            try {
+                jsonString = netWorkManager.addNewTravelItem(new TravelItem());
+                bundle.putString(StaticStrings.ADD_NEW_TRAVEL_ITEM_KEY, jsonString);
+                handler.sendMessage(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void runThreadByKey(final String key, final Handler handler, final ManLvTuNetworkDataType manLvTuNetworkDataType) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = manLvTuNetworkDataType.getUrl(key);
+                    String dataString = netWorkManager.getDataFromUrl(url);
+                    Message message = new Message();
+                    message.what = StaticStrings.NETWORK_OPERATION;
+                    Bundle bundle = new Bundle();
+                    bundle.putString(StaticStrings.NETWORK_RESULT_KEY, dataString);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
     }
 }

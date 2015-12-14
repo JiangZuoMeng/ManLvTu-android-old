@@ -1,7 +1,6 @@
-package com.jiangzuomeng.module;
+package com.jiangzuomeng.modals;
 
 import android.content.ContentValues;
-import android.util.JsonToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">漫旅图</string>
-    
+
     <!-- Strings related to login -->
     <string name="prompt_email">用户名</string>
     <string name="prompt_password">密码</string>
@@ -94,8 +94,6 @@
     <string name="action_add_new_position">添加新的坐标点</string>
     <string name="action_lock_map">锁定地图与解锁</string>
     <string name="single_travel_default_list_view_item_description">未完成编辑，长按编辑或删除</string>
-    
-    <!-- zefeng in charge -->
     <string name="delete_confirm">确定删除?</string>
     <string name="cancle">取消</string>
     <string name="album_comment">评论</string>

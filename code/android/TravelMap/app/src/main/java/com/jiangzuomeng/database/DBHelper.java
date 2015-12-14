@@ -4,11 +4,11 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.jiangzuomeng.module.AsyncTaskItem;
-import com.jiangzuomeng.module.Comment;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
-import com.jiangzuomeng.module.User;
+import com.jiangzuomeng.modals.AsyncTaskItem;
+import com.jiangzuomeng.modals.Comment;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.modals.User;
 
 /**
  * Created by ekuri-PC on 2015/11/21.

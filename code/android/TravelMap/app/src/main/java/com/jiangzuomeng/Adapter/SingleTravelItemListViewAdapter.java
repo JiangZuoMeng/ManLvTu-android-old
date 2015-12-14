@@ -14,14 +14,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.travelmap.R;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 

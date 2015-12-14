@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -22,14 +23,13 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 import com.jiangzuomeng.Adapter.DrawerAdapter;
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.MyLayout.CustomViewPager;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     };
     ListView.OnItemClickListener onItemClickListener = null;
     ListView.OnItemLongClickListener onItemLongClickListener;
-    PopupWindow setTagPopUpWindow;
     TabLayout.OnTabSelectedListener onTabSelectedListener;
     ViewPager.SimpleOnPageChangeListener simpleOnPageChangeListener;
     Button.OnClickListener btnOnclickListener;
@@ -77,6 +76,26 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         this.handler = handler;
     }
 
+    Handler netWorkHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+//                case StaticStrings.ADD_NEW_TRAVEL:
+                    currentTravelId = 23;
+                    initdrawerAdapter();
+                    listView_drawer.setAdapter(drawerAdapter);
+                    Message message = new Message();
+                    message.what = AMap_MySelf_Fragment.UPDATE;
+                    Bundle bundle = new Bundle();
+                    bundle.putDouble(LOCATION_LAT_KEY, locationLat);
+                    bundle.putDouble(LOCATION_LNG_KEY, locationLng);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                    TabLayout.Tab tab = tabLayout.getTabAt(0);
+                    tab.setText("test network successfully");
+                    //tab.setText(nameEdittext.getText().toString());
+                    fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +106,8 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         dataManager = DataManager.getInstance(getApplicationContext());
         state = State.NotOnTrip;
         userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
-        userId = dataManager.queryUserByUserName(userName).id;
+//        userId = dataManager.queryUserByUserName(userName, handler).id;
+
         initMyListener();
         initdrawerAdapter();
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
@@ -103,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         fab.setLongClickable(true);
         fab.setOnClickListener(btnOnclickListener);
         fab.setOnLongClickListener(btnOnLongClickListener);
+        fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
 
         tag = (FloatingActionButton) findViewById(R.id.set_tag);
         tag.setOnClickListener(btnOnclickListener);
@@ -204,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             @Override
             public boolean onLongClick(View v) {
                 fab_long_click(v);
+                fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
                 return true;
             }
         };
@@ -294,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
             toast.show();
             state = State.NotOnTrip;
-            fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
+            fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
         } else {
 
         }
@@ -321,26 +343,13 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     Travel travel = new Travel();
                     travel.userId = userId;
                     travel.name = nameEdittext.getText().toString();
-                    currentTravelId = (int) dataManager.addNewTravel(travel);
+                    dataManager.addNewTravel(travel, netWorkHandler);
 
-                    initdrawerAdapter();
-                    listView_drawer.setAdapter(drawerAdapter);
-
-                    Message message = new Message();
-                    message.what = AMap_MySelf_Fragment.UPDATE;
-                    Bundle bundle = new Bundle();
-                    bundle.putDouble(LOCATION_LAT_KEY, locationLat);
-                    bundle.putDouble(LOCATION_LNG_KEY, locationLng);
-                    message.setData(bundle);
-                    handler.sendMessage(message);
-                    TabLayout.Tab tab = tabLayout.getTabAt(0);
-                    tab.setText(nameEdittext.getText().toString());
                 }
             });
             builder.show();
         }
         else {
-            //// TODO: 2015/10/27 camera
             Intent intent = new Intent(this, CreateNewItemActivity.class);
             Bundle bundle = new Bundle();
             bundle.putDouble(LOCATION_LAT_KEY, locationLat);
@@ -376,6 +385,14 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         super.onResume();
         initdrawerAdapter();
         listView_drawer.setAdapter(drawerAdapter);
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_notification:
+                Intent intent = new Intent(this, NotificationActivity.class);
+                startActivity(intent);
+        }
+        return true;
     }
 
     @Override

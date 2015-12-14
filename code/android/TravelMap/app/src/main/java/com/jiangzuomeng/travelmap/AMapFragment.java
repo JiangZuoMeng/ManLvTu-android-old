@@ -64,7 +64,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     HorizontalScrollView horizontalScrollView;
 
     public interface MainActivityListener {
-        public void notifyLocation(double locationLng, double locationLat);
+        void notifyLocation(double locationLng, double locationLat);
     }
     MainActivityListener mainActivityListener;
 
@@ -155,6 +155,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
 /*            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin_drop_black_24dp))
                     .title("my location"));*/
+//            current_marker.destroy();
             current_marker = aMap.addMarker(new MarkerOptions().position(latLng).title("my location"));
             mainActivityListener.notifyLocation(aMapLocation.getLongitude(), aMapLocation.getLatitude());
         }

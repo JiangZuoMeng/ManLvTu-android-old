@@ -4,34 +4,23 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.Travel;
 import com.jiangzuomeng.travelmap.R;
-import com.squareup.picasso.Picasso;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.FormatFlagsConversionMismatchException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.zip.DeflaterInputStream;
 
 /**
  * Created by wilbert on 2015/10/31.
@@ -46,8 +35,8 @@ public class DrawerAdapter  extends BaseAdapter{
     List<Bitmap> bitmapList = new ArrayList<>();
     List<Integer> travelIdList = new ArrayList<>();
     public final class content {
-    public ImageView image;
-    public TextView title;
+        public ImageView image;
+        public TextView title;
     }
     public Context context;
     public DrawerAdapter(List<Integer> travelIdList, List<Uri> uriList, List<String> nameList, Context c) {

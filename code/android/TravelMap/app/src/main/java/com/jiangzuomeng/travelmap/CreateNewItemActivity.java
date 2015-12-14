@@ -29,7 +29,7 @@ import android.widget.PopupWindow;
 
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.modals.TravelItem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -107,10 +107,16 @@ public class CreateNewItemActivity extends AppCompatActivity {
         if (currentTravelItem.id != -1) {
             isCreateNewTravelItem = false;
             currentTravelItem = dataManager.queryTravelItemByTravelItemId(currentTravelItem.id);
-            addImageFromUri(Uri.parse(currentTravelItem.media));
+            if (currentTravelItem.media != null) {
+                addImageFromUri(Uri.parse(currentTravelItem.media));
+            }
             itemTextEditText.setText(currentTravelItem.text);
             locationLat = currentTravelItem.locationLat;
             locationLng = currentTravelItem.locationLng;
+            List<String> strings = new ArrayList<>();
+            strings.add(currentTravelItem.label);
+            setTagAdapter = new SetTagAdapter(strings, this);
+            setTagAdapter.getIsSelectList().set(0, true);
             return;
         }
 
@@ -121,9 +127,12 @@ public class CreateNewItemActivity extends AppCompatActivity {
 
     private void initTagAdapter() {
         List<String> strings = new ArrayList<>();
-        for (int i = 0; i < 5; i++)
-            strings.add(Integer.toString(i));
-        setTagAdapter = new SetTagAdapter(strings, this);
+        if (isCreateNewTravelItem) {
+            for (int i = 0; i < 5; i++)
+                strings.add(Integer.toString(i));
+            setTagAdapter = new SetTagAdapter(strings, this);
+        } else {
+        }
     }
 
     private void initEventListener() {
@@ -293,7 +302,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 labelStringList = getLabelStringList();
                 String labelString = null;
                 if (labelStringList.size() > 0)
-                    labelString = labelStringList.get(0).toString();
+                    labelString = labelStringList.get(0);
 
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 currentTravelItem.text = editText;
@@ -302,15 +311,14 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 currentTravelItem.locationLng = locationLng;
                 currentTravelItem.media = imageString;
                 currentTravelItem.time = timeStamp;
-                long temp;
+                // TODO: 2015/12/13 use network and should add some para
+/*                long temp;
                 if (isCreateNewTravelItem) {
                     currentTravelItem.travelId = MainActivity.currentTravelId;
                     temp = dataManager.addNewTravelItem(currentTravelItem);
                 } else {
                     temp = dataManager.updateTravelItem(currentTravelItem);
-                }
-
-                Log.v("wilbert", "travel item " + temp);
+                }*/
                 finish();
                 break;
         }
@@ -348,6 +356,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
     }
 
     private void addImageFromUri(Uri fileUri) {
+        if (fileUri == null) return;
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             BitmapFactory.Options options = new BitmapFactory.Options();

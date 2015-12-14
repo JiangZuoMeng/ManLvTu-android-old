@@ -1,16 +1,11 @@
 package com.jiangzuomeng.travelmap;
 
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,10 +15,8 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import com.amap.api.maps2d.AMap;
-import com.amap.api.maps2d.CameraUpdate;
 import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.MapView;
-import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
@@ -31,10 +24,8 @@ import com.amap.api.maps2d.model.Polyline;
 import com.amap.api.maps2d.model.PolylineOptions;
 import com.jiangzuomeng.Adapter.SingleTravelItemListViewAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.modals.TravelItem;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -235,7 +226,8 @@ public class SingleTravelActivity
                 travelItem.text = getResources().getString(R.string.single_travel_default_list_view_item_description);
                 travelItem.locationLng = aMap.getCameraPosition().target.longitude;
                 travelItem.locationLat = aMap.getCameraPosition().target.latitude;
-                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
+                // TODO: 2015/12/13 use network , should add handler as para
+//                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
                 initData();
                 break;
             case R.id.action_lock_map:

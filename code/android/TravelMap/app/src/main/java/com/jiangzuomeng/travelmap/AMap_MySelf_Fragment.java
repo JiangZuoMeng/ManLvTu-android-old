@@ -1,12 +1,8 @@
 package com.jiangzuomeng.travelmap;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,11 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.Switch;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
@@ -31,20 +22,18 @@ import com.amap.api.maps2d.CameraUpdate;
 import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.LocationSource;
 import com.amap.api.maps2d.MapView;
-import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
 import com.amap.api.services.core.LatLonPoint;
-import com.amap.api.services.geocoder.GeocodeQuery;
 import com.amap.api.services.geocoder.GeocodeResult;
 import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeResult;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +114,7 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
         aMap.animateCamera(cameraUpdate);
         CameraUpdate update = CameraUpdateFactory.changeLatLng(new LatLng(30, 104));
         aMap.animateCamera(update);
-        addMarkers();
+         addMarkers();
         // aMap.setMyLocationType()
     }
 
@@ -246,8 +235,14 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.v("wilbert", "marker clicked");
+        int index = markerList.indexOf(marker);
+        if (index == -1 || index >= travelList.size()) {
+            return true;
+        }
+        int markerTravelId = travelList.get(index).id;
         //// TODO: 2015/11/1 跳转到每一项单独的旅程 返回值true表示默认操作(显示信息窗口)不显示
         Intent intent = new Intent(getActivity(), SingleTravelActivity.class);
+        intent.putExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, markerTravelId);
         startActivity(intent);
         return true;
     }
