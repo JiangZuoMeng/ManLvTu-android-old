@@ -5,6 +5,16 @@ var database = new Database();
 
 var target_global = 'user';
 
+router.get('/query', function (req, res) {
+    var user = { tableName : target_global, request : 'query', condition : 'id = ?', values : [req.query.id ]};
+    database.query(user, res);
+});
+
+router.get('/queryAll', function (req, res) {
+    var user = { tableName : target_global, request : 'queryAll', condition : 'username = ?', values : [req.query.username ]};
+    database.queryAll(user, res);
+});
+
 router.get('/remove', function (req, res) {
     var user = { id: req.query.id, tableName : target_global, request : 'remove'};
     database.remove(user, res);
