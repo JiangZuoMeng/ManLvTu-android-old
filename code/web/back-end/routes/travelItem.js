@@ -1,96 +1,53 @@
+var express = require('express');
+var router = express.Router();
+var Database = require('../public/javascripts/database.js');
+var database = new Database();
 
-function TravelItem () {
-    this.initRoute = function(app) {
-        var prefix = '/travelItem/';
-        app.get(prefix + 'query', function (req, res) {
-            var result = { request : 'query', target : 'travelItem' };
-            if (!req.query.id) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.get('select * from travelItem where id = ?', [req.query.id], function (error, row) {
-                    if (error) {
-                        result.result = 'server failed';
-                    } else {
-                        if (row) {
-                            result.result = 'success';
-                            result.data = { id : row.id, travelId : row.travelId, label : row.label,
-                                locationLat:  row.locationLat, locationLng: row.locationLng, like: row.like,
-                                text: row.text, media: row.media };
-                        } else {
-                            result.result = 'not exist';
-                        }
-                    }
-                    res.end(JSON.stringify(result));
-            })
-        });
-        
-        app.get(prefix + 'add', function (req, res) {
-            var result = { request : 'add', target : 'travelItem' };
-            if (!(req.query.travelId)) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('insert into travelItem (travelId, label, time, locationLat, locationLng, like, text, media) values (?, ?, ?, ?, ?, ?, ?, ?)',
-            [req.query.travelId, req.query.label, req.query.time, req.query.locationLat,
-            req.query.locationLng, req.query.like, req.query.text, req.query.media], function (error) {
-                if (error) {
-                    result.result = 'server failed';
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            });
-        });
-        
-        app.get(prefix + 'remove', function (req, res) {
-            var result = { request : 'remove', target : 'travelItem' };
-            if (!req.query.id) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('delete from travelItem where id = ?', [req.query.id], function (error) {
-                if (error) {
-                    result.result = 'server failed';
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            })
-        });
-        
-        app.get(prefix + 'update', function (req, res) {
-            var result = { request : 'update', target : 'travelItem' };
-            if (!(req.query.id)) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('update travelItem set travelId = ?, label = ?, time = ?, locationLat = ?,' + 
-                'locationLng = ?, like = ?, text = ?, media = ? where id = ?',
-                [req.query.travelId, req.query.label, req.query.time, req.query.locationLat,
-                req.query.locationLng, req.query.like, req.query.text, req.query.media, req.query.id], function (error) {
-                if (error) {
-                    result.result = 'server failed: ' + error.toString();
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            });
-        });
-    }
-    
-    var database;
-    this.initDataBase = function (database_para) {
-        database = database_para;
-        database.run("CREATE TABLE IF NOT EXISTS travelItem " +
-                "(id INTEGER PRIMARY KEY AUTOINCREMENT, travelId INTEGER," +
+var target_global = 'travelItem';
+
+router.get('/query', function (req, res) {
+    var target = { tableName : target_global, request : 'query', condition : 'id = ?', values : [req.query.id ]};
+    database.query(target, res);
+});
+
+router.get('/queryAll', function (req, res) {
+    var target = { tableName : target_global, request : 'queryAll', condition : 'travelId = ?', values : [req.query.travelId ]};
+    database.queryAll(target, res);
+});
+
+router.get('/queryNearby', function (req, res) {
+    var target = { tableName : target_global, request : 'queryNearby',
+    condition : '(locationLat >= ? and locationLat <= ?) and (locationLng >= ? and locationLng <= ?)',
+    values : [req.query.locationLatLowerBound, req.query.locationLatUpperBound, req.query.locationLngLowerBound, req.query.locationLngUpperBound ]};
+    database.queryAll(target, res);
+});
+
+router.get('/remove', function (req, res) {
+    var target = { id: req.query.id, tableName : target_global, request : 'remove'};
+    database.remove(target, res);
+});
+
+router.get('/update', function (req, res) {
+    var target = { id: req.query.id, tableName : target_global, request : 'update',
+        condition : 'travelId = ?, label = ?, time = ?, locationLat = ?, locationLng = ?, like = ?, text = ?, media = ? where id = ?',
+        values : [req.query.travelId, req.query.label, req.query.time, req.query.locationLat, req.query.locationLng, req.query.like, req.query.text, req.query.media ]};
+    database.update(target, res);
+});
+
+router.get('/add', function (req, res) {
+    var target = { tableName : target_global, request : 'add',
+        condition : '(travelId, label, time, locationLat, locationLng, like, text, media, id) values (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        values : [req.query.travelId, req.query.label, req.query.time, req.query.locationLat, req.query.locationLng, req.query.like, req.query.text, req.query.media ]};
+    database.insert(target, res);
+});
+
+database.db.run("CREATE TABLE IF NOT EXISTS " + target_global +
+                "(id INTEGER PRIMARY KEY NOT NULL, travelId INTEGER," +
                 "label TEXT, time TEXT, locationLat REAL, locationLng REAL, like INTEGER," +
-                "text TEXT, media TEXT)");
-    }
-}
+                "text TEXT, media TEXT)", function (error) {
+        if (error) {
+            console.log('create '+ target_global +' table failed: ' + error.toString());
+        }
+});
 
-module.exports = TravelItem;
+module.exports = router;

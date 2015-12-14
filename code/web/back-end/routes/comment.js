@@ -1,90 +1,45 @@
+var express = require('express');
+var router = express.Router();
+var Database = require('../public/javascripts/database.js');
+var database = new Database();
 
-function Comment() {
-    this.initRoute = function(app) {
-        var prefix = '/comment/';
-        app.get(prefix + 'query', function (req, res) {
-            var result = { request : 'query', target : 'comment' };
-            if (!req.query.id) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.get('select * from comment where id = ?', [req.query.id], function (error, row) {
-                    if (error) {
-                        result.result = 'server failed';
-                    } else {
-                        if (row) {
-                            result.result = 'success';
-                            result.data = { id : row.id, userId : row.userId, travelItemId : row.travelItemId, text: row.text, time : row.time };
-                        } else {
-                            result.result = 'not exist';
-                        }
-                    }
-                    res.end(JSON.stringify(result));
-            })
-        });
-        
-        app.get(prefix + 'add', function (req, res) {
-            var result = { request : 'add', target : 'comment' };
-            if (!(req.query.travelItemId && req.query.userId)) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('insert into comment (userId, travelItemId, text, time) values (?, ?, ?, ?)',
-            [req.query.userId, req.query.travelItemId, req.query.text, req.query.time], function (error) {
-                if (error) {
-                    result.result = 'server failed';
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            });
-        });
-        
-        app.get(prefix + 'remove', function (req, res) {
-            var result = { request : 'remove', target : 'comment' };
-            if (!req.query.id) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('delete from comment where id = ?', [req.query.id], function (error) {
-                if (error) {
-                    result.result = 'server failed';
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            })
-        });
-        
-        app.get(prefix + 'update', function (req, res) {
-            var result = { request : 'update', target : 'comment' };
-            if (!(req.query.id)) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('update comment set userId = ?, travelItemId = ?, text = ?, time = ? where id = ?',
-                [req.query.userId, req.query.travelItemId, req.query.text, req.query.time, req.query.id], function (error) {
-                if (error) {
-                    result.result = 'server failed: ' + error.toString();
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            });
-        });
-    }
-    
-    var database;
-    this.initDataBase = function (database_para) {
-        database = database_para;
-        database.run("CREATE TABLE IF NOT EXISTS comment " +
-                "(id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, travelItemId INTEGER, " +
-                "text TEXT, time TEXT)");
-    }
-}
+var target_global = 'comment';
 
-module.exports = Comment;
+router.get('/query', function (req, res) {
+    var target = { tableName : target_global, request : 'query', condition : 'id = ?', values : [req.query.id ]};
+    database.query(target, res);
+});
+
+router.get('/queryAll', function (req, res) {
+    var target = { tableName : target_global, request : 'queryAll', condition : 'travelItemId = ?', values : [req.query.travelItemId ]};
+    database.queryAll(target, res);
+});
+
+router.get('/remove', function (req, res) {
+    var target = { id: req.query.id, tableName : target_global, request : 'remove'};
+    database.remove(target, res);
+});
+
+router.get('/update', function (req, res) {
+    var target = { id: req.query.id, tableName : target_global, request : 'update',
+        condition : 'userId = ?, travelItemId = ?, text = ?, time = ? where id = ?',
+        values : [req.query.userId, req.query.travelItemId, req.query.text, req.query.time ]};
+    database.update(target, res);
+});
+
+router.get('/add', function (req, res) {
+    var target = { tableName : target_global, request : 'add',
+        condition : '(userId, travelItemId, text, time, id) values (?, ?, ?, ?, ?)',
+        values : [req.query.userId, req.query.travelItemId, req.query.text, req.query.time ]};
+    database.insert(target, res);
+});
+
+database.db.run("CREATE TABLE IF NOT EXISTS " + target_global +
+                "(id INTEGER PRIMARY KEY NOT NULL, userId INTEGER, travelItemId INTEGER, " +
+                "text TEXT, time TEXT)", function (error) {
+        if (error) {
+            console.log('create '+ target_global +' table failed: ' + error.toString());
+        }
+});
+
+module.exports = router;

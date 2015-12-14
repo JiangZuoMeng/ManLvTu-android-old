@@ -1,87 +1,40 @@
+var express = require('express');
+var router = express.Router();
+var Database = require('../public/javascripts/database.js');
+var database = new Database();
 
-function Travel() {
-    var database;
-    this.initRoute = function(app) {
-        var prefix = '/travel/';
-        app.get(prefix + 'query', function (req, res) {
-            var result = { request : 'query', target : 'travel' };
-            if (!req.query.id) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.get('select id, userId, name from travel where id = ?', [req.query.id], function (error, row) {
-                    if (error) {
-                        result.result = 'server failed';
-                    } else {
-                        if (row) {
-                            result.result = 'success';
-                            result.data = { id : row.id, userId : row.userId, name : row.name };
-                        } else {
-                            result.result = 'not exist';
-                        }
-                    }
-                    res.end(JSON.stringify(result));
-            })
-        });
-        
-        app.get(prefix + 'add', function (req, res) {
-            var result = { request : 'add', target : 'travel' };
-            if (!(req.query.userId && req.query.name)) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('insert into travel (userId, name) values (?, ?)', [req.query.userId, req.query.name], function (error) {
-                if (error) {
-                    result.result = 'server failed';
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            });
-        });
-        
-        app.get(prefix + 'remove', function (req, res) {
-            var result = { request : 'remove', target : 'travel' };
-            if (!req.query.id) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('delete from travel where id = ?', [req.query.id], function (error) {
-                if (error) {
-                    result.result = 'server failed';
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            })
-        });
-        
-        app.get(prefix + 'update', function (req, res) {
-            var result = { request : 'update', target : 'travel' };
-            if (!(req.query.id && req.query.userId && req.query.name)) {
-                result.result = 'invalid request';
-                res.end(JSON.stringify(result));
-                return;
-            }
-            database.run('update travel set userId = ?, name = ? where id = ?', [req.query.userId, req.query.name, req.query.id], function (error) {
-                if (error) {
-                    result.result = 'server failed: ' + error.toString();
-                } else {
-                    result.result = 'success';
-                }
-                res.end(JSON.stringify(result));
-            });
-        });
-    }
-    
-    this.initDataBase = function (database_para) {
-        database = database_para;
-        database.run("CREATE TABLE IF NOT EXISTS travel "+
-                "(id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER, name TEXT)");
-    }
-}
+var target_global = 'travel';
 
-module.exports = Travel;
+router.get('/query', function (req, res) {
+    var target = { tableName : target_global, request : 'query', condition : 'id = ?', values : [req.query.id ]};
+    database.query(target, res);
+});
+
+router.get('/queryAll', function (req, res) {
+    var target = { tableName : target_global, request : 'queryAll', condition : 'userId = ?', values : [req.query.userId ]};
+    database.queryAll(target, res);
+});
+
+router.get('/remove', function (req, res) {
+    var target = { id: req.query.id, tableName : target_global, request : 'remove'};
+    database.remove(target, res);
+});
+
+router.get('/update', function (req, res) {
+    var target = { id: req.query.id, tableName : target_global, request : 'update', condition : 'userId = ?, name = ? where id = ?', values : [req.query.userId, req.query.name]};
+    database.update(target, res);
+});
+
+router.get('/add', function (req, res) {
+    var target = { tableName : target_global, request : 'add', condition : '(userId, name, id) values (?, ?, ?)', values : [req.query.userId, req.query.name]};
+    database.insert(target, res);
+});
+
+database.db.run("CREATE TABLE IF NOT EXISTS " + target_global +
+                "(id INTEGER PRIMARY KEY NOT NULL, userId INTEGER, name TEXT)", function (error) {
+        if (error) {
+            console.log('create '+ target_global +' table failed: ' + error.toString());
+        }
+});
+
+module.exports = router;
