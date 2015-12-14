@@ -35,9 +35,10 @@ router.get('/register', function (req, res) {
     database.insert(user, res);
 });
 
-database.db.run("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY NOT NULL, username TEXT, password TEXT)", function (error) {
+database.db.run("CREATE TABLE IF NOT EXISTS " + target_global +
+            " (id INTEGER PRIMARY KEY NOT NULL, username TEXT, password TEXT)", function (error) {
         if (error) {
-            console.log('create user table failed: ' + error.toString());
+            console.log('create '+ target_global + ' table failed: ' + error.toString());
         }
 });
 

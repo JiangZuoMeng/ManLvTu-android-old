@@ -27,6 +27,12 @@ block content
             p id
                 input(type='text', name='id')
             input(type='submit')
+            
+        h3 query travelItems by travel id
+        form(action='/travelItem/queryAll', method='get')
+            p travel id
+                input(type='text', name='travelId')
+            input(type='submit')
 
         h3 remove travelItem
         form(action='/travelItem/remove', method='get')

@@ -15,6 +15,12 @@ block content
             p id
                 input(type='text', name='id')
             input(type='submit')
+            
+        h3 query travels by user id
+        form(action='/travel/queryAll', method='get')
+            p user id
+                input(type='text', name='userId')
+            input(type='submit')
 
         h3 remove travel
         form(action='/travel/remove', method='get')

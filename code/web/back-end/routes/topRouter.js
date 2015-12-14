@@ -19,5 +19,11 @@ router.get('/comment', function(req, res) {
 
 var user = require('./user.js');
 router.use('/user', user);
+var travel = require('./travel.js');
+router.use('/travel', travel);
+var travelItem = require('./travelItem.js');
+router.use('/travelItem', travelItem);
+var comment = require('./comment.js');
+router.use('/comment', comment);
 
 module.exports = router;
