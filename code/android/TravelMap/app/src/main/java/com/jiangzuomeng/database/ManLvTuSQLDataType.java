@@ -1,4 +1,4 @@
-package com.jiangzuomeng.modals;
+package com.jiangzuomeng.database;
 
 import android.content.ContentValues;
 

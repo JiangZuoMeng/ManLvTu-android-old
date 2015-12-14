@@ -3,13 +3,16 @@ package com.jiangzuomeng.modals;
 import android.content.ContentValues;
 import android.net.Uri;
 
+import com.jiangzuomeng.database.ManLvTuSQLDataType;
+import com.jiangzuomeng.networkManager.ManLvTuNetworkDataType;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.IdentityHashMap;
 
 /**
  * Created by ekuri-PC on 2015/11/21.
@@ -24,6 +27,10 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
         this.id = id;
         this.username = username;
         this.password = password;
+    }
+
+    public User() {
+
     }
 
     @Override
@@ -65,12 +72,12 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     @Override
     public URL getAddUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.USER)
-                .appendPath(StaticStrings.REGISTER)
-                .appendQueryParameter(StaticStrings.USERNAME, username)
-                .appendQueryParameter(StaticStrings.PASSWORD, password);
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.USER)
+                .appendPath(NetworkJsonKeyDefine.REGISTER)
+                .appendQueryParameter(NetworkJsonKeyDefine.USERNAME, username)
+                .appendQueryParameter(NetworkJsonKeyDefine.PASSWORD, password);
         URL url = new URL(builder.build().toString());
         return url;
     }
@@ -78,10 +85,10 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     @Override
     public URL getQueryUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.USER).appendPath(StaticStrings.QUERY)
-                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.USER).appendPath(NetworkJsonKeyDefine.QUERY)
+                .appendQueryParameter(NetworkJsonKeyDefine.ID, Integer.toString(id));
         URL url = new URL(builder.build().toString());
         return url;
     }
@@ -89,12 +96,12 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     @Override
     public URL getUpdateUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.USER).appendPath(StaticStrings.UPDATE)
-                .appendQueryParameter(StaticStrings.ID, Integer.toString(id))
-                .appendQueryParameter(StaticStrings.USERNAME, username)
-                .appendQueryParameter(StaticStrings.PASSWORD, password);
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.USER).appendPath(NetworkJsonKeyDefine.UPDATE)
+                .appendQueryParameter(NetworkJsonKeyDefine.ID, Integer.toString(id))
+                .appendQueryParameter(NetworkJsonKeyDefine.USERNAME, username)
+                .appendQueryParameter(NetworkJsonKeyDefine.PASSWORD, password);
         URL url = new URL(builder.build().toString());
         return url;
     }
@@ -102,10 +109,10 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     @Override
     public URL getRemoveUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.USER).appendPath(StaticStrings.REMOVE)
-                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.USER).appendPath(NetworkJsonKeyDefine.REMOVE)
+                .appendQueryParameter(NetworkJsonKeyDefine.ID, Integer.toString(id));
         URL url = new URL(builder.build().toString());
         return url;
     }
@@ -113,10 +120,22 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     @Override
     public URL getQueryAllUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendQueryParameter(StaticStrings.USERNAME, username);
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendQueryParameter(NetworkJsonKeyDefine.USERNAME, username);
         URL url = new URL(builder.build().toString());
         return url;
+    }
+
+    @Override
+    public URL getLoginUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.USER)
+                .appendPath(NetworkJsonKeyDefine.LOGIN)
+                .appendQueryParameter(NetworkJsonKeyDefine.USERNAME, username)
+                .appendQueryParameter(NetworkJsonKeyDefine.PASSWORD, password);
+        return new URL(builder.build().toString());
     }
 }

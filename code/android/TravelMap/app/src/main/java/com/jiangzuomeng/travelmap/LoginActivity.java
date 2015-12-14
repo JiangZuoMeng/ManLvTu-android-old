@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -31,12 +32,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.dataManager.NetworkConnectActivity;
+import com.jiangzuomeng.dataManager.NetworkHandler;
 import com.jiangzuomeng.database.DBManager;
 import com.jiangzuomeng.modals.User;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +49,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, NetworkConnectActivity {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -63,6 +67,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    Handler networkHandler = new Handler() {
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +91,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        mUsernameView.setText("wu@qq.com");
+        mUsernameView.setText("wu");
         mPasswordView.setText("123456");
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -157,7 +164,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mUsernameView.getText().toString();
+        String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -171,12 +178,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(username)) {
             mUsernameView.setError(getString(R.string.error_field_required));
-            focusView = mUsernameView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mUsernameView.setError(getString(R.string.error_invalid_email));
             focusView = mUsernameView;
             cancel = true;
         }
@@ -189,9 +192,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            DataManager dataManager = DataManager.getInstance(getApplicationContext());
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            DataManager.getInstance(getApplicationContext()).login(new User(-1, username, password), new NetworkHandler(this));
         }
     }
 
@@ -272,6 +273,45 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
+
+    }
+
+    @Override
+    public void handleNetworkEvent(String status, String request, String target, JSONObject originJSONObject) throws JSONException {
+        switch (request) {
+            case NetworkJsonKeyDefine.LOGIN:
+                switch (status) {
+                    case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra(INTENT_USER_NAME_KEY,
+                                originJSONObject.getJSONObject(NetworkJsonKeyDefine.DATA_KEY)
+                                        .getInt(NetworkJsonKeyDefine.ID));
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case NetworkJsonKeyDefine.RESULT_FAILED:
+                        mPasswordView.setError(getString(R.string.error_incorrect_password));
+                        DataManager.getInstance(getApplicationContext()).addNewUser(
+                                new User(-1, mUsernameView.getText().toString(), mPasswordView.getText().toString()),
+                                new NetworkHandler(this));
+                        break;
+                }
+                break;
+
+            case NetworkJsonKeyDefine.REGISTER:
+                showProgress(false);
+                switch (status) {
+                    case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra(INTENT_USER_NAME_KEY,
+                                originJSONObject.getJSONObject(NetworkJsonKeyDefine.DATA_KEY)
+                                        .getInt(NetworkJsonKeyDefine.ID));
+                        startActivity(intent);
+                        finish();
+                        break;
+                }
+                break;
+        }
 
     }
 

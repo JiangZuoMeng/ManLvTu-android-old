@@ -85,8 +85,9 @@ public class NetWorkManager {
     }
 
     public String getDataFromUrl(URL url) throws IOException {
-        Log.v("wilbert", "getDataFromUrl:" + url.toString());
+        Log.v("ekuri", "openning uri:" + url.toString());
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        Log.v("ekuri", "openned uri:" + url.toString());
 
         InputStream inputStream = urlConnection.getInputStream();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));

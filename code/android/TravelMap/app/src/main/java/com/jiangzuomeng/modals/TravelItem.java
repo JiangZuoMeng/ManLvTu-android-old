@@ -2,13 +2,15 @@ package com.jiangzuomeng.modals;
 
 import android.content.ContentValues;
 import android.net.Uri;
-import android.text.method.HideReturnsTransformationMethod;
+
+import com.jiangzuomeng.database.ManLvTuSQLDataType;
+import com.jiangzuomeng.networkManager.ManLvTuNetworkDataType;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.lang.annotation.Retention;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -89,18 +91,18 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
     @Override
     public URL getAddUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.TRAVEL_ITEM)
-                .appendPath(StaticStrings.ADD)
-                .appendQueryParameter(StaticStrings.TRAVEL_ID, Integer.toString(travelId))
-                .appendQueryParameter(StaticStrings.LABEL, label)
-                .appendQueryParameter(StaticStrings.TIME, time)
-                .appendQueryParameter(StaticStrings.LOCATION_LAT, Double.toString(locationLat))
-                .appendQueryParameter(StaticStrings.LOCATION_LNG, Double.toString(locationLng))
-                .appendQueryParameter(StaticStrings.LIKE, Integer.toString(like))
-                .appendQueryParameter(StaticStrings.TEXT, text)
-                .appendQueryParameter(StaticStrings.MEDIA, media);
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.TRAVEL_ITEM)
+                .appendPath(NetworkJsonKeyDefine.ADD)
+                .appendQueryParameter(NetworkJsonKeyDefine.TRAVEL_ID, Integer.toString(travelId))
+                .appendQueryParameter(NetworkJsonKeyDefine.LABEL, label)
+                .appendQueryParameter(NetworkJsonKeyDefine.TIME, time)
+                .appendQueryParameter(NetworkJsonKeyDefine.LOCATION_LAT, Double.toString(locationLat))
+                .appendQueryParameter(NetworkJsonKeyDefine.LOCATION_LNG, Double.toString(locationLng))
+                .appendQueryParameter(NetworkJsonKeyDefine.LIKE, Integer.toString(like))
+                .appendQueryParameter(NetworkJsonKeyDefine.TEXT, text)
+                .appendQueryParameter(NetworkJsonKeyDefine.MEDIA, media);
         URL url = new URL(builder.build().toString());
         return url;
     }
@@ -108,10 +110,10 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
     @Override
     public URL getQueryUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.TRAVEL_ITEM).appendPath(StaticStrings.QUERY)
-                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.TRAVEL_ITEM).appendPath(NetworkJsonKeyDefine.QUERY)
+                .appendQueryParameter(NetworkJsonKeyDefine.ID, Integer.toString(id));
         URL url = new URL(builder.build().toString());
         return url;
     }
@@ -119,18 +121,18 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
     @Override
     public URL getUpdateUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.TRAVEL_ITEM).appendPath(StaticStrings.UPDATE)
-                .appendQueryParameter(StaticStrings.ID, Integer.toString(id))
-                .appendQueryParameter(StaticStrings.TRAVEL_ID, Integer.toString(travelId))
-                .appendQueryParameter(StaticStrings.LABEL, label)
-                .appendQueryParameter(StaticStrings.TIME, time)
-                .appendQueryParameter(StaticStrings.LOCATION_LAT, Double.toString(locationLat))
-                .appendQueryParameter(StaticStrings.LOCATION_LNG, Double.toString(locationLng))
-                .appendQueryParameter(StaticStrings.LIKE, Integer.toString(like))
-                .appendQueryParameter(StaticStrings.TEXT, text)
-                .appendQueryParameter(StaticStrings.MEDIA, media);
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.TRAVEL_ITEM).appendPath(NetworkJsonKeyDefine.UPDATE)
+                .appendQueryParameter(NetworkJsonKeyDefine.ID, Integer.toString(id))
+                .appendQueryParameter(NetworkJsonKeyDefine.TRAVEL_ID, Integer.toString(travelId))
+                .appendQueryParameter(NetworkJsonKeyDefine.LABEL, label)
+                .appendQueryParameter(NetworkJsonKeyDefine.TIME, time)
+                .appendQueryParameter(NetworkJsonKeyDefine.LOCATION_LAT, Double.toString(locationLat))
+                .appendQueryParameter(NetworkJsonKeyDefine.LOCATION_LNG, Double.toString(locationLng))
+                .appendQueryParameter(NetworkJsonKeyDefine.LIKE, Integer.toString(like))
+                .appendQueryParameter(NetworkJsonKeyDefine.TEXT, text)
+                .appendQueryParameter(NetworkJsonKeyDefine.MEDIA, media);
         URL url = new URL(builder.build().toString());
         return url;
     }
@@ -138,10 +140,10 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
     @Override
     public URL getRemoveUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.TRAVEL_ITEM).appendPath(StaticStrings.REMOVE)
-                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.TRAVEL_ITEM).appendPath(NetworkJsonKeyDefine.REMOVE)
+                .appendQueryParameter(NetworkJsonKeyDefine.ID, Integer.toString(id));
         URL url = new URL(builder.build().toString());
         return url;
     }
@@ -149,10 +151,10 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
     @Override
     public URL getQueryAllUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
-        builder.scheme(StaticStrings.HTTP)
-                .encodedAuthority(StaticStrings.host)
-                .appendPath(StaticStrings.TRAVEL_ITEM).appendPath(StaticStrings.QUERY_ALL)
-                .appendQueryParameter(StaticStrings.TRAVEL_ID, Integer.toString(travelId));
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.TRAVEL_ITEM).appendPath(NetworkJsonKeyDefine.QUERY_ALL)
+                .appendQueryParameter(NetworkJsonKeyDefine.TRAVEL_ID, Integer.toString(travelId));
         URL url = new URL(builder.build().toString());
         return url;
     }

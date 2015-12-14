@@ -1,12 +1,10 @@
 package com.jiangzuomeng.travelmap;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,21 +13,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.modals.Comment;
-import com.jiangzuomeng.modals.Travel;
 import com.jiangzuomeng.modals.TravelItem;
-import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
-import com.jiangzuomeng.modals.StaticStrings;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URL;
-import java.security.PublicKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.IllegalFormatCodePointException;
 
 public class TestNetworkActivity extends AppCompatActivity {
     public static final int UPDATE = 121323;
@@ -49,9 +39,9 @@ public class TestNetworkActivity extends AppCompatActivity {
                     String string = bundle.getString(UPDATESTRING);
                     textView.setText(string);
                     break;
-                case StaticStrings.NETWORK_OPERATION:
+                case NetworkJsonKeyDefine.NETWORK_OPERATION:
                     Bundle bundle1 = msg.getData();
-                    String s = bundle1.getString(StaticStrings.NETWORK_RESULT_KEY);
+                    String s = bundle1.getString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY);
                     Log.v("wilbert", s);
             }
         }

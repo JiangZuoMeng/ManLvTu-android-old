@@ -1,4 +1,6 @@
-package com.jiangzuomeng.modals;
+package com.jiangzuomeng.networkManager;
+
+import com.jiangzuomeng.modals.User;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,20 +12,23 @@ public abstract class ManLvTuNetworkDataType {
     public URL getUrl(String key) throws MalformedURLException {
         URL url = null;
         switch (key) {
-            case StaticStrings.ADD:
+            case NetworkJsonKeyDefine.ADD:
                 url = getAddUrl();
                 break;
-            case StaticStrings.UPDATE:
+            case NetworkJsonKeyDefine.UPDATE:
                 url =  getUpdateUrl();
                 break;
-            case StaticStrings.REMOVE:
+            case NetworkJsonKeyDefine.REMOVE:
                 url = getRemoveUrl();
                 break;
-            case StaticStrings.QUERY:
+            case NetworkJsonKeyDefine.QUERY:
                 url = getQueryUrl();
                 break;
-            case StaticStrings.QUERY_ALL:
+            case NetworkJsonKeyDefine.QUERY_ALL:
                 url = getQueryAllUrl();
+                break;
+            case NetworkJsonKeyDefine.LOGIN:
+                url = getLoginUrl();
                 break;
         }
         return url;
@@ -34,4 +39,8 @@ public abstract class ManLvTuNetworkDataType {
     public abstract URL getUpdateUrl() throws MalformedURLException;
     public abstract URL getRemoveUrl() throws MalformedURLException;
     public abstract URL getQueryAllUrl() throws MalformedURLException;
+
+    public URL getLoginUrl() throws MalformedURLException {
+        return null;
+    }
 }
