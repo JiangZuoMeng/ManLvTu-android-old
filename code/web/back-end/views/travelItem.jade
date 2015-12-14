@@ -33,6 +33,18 @@ block content
             p travel id
                 input(type='text', name='travelId')
             input(type='submit')
+            
+        h3 query nearby travelItems
+        form(action='/travelItem/queryNearby', method='get')
+            p locationLat lower bound
+                input(type='text', name='locationLatLowerBound')
+            p locationLat upper bound
+                input(type='text', name='locationLatUpperBound')
+            p locationLng lower bound
+                input(type='text', name='locationLngLowerBound')
+            p locationLng upper bound
+                input(type='text', name='locationLngUpperBound')
+            input(type='submit')
 
         h3 remove travelItem
         form(action='/travelItem/remove', method='get')
