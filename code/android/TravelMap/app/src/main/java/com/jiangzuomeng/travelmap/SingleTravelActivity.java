@@ -58,9 +58,10 @@ public class SingleTravelActivity
                     popupWindow.dismiss();
 
                     TravelItem targetTravelItem = travelItemList.get(listViewClickPosition);
-                    DataManager.getInstance(getApplicationContext()).removeTravelItemByTravelItemId(
+                    // TODO: 2015/12/14 network
+                    /*DataManager.getInstance(getApplicationContext()).removeTravelItemByTravelItemId(
                             targetTravelItem.id
-                    );
+                    );*/
                     initData();
                     break;
 
@@ -267,7 +268,8 @@ public class SingleTravelActivity
         targetTravelItem.locationLat = marker.getPosition().latitude;
         targetTravelItem.locationLng = marker.getPosition().longitude;
 
-        DataManager.getInstance(getApplicationContext()).updateTravelItem(targetTravelItem);
+        //// TODO: 2015/12/14  network
+//        DataManager.getInstance(getApplicationContext()).updateTravelItem(targetTravelItem);
 
         initData();
     }

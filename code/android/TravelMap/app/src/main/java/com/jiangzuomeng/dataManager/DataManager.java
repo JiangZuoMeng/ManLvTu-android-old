@@ -1,6 +1,7 @@
 package com.jiangzuomeng.dataManager;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Created by wilbert on 2015/11/22.
@@ -39,53 +41,127 @@ public class DataManager {
         netWorkManager = new NetWorkManager();
     }
 
+    public boolean login(String userName, String passWord) throws IOException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.USER)
+                .appendPath(StaticStrings.LOGIN)
+                .appendQueryParameter(StaticStrings.USERNAME, userName)
+                .appendQueryParameter(StaticStrings.PASSWORD, passWord);
+        URL url = new URL(builder.build().toString());
+        String dataString = netWorkManager.getDataFromUrl(url);
 
-    public void addNewTravel(Travel travel,Handler handler) {
+
     }
-    public void addNewTravelItem(TravelItem travelItem, Handler handler) {
-//        return dbManager.addNewTravelItem(travelItem);
-    }
+
     public void addNewUser(User user, Handler handler) {
         runThreadByKey(StaticStrings.ADD, handler, user);
-//        return dbManager.addNewUser(user);
-    }
-    public void addNewComment(Comment comment,Handler handler) {
-//        return dbManager.addNewComment(comment);
     }
 
     public void queryUserByUserName(String userName, Handler handler) {
     }
 
     public void queryUserByUserId(int id, Handler handler) {
-
+        User user = new User();
+        user.id = id;
+        runThreadByKey(StaticStrings.QUERY, handler, user);
     }
+
+    public void updateUser(User user, Handler handler) {
+        runThreadByKey(StaticStrings.UPDATE, handler, user);
+    }
+
+    public void removeUserByUserId(int userId, Handler handler) {
+        User user = new User();
+        user.id = userId;
+        runThreadByKey(StaticStrings.REMOVE, handler, user);
+    }
+
+
+
+    public void addNewTravel(Travel travel,Handler handler) {
+        runThreadByKey(StaticStrings.ADD, handler, travel);
+    }
+
     public void queryTravelByTravelId(int travelId, Handler handler) {
+        Travel travel = new Travel();
+        travel.id = travelId;
+        runThreadByKey(StaticStrings.QUERY, handler, travel);
     }
-    public TravelItem queryTravelItemByTravelItemId(int travelItemid) {
-        TravelItem travelItem = dbManager.queryTravelItemByTravelItemId(travelItemid);
-        return travelItem;
-    }
-    public Comment queryCommentByCommentId(int commentid) {
-        Comment comment = dbManager.queryCommentByCommentId(commentid);
 
-        return comment;
+    public void removeTravelByTravelId(int travelId, Handler handler) {
+        Travel travel = new Travel();
+        travel.id = travelId;
+        runThreadByKey(StaticStrings.REMOVE, handler, travel);
     }
-    public List<Integer> queryTravelIdListByUserId(int userId) {
-        List<Integer> travelList = dbManager.queryTravelIdListByUserId(userId);
-        //get the travel list by user id
 
-        return travelList;
+    public void updateTravel(Travel travel, Handler handler) {
+        runThreadByKey(StaticStrings.UPDATE, handler, travel);
     }
-    public List<Integer> queryTravelItemIdListByTravelId(int travelid) {
-        List<Integer> travelItemIdList = dbManager.queryTravelItemIdListByTravelId(travelid);
 
-        return travelItemIdList;
+    public void queryTravelIdListByUserId(int userId, Handler handler) {
+        Travel travel = new Travel();
+        travel.userId = userId;
+        runThreadByKey(StaticStrings.QUERY_ALL, handler, travel);
     }
-    public List<Integer> queryCommentIdListByTravelItemId(int travelItemid) {
-        List<Integer> commentList = dbManager.queryCommentIdListByTravelItemId(travelItemid);
 
-        return commentList;
+
+
+    public void addNewTravelItem(TravelItem travelItem, Handler handler) {
+        runThreadByKey(StaticStrings.ADD, handler, travelItem);
     }
+
+    public void queryTravelItemByTravelItemId(int travelItemid, Handler handler) {
+        TravelItem travelItem = new TravelItem();
+        travelItem.id = travelItemid;
+        runThreadByKey(StaticStrings.QUERY, handler, travelItem);
+    }
+
+    public void queryTravelItemIdListByTravelId(int travelid, Handler handler) {
+        TravelItem travelItem = new TravelItem();
+        travelItem.travelId = travelid;
+        runThreadByKey(StaticStrings.QUERY_ALL, handler, travelItem);
+    }
+
+    public void removeTravelItemByTravelItemId(int travelItemId, Handler handler) {
+        TravelItem travelItem = new TravelItem();
+        travelItem.id = travelItemId;
+        runThreadByKey(StaticStrings.REMOVE, handler, travelItem);
+    }
+
+    public void updateTravelItem(TravelItem travelItem, Handler handler) {
+        runThreadByKey(StaticStrings.UPDATE, handler, travelItem);
+    }
+
+
+
+    public void addNewComment(Comment comment,Handler handler) {
+        runThreadByKey(StaticStrings.ADD, handler, comment);
+    }
+
+    public void queryCommentByCommentId(int commentid, Handler handler) {
+        Comment comment = new Comment();
+        comment.id = commentid;
+        runThreadByKey(StaticStrings.QUERY, handler, comment);
+    }
+
+    public void queryCommentIdListByTravelItemId(int travelItemid, Handler handler) {
+        Comment comment = new Comment();
+        comment.travelItemId = travelItemid;
+        runThreadByKey(StaticStrings.QUERY_ALL, handler, comment);
+    }
+
+    public void removeCommentByCommentId(int commentId, Handler handler) {
+        Comment comment = new Comment();
+        comment.id = commentId;
+        runThreadByKey(StaticStrings.REMOVE, handler, comment);
+    }
+
+    public void updateComment(Comment comment, Handler handler) {
+        runThreadByKey(StaticStrings.UPDATE, handler, comment);
+    }
+
     public List<Travel> queryTravelListByUserId(int userId) {
         List<Travel> travelList = dbManager.queryTravelListByUserId(userId);
         //get the travel list by user id
@@ -104,52 +180,14 @@ public class DataManager {
         return likeNum;
     }
 
-    public int removeUserByUserId(int userId) {
-        return dbManager.removeUserByUserId(userId);
-    }
-    public int removeTravelByTravelId(int travelId) {
-        return dbManager.removeTravelByTravelId(travelId);
-    }
-    public int removeTravelItemByTravelItemId(int travelItemId) {
-        return dbManager.removeTravelItemByTravelItemId(travelItemId);
-    }
-    public int removeCommentByCommentId(int commentId) {
-        return dbManager.removeCommentByCommentId(commentId);
-    }
 
-    public int updateComment(Comment comment) {
-        return dbManager.updateComment(comment);
-    }
-    public int updateTravelItem(TravelItem travelItem) {
-        return dbManager.updateTravelItem(travelItem);
-    }
-    public int updateTravel(Travel travel) {
-        return dbManager.updateTravel(travel);
-    }
-    public int updateUser(User user) {
-        return dbManager.updateUser(user);
-    }
 
-    public class MyThread implements Runnable {
-        Handler handler;
-        public MyThread(Handler handler) {
-            this.handler = handler;
-        }
-        @Override
-        public void run() {
-            Message message = new Message();
-            message.what = StaticStrings.ADD_NEW_TRAVEL_ITEM;
-            bundle.clear();
-            String jsonString = null;
-            try {
-                jsonString = netWorkManager.addNewTravelItem(new TravelItem());
-                bundle.putString(StaticStrings.ADD_NEW_TRAVEL_ITEM_KEY, jsonString);
-                handler.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+
+
+
+
+
+
 
     public void runThreadByKey(final String key, final Handler handler, final ManLvTuNetworkDataType manLvTuNetworkDataType) {
         Thread thread = new Thread(new Runnable() {

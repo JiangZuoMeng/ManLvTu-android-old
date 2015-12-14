@@ -60,8 +60,14 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     }
 
     @Override
-    public URL getQueryUrl() {
-        return null;
+    public URL getQueryUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.USER).appendPath(StaticStrings.QUERY)
+                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        URL url = new URL(builder.build().toString());
+        return url;
     }
 
     @Override
@@ -84,6 +90,16 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
                 .encodedAuthority(StaticStrings.host)
                 .appendPath(StaticStrings.USER).appendPath(StaticStrings.REMOVE)
                 .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getQueryAllUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendQueryParameter(StaticStrings.USERNAME, username);
         URL url = new URL(builder.build().toString());
         return url;
     }

@@ -29,7 +29,9 @@ public class StaticStrings {
     public static final String ID = "id";
     public static final String REMOVE = "remove";
     public static final String UPDATE = "update";
+    public static final String QUERY_ALL = "queryAll";
     public static final String NETWORK_RESULT_KEY = "network_result_key";
+    public static final String LOGIN = "login";
 
     public static final int NETWORK_OPERATION = 718392;
     public static final int BEGIN = 718393;

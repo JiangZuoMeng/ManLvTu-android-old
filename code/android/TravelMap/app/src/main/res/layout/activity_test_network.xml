@@ -26,4 +26,12 @@
         android:layout_below="@+id/testNetworkbutton"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="41dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/testNetworkbutton2"
+        android:layout_below="@+id/testNetworktextView"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

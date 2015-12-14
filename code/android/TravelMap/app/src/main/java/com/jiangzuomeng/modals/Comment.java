@@ -1,15 +1,19 @@
 package com.jiangzuomeng.modals;
 
 import android.content.ContentValues;
+import android.net.Uri;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * Created by ekuri-PC on 2015/11/21.
  */
-public class Comment implements ManLvTuSQLDataType {
+public class Comment extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     public static final String COMMENT_TABLE_NAME = "comment";
     public int id;
     public int userId;
@@ -73,5 +77,67 @@ public class Comment implements ManLvTuSQLDataType {
 
     public String makeQueryByTravelItemIdSQLString() {
         return null;
+    }
+
+    @Override
+    public URL getAddUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.COMMENT).appendPath(StaticStrings.ADD)
+                .appendQueryParameter(StaticStrings.TRAVEL_ITEM_ID, Integer.toString(travelItemId))
+                .appendQueryParameter(StaticStrings.USER_ID, Integer.toString(userId))
+                .appendQueryParameter(StaticStrings.TIME, time)
+                .appendQueryParameter(StaticStrings.TEXT, text);
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getQueryUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.COMMENT).appendPath(StaticStrings.QUERY)
+                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getUpdateUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.COMMENT).appendPath(StaticStrings.UPDATE)
+                .appendQueryParameter(StaticStrings.ID, Integer.toString(id))
+                .appendQueryParameter(StaticStrings.TRAVEL_ITEM_ID, Integer.toString(travelItemId))
+                .appendQueryParameter(StaticStrings.USER_ID, Integer.toString(userId))
+                .appendQueryParameter(StaticStrings.TIME, time)
+                .appendQueryParameter(StaticStrings.TEXT, text);
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getRemoveUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.COMMENT).appendPath(StaticStrings.REMOVE)
+                .appendQueryParameter(StaticStrings.ID, Integer.toString(id));
+        URL url = new URL(builder.build().toString());
+        return url;
+    }
+
+    @Override
+    public URL getQueryAllUrl() throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(StaticStrings.HTTP)
+                .encodedAuthority(StaticStrings.host)
+                .appendPath(StaticStrings.COMMENT).appendPath(StaticStrings.QUERY_ALL)
+                .appendQueryParameter(StaticStrings.TRAVEL_ITEM_ID, Integer.toString(travelItemId));
+        URL url = new URL(builder.build().toString());
+        return url;
     }
 }

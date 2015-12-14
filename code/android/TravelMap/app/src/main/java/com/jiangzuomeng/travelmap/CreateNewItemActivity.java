@@ -106,7 +106,8 @@ public class CreateNewItemActivity extends AppCompatActivity {
         currentTravelItem.id = getIntent().getIntExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, -1);
         if (currentTravelItem.id != -1) {
             isCreateNewTravelItem = false;
-            currentTravelItem = dataManager.queryTravelItemByTravelItemId(currentTravelItem.id);
+            // TODO: 2015/12/14 network
+//            currentTravelItem = dataManager.queryTravelItemByTravelItemId(currentTravelItem.id);
             if (currentTravelItem.media != null) {
                 addImageFromUri(Uri.parse(currentTravelItem.media));
             }

@@ -45,108 +45,8 @@ public class NetWorkManager {
     public static final String REMOVE = "remove";
     public static final String UPDATE = "update";
 
-    public String addNewUser(User user) throws IOException {
-        URL url = user.getAddUrl();
-        return getStringFromUrl(url);
-    }
 
-    public String addNewTravel(Travel travel) throws IOException {
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(TRAVEL)
-                .appendPath(ADD)
-                .appendQueryParameter(USER_ID, Integer.toString(travel.userId))
-                .appendQueryParameter(NAME, travel.name);
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String addNewTravelItem(TravelItem travelItem) throws IOException {
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(TRAVEL_ITEM)
-                .appendPath(ADD)
-                .appendQueryParameter(TRAVEL_ID, Integer.toString(travelItem.travelId))
-                .appendQueryParameter(LABEL, travelItem.label)
-                .appendQueryParameter(TIME, travelItem.time)
-                .appendQueryParameter(LOCATION_LAT, Double.toString(travelItem.locationLat))
-                .appendQueryParameter(LOCATION_LNG, Double.toString(travelItem.locationLng))
-                .appendQueryParameter(LIKE, Integer.toString(travelItem.like))
-                .appendQueryParameter(TEXT, travelItem.text)
-                .appendQueryParameter(MEDIA, travelItem.media);
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String addNewComment(Comment comment) throws IOException {
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(COMMENT).appendPath(ADD)
-                .appendQueryParameter(TRAVEL_ITEM_ID, Integer.toString(comment.travelItemId))
-                .appendQueryParameter(USER_ID, Integer.toString(comment.userId))
-                .appendQueryParameter(TIME, comment.time)
-                .appendQueryParameter(TEXT, comment.text);
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String queryUserById(int userId) throws IOException {
-        return "test";
-        // TODO: 2015/12/11
-        /*Uri.Builder builder = new Uri.Builder();
-        builder.scheme(HTTP);
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);*/
-    }
-
-    public String queryUserByUsername(String username) {
-        // TODO: 2015/12/11
-        return "test    ";
-    }
-
-    public String queryTravelByTravelId(int travelId) throws IOException {
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(TRAVEL).appendPath(QUERY)
-                .appendQueryParameter(ID, Integer.toString(travelId));
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String queryTravelItemByTravelItemId(int travelItemId) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(TRAVEL_ITEM).appendPath(QUERY)
-                .appendQueryParameter(ID, Integer.toString(travelItemId));
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String queryCommentByCommentId(int commentId) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(COMMENT).appendPath(QUERY)
-                .appendQueryParameter(ID, Integer.toString(commentId));
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    /*public List<Integer> queryTravelIdListByUserId(int userId) {
-        // TODO: 2015/12/11
-
-    }
-
-    public List<Integer> queryTravelItemIdListByTravelId(int travelId) {
-        // TODO: 2015/12/11
-
-    }
-
+    /*
     public List<Integer> queryCommentIdListByTravelItemId(int travelItemId) {
         // TODO: 2015/12/11
 
@@ -168,101 +68,7 @@ public class NetWorkManager {
         // TODO: 2015/12/11
     }
 */
-    public String removeUserByUserId(int userId) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(USER).appendPath(REMOVE)
-                .appendQueryParameter(ID, Integer.toString(userId));
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
 
-    public String removeTravelByTravelId(int travelId) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(TRAVEL).appendPath(REMOVE)
-                .appendQueryParameter(ID, Integer.toString(travelId));
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String removeTravelItemByTravelItemId(int travelItemId) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(TRAVEL_ITEM).appendPath(REMOVE)
-                .appendQueryParameter(ID, Integer.toString(travelItemId));
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String removeCommentByCommentId(int commentId) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(COMMENT).appendPath(REMOVE)
-                .appendQueryParameter(ID, Integer.toString(commentId));
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String updateComment(Comment comment) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(COMMENT).appendPath(UPDATE)
-                .appendQueryParameter(ID, Integer.toString(comment.id))
-                .appendQueryParameter(TRAVEL_ITEM_ID, Integer.toString(comment.travelItemId))
-                .appendQueryParameter(USER_ID, Integer.toString(comment.userId))
-                .appendQueryParameter(TIME, comment.time)
-                .appendQueryParameter(TEXT, comment.text);
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String updateTravelItem(TravelItem travelItem) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(TRAVEL_ITEM).appendPath(UPDATE)
-                .appendQueryParameter(ID, Integer.toString(travelItem.id))
-                .appendQueryParameter(TRAVEL_ID, Integer.toString(travelItem.travelId))
-                .appendQueryParameter(LABEL, travelItem.label)
-                .appendQueryParameter(TIME, travelItem.time)
-                .appendQueryParameter(LOCATION_LAT, Double.toString(travelItem.locationLat))
-                .appendQueryParameter(LOCATION_LNG, Double.toString(travelItem.locationLng))
-                .appendQueryParameter(LIKE, Integer.toString(travelItem.like))
-                .appendQueryParameter(TEXT, travelItem.text)
-                .appendQueryParameter(MEDIA, travelItem.media);
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String updateTravel(Travel travel) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(TRAVEL).appendPath(UPDATE)
-                .appendQueryParameter(ID, Integer.toString(travel.id))
-                .appendQueryParameter(USER_ID, Integer.toString(travel.userId))
-                .appendQueryParameter(NAME, travel.name);
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
-
-    public String updateUser(User user) throws IOException {
-        Uri.Builder builder = Uri.parse(host).buildUpon();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(USER).appendPath(UPDATE)
-                .appendQueryParameter(ID, Integer.toString(user.id))
-                .appendQueryParameter(USERNAME, user.username)
-                .appendQueryParameter(PASSWORD, user.password);
-        URL url = new URL(builder.build().toString());
-        return getStringFromUrl(url);
-    }
 
 
     public String getStringFromUrl(URL url) throws IOException {
@@ -279,6 +85,7 @@ public class NetWorkManager {
     }
 
     public String getDataFromUrl(URL url) throws IOException {
+        Log.v("wilbert", "getDataFromUrl:" + url.toString());
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
         InputStream inputStream = urlConnection.getInputStream();
