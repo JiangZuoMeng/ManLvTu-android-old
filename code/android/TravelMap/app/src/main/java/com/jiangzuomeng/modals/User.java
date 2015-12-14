@@ -9,6 +9,7 @@ import org.json.JSONTokener;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.IdentityHashMap;
 
 /**
  * Created by ekuri-PC on 2015/11/21.
@@ -18,6 +19,12 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     public int id;
     public String username;
     public String password;
+
+    public User(int id, String username, String password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
 
     @Override
     public ContentValues makeSQLContentValues() {
@@ -53,6 +60,7 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
 
         return jsonObject.toString();
     }
+
 
     @Override
     public URL getAddUrl() throws MalformedURLException {
