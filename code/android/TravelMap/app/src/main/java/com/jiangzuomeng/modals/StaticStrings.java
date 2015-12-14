@@ -1,9 +1,10 @@
-package com.jiangzuomeng.module;
+package com.jiangzuomeng.modals;
 
 /**
  * Created by wilbert on 2015/12/11.
  */
 public class StaticStrings {
+    public static final String host = "192.168.191.1:3000";
     public static final String HTTP = "http";
     public static final String USER = "user";
     public static final String REGISTER = "register";
@@ -28,7 +29,9 @@ public class StaticStrings {
     public static final String ID = "id";
     public static final String REMOVE = "remove";
     public static final String UPDATE = "update";
+    public static final String NETWORK_RESULT_KEY = "network_result_key";
 
+    public static final int NETWORK_OPERATION = 718392;
     public static final int BEGIN = 718393;
     public static final int ADD_NEW_TRAVEL = BEGIN;
     public static final int ADD_NEW_TRAVEL_ITEM = BEGIN+1;
@@ -45,5 +48,5 @@ public class StaticStrings {
     public static final String ADD_NEW_COMMENT_KEY = "addNewCommentKey";
     public static final String QUERY_USER_BY_USER_NAME_KEY = "queryUserByUserName";
     public static final String QUERY_TRAVEL_BY_TRAVEL_ID_KEY = "queryTravelByTravelId";
-    public static final String QUERY_TRAVEL_ITEM_BY_TRAVEL_ITEM_ID_KEY ="queryTravelItemByTravelItemId"
+    public static final String QUERY_TRAVEL_ITEM_BY_TRAVEL_ITEM_ID_KEY ="queryTravelItemByTravelItemId";
 }

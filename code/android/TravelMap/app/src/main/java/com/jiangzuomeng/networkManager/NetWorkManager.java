@@ -3,12 +3,10 @@ package com.jiangzuomeng.networkManager;
 import android.net.Uri;
 import android.util.Log;
 
-import com.jiangzuomeng.module.Comment;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
-import com.jiangzuomeng.module.User;
-import com.jiangzuomeng.module.StaticStrings;
-import org.w3c.dom.Text;
+import com.jiangzuomeng.modals.Comment;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.modals.User;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,9 +14,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-
-import javax.xml.transform.TransformerException;
 
 /**
  * Created by wilbert on 2015/11/22.
@@ -51,14 +46,7 @@ public class NetWorkManager {
     public static final String UPDATE = "update";
 
     public String addNewUser(User user) throws IOException {
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme(HTTP)
-                .encodedAuthority(host)
-                .appendPath(USER)
-                .appendPath(REGISTER)
-                .appendQueryParameter(USERNAME, user.username)
-                .appendQueryParameter(PASSWORD, user.password);
-        URL url = new URL(builder.build().toString());
+        URL url = user.getAddUrl();
         return getStringFromUrl(url);
     }
 
@@ -287,7 +275,19 @@ public class NetWorkManager {
         while ((inputLine = bufferedReader.readLine()) != null) {
             stringBuilder.append(inputLine);
         }
-        Log.v("wilbert", "getStringFromUrl:" + urlConnection.getURL().toString());
+        return  stringBuilder.toString();
+    }
+
+    public String getDataFromUrl(URL url) throws IOException {
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+        InputStream inputStream = urlConnection.getInputStream();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder stringBuilder = new StringBuilder();
+        String inputLine = null;
+        while ((inputLine = bufferedReader.readLine()) != null) {
+            stringBuilder.append(inputLine);
+        }
         return  stringBuilder.toString();
     }
 }

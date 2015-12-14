@@ -29,7 +29,7 @@ import android.widget.PopupWindow;
 
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.modals.TravelItem;
 
 import java.io.File;
 import java.io.FileNotFoundException;

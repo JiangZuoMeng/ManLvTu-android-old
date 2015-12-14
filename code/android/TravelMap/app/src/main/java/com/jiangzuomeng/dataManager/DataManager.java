@@ -6,17 +6,17 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.jiangzuomeng.database.DBManager;
-import com.jiangzuomeng.module.Comment;
-import com.jiangzuomeng.module.StaticStrings;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
-import com.jiangzuomeng.module.User;
+import com.jiangzuomeng.modals.Comment;
+import com.jiangzuomeng.modals.ManLvTuNetworkDataType;
+import com.jiangzuomeng.modals.StaticStrings;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
 
-import java.io.CharArrayReader;
 import java.io.IOException;
-import java.sql.CallableStatement;
-import java.util.ArrayList;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -41,35 +41,28 @@ public class DataManager {
 
 
     public void addNewTravel(Travel travel,Handler handler) {
-        runThreadByKey(StaticStrings.ADD_NEW_TRAVEL, handler, travel);
     }
     public void addNewTravelItem(TravelItem travelItem, Handler handler) {
-        runThreadByKey(StaticStrings.ADD_NEW_TRAVEL_ITEM, handler, travelItem);
 //        return dbManager.addNewTravelItem(travelItem);
     }
     public void addNewUser(User user, Handler handler) {
-        runThreadByKey(StaticStrings.ADD_NEW_USER, handler, user);
+        runThreadByKey(StaticStrings.ADD, handler, user);
 //        return dbManager.addNewUser(user);
     }
     public void addNewComment(Comment comment,Handler handler) {
-        runThreadByKey(StaticStrings.ADD_NEW_COMMENT, handler, comment);
 //        return dbManager.addNewComment(comment);
     }
 
     public void queryUserByUserName(String userName, Handler handler) {
-        runThreadByKey(StaticStrings.QUERY_USER_BY_USER_NAME, handler, userName);
-/*
-        User user = dbManager.queryUserByUsername(userName);
-        return user;
-*/
+    }
+
+    public void queryUserByUserId(int id, Handler handler) {
+
     }
     public void queryTravelByTravelId(int travelId, Handler handler) {
-        runThreadByKey(StaticStrings.QUERY_TRAVEL_BY_TRAVEL_ID, handler, travelId);
-//        return dbManager.queryTravelByTravelId(travelId);
     }
     public TravelItem queryTravelItemByTravelItemId(int travelItemid) {
         TravelItem travelItem = dbManager.queryTravelItemByTravelItemId(travelItemid);
-
         return travelItem;
     }
     public Comment queryCommentByCommentId(int commentid) {
@@ -158,52 +151,17 @@ public class DataManager {
         }
     }
 
-    public void runThreadByKey(final int key,final Handler handler, final Object object) {
+    public void runThreadByKey(final String key, final Handler handler, final ManLvTuNetworkDataType manLvTuNetworkDataType) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    String jsonString = StaticStrings.ERROR_NETWORK;
+                    URL url = manLvTuNetworkDataType.getUrl(key);
+                    String dataString = netWorkManager.getDataFromUrl(url);
                     Message message = new Message();
-                    bundle.clear();
-                    switch (key) {
-                        case StaticStrings.ADD_NEW_TRAVEL:
-                            Travel travel = (Travel)object;
-                            message.what = StaticStrings.ADD_NEW_TRAVEL;
-                            jsonString = netWorkManager.addNewTravel(travel);
-                            bundle.putString(StaticStrings.ADD_NEW_TRAVEL_KEY, jsonString);
-                            break;
-                        case StaticStrings.ADD_NEW_TRAVEL_ITEM:
-                            TravelItem travelItem = (TravelItem)object;
-                            message.what = StaticStrings.ADD_NEW_TRAVEL_ITEM;
-                            jsonString = netWorkManager.addNewTravelItem(travelItem);
-                            bundle.putString(StaticStrings.ADD_NEW_TRAVEL_ITEM_KEY, jsonString);
-                            break;
-                        case StaticStrings.ADD_NEW_USER:
-                            User user = (User)object;
-                            message.what = StaticStrings.ADD_NEW_USER;
-                            jsonString = netWorkManager.addNewUser(user);
-                            bundle.putString(StaticStrings.ADD_NEW_USER_KEY, jsonString);
-                            break;
-                        case StaticStrings.ADD_NEW_COMMENT:
-                            Comment comment = (Comment)object;
-                            message.what = StaticStrings.ADD_NEW_COMMENT;
-                            jsonString = netWorkManager.addNewComment(comment);
-                            bundle.putString(StaticStrings.ADD_NEW_COMMENT_KEY, jsonString);
-                            break;
-                        case StaticStrings.QUERY_USER_BY_USER_NAME:
-                            String userName = (String)object;
-                            jsonString = netWorkManager.queryUserByUsername(userName);
-                            bundle.putString(StaticStrings.QUERY_USER_BY_USER_NAME_KEY, jsonString);
-                            break;
-                        case StaticStrings.QUERY_TRAVEL_BY_TRAVEL_ID:
-                            int travelId = (int)object;
-                            jsonString = netWorkManager.queryTravelByTravelId(travelId);
-                            bundle.putString(StaticStrings.QUERY_TRAVEL_BY_TRAVEL_ID_KEY, jsonString);
-                            break;
-
-                    }
-                    message.what = key;
+                    message.what = StaticStrings.NETWORK_OPERATION;
+                    Bundle bundle = new Bundle();
+                    bundle.putString(StaticStrings.NETWORK_RESULT_KEY, dataString);
                     message.setData(bundle);
                     handler.sendMessage(message);
                 } catch (IOException e) {

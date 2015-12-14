@@ -20,7 +20,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,7 +31,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jiangzuomeng.database.DBManager;
-import com.jiangzuomeng.module.User;
+import com.jiangzuomeng.modals.User;
 
 import java.util.ArrayList;
 import java.util.List;

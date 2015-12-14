@@ -23,15 +23,14 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 import com.jiangzuomeng.Adapter.DrawerAdapter;
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.MyLayout.CustomViewPager;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
-import com.jiangzuomeng.module.StaticStrings;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         dataManager = DataManager.getInstance(getApplicationContext());
         state = State.NotOnTrip;
         userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
-        userId = dataManager.queryUserByUserName(userName).id;
+//        userId = dataManager.queryUserByUserName(userName, handler).id;
 
         initMyListener();
         initdrawerAdapter();

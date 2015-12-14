@@ -2,21 +2,18 @@ package com.jiangzuomeng.travelmap;
 
 import android.os.Handler;
 import android.os.Message;
-import android.os.NetworkOnMainThreadException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.Comment;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
-import com.jiangzuomeng.module.User;
+import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
-
-import java.io.IOException;
+import com.jiangzuomeng.modals.StaticStrings;
 
 public class TestNetworkActivity extends AppCompatActivity {
     public static final int UPDATE = 121323;
@@ -32,6 +29,11 @@ public class TestNetworkActivity extends AppCompatActivity {
                     Bundle bundle = msg.getData();
                     String string = bundle.getString(UPDATESTRING);
                     textView.setText(string);
+                    break;
+                case StaticStrings.NETWORK_OPERATION:
+                    Bundle bundle1 = msg.getData();
+                    String s = bundle1.getString(StaticStrings.NETWORK_RESULT_KEY);
+                    Log.v("wilbert", s);
             }
         }
     };
@@ -48,11 +50,11 @@ public class TestNetworkActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TravelItem travelItem = new TravelItem();
-                travelItem.text = "test travelitem network";
-                travelItem.media = "asdfadfadfa";
-                travelItem.time = "asdfadfadfwerwe";
-                dataManager.addNewTravelItem(travelItem, handler);
+                User user = new User();
+                user.username = "asdadf";
+                user.password = "sadfawewwea";
+                user.id = 232;
+                dataManager.addNewUser(user, handler);
             }
         });
     }
