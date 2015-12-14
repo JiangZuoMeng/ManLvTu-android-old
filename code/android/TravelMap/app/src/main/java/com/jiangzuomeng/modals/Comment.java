@@ -67,18 +67,6 @@ public class Comment extends ManLvTuNetworkDataType implements ManLvTuSQLDataTyp
         return jsonObject.toString();
     }
 
-    public String makeQueryByUserIdSQLString() {
-        return null;
-    }
-
-    public String makeQueryByCommentIdSQLString() {
-        return null;
-    }
-
-    public String makeQueryByTravelItemIdSQLString() {
-        return null;
-    }
-
     @Override
     public URL getAddUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();

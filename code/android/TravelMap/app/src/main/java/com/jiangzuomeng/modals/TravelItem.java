@@ -4,6 +4,10 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.text.method.HideReturnsTransformationMethod;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.lang.annotation.Retention;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,12 +52,38 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
                 "text TEXT, media TEXT)";
     }
 
-    public String makeQueryByTravelItemIdSQLString() {
-        return null;
+    public static TravelItem fromJson(String json, boolean withId) throws JSONException {
+        TravelItem result = new TravelItem();
+        JSONTokener parser = new JSONTokener(json);
+        JSONObject jsonObject = (JSONObject) parser.nextValue();
+        if (withId)
+            result.id = jsonObject.getInt("id");
+        result.travelId = jsonObject.getInt("travelId");
+        result.label = jsonObject.getString("label");
+        result.time = jsonObject.getString("time");
+        result.locationLat = jsonObject.getDouble("locationLat");
+        result.locationLat = jsonObject.getDouble("locationLat");
+        result.like = jsonObject.getInt("like");
+        result.text = jsonObject.getString("text");
+        result.media = jsonObject.getString("media");
+        return result;
     }
 
-    public String makeQueryByTravelIdSQLString() {
-        return null;
+    public String toJson(boolean withId) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+
+        if (withId)
+            jsonObject.put("id", id);
+        jsonObject.put("travelId", this.travelId);
+        jsonObject.put("label", this.label);
+        jsonObject.put("time", this.time);
+        jsonObject.put("locationLat", this.locationLat);
+        jsonObject.put("locationLng", this.locationLng);
+        jsonObject.put("like", this.like);
+        jsonObject.put("text", this.text);
+        jsonObject.put("media", this.media);
+
+        return jsonObject.toString();
     }
 
     @Override

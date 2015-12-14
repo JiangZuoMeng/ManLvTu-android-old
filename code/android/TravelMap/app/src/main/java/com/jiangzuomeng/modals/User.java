@@ -3,6 +3,10 @@ package com.jiangzuomeng.modals;
 import android.content.ContentValues;
 import android.net.Uri;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -14,16 +18,6 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
     public int id;
     public String username;
     public String password;
-
-    public User(int id, String username, String password) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-    }
-
-    public User() {
-
-    }
 
     @Override
     public ContentValues makeSQLContentValues() {
@@ -38,12 +32,26 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
                 "(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)";
     }
 
-    public static String queryByUsernameSQLString() {
-        return null;
+    public static User fromJson(String json, boolean withId) throws JSONException {
+        User result = new User();
+        JSONTokener parser = new JSONTokener(json);
+        JSONObject jsonObject = (JSONObject) parser.nextValue();
+        if (withId)
+            result.id = jsonObject.getInt("id");
+        result.username = jsonObject.getString("username");
+        result.password = jsonObject.getString("password");
+        return result;
     }
 
-    public String makeQueryByUserIdSQLString() {
-        return null;
+    public String toJson(boolean withId) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+
+        if (withId)
+            jsonObject.put("id", id);
+        jsonObject.put("username", this.username);
+        jsonObject.put("password", this.password);
+
+        return jsonObject.toString();
     }
 
     @Override
