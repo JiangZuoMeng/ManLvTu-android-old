@@ -239,7 +239,7 @@ public class DataManager {
 
         return  travelList;
     }
-    public List<TravelItem> queryTravelItemListByTravelId(int travelId, Handler handler) {
+    public List<TravelItem> queryTravelItemListByTravelId(int travelId) {
         return dbManager.queryTravelItemListByTravelId(travelId);
     }
     public List<Comment> queryCommentListByTravelItemId(int travelItemId) {

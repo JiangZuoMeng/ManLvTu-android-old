@@ -264,6 +264,13 @@ public class SingleTravelActivity
                             ));
                         }
                         initData();
+                        break;
+                    case NetworkJsonKeyDefine.UPDATE:
+                        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+                        break;
+                    case NetworkJsonKeyDefine.ADD:
+                        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+                        break;
                 }
                 break;
         }
