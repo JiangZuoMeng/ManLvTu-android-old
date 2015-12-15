@@ -48,13 +48,14 @@ public class SingleTravelActivity
     private AMap aMap;
     private Polyline polyline;
     private ArrayList<Marker> markers = new ArrayList<>();
-    List<TravelItem> travelItemList;
+    List<TravelItem> travelItemList = new ArrayList<>();
     private boolean isMapMovable = true;
     private ListView listView_drawer;
     PopupWindow popupWindow;
     private int listViewClickPosition = 0;
     private int currentTravelId;
     SingleTravelItemListViewAdapter singleTravelItemAdapter;
+    private boolean initial = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,14 +84,19 @@ public class SingleTravelActivity
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
 
         DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+    }
+    private void initData() {
+        if (travelItemList.isEmpty()) {
+            return;
+        }
 
         // tend to move camera to location of first item
-        if (!travelItemList.isEmpty()) {
+        if (initial) {
+            initial = false;
             aMap.moveCamera(CameraUpdateFactory.changeLatLng(
                     new LatLng(travelItemList.get(0).locationLat, travelItemList.get(0).locationLng)));
         }
-    }
-    private void initData() {
+
         singleTravelItemAdapter.setup(travelItemList);
         listView_drawer.setAdapter(singleTravelItemAdapter);
 
