@@ -1,6 +1,7 @@
 package com.jiangzuomeng.networkManager;
 
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.jiangzuomeng.modals.Comment;
@@ -9,11 +10,17 @@ import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.modals.User;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by wilbert on 2015/11/22.
