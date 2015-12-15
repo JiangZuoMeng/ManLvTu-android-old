@@ -25,8 +25,6 @@ router.post('/upload', function(req, res) {
     form.uploadDir = './data/uploaded/tmp';
 
     form.parse(req, function(error, fields, files) {
-      console.log(files);
-      return;
       var result = { request: 'upload', target: 'file'};
       if (error) {
           result.result = 'error: ' + error.toString();
@@ -45,6 +43,7 @@ router.post('/upload', function(req, res) {
           }
           result.result = 'success';
           result.data = files.file.name;
+          console.log("Saved file: " + result.data);
           res.json(result);
       });
     });
