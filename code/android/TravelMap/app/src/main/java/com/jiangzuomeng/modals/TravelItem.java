@@ -65,7 +65,7 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
         result.label = jsonObject.getString("label");
         result.time = jsonObject.getString("time");
         result.locationLat = jsonObject.getDouble("locationLat");
-        result.locationLat = jsonObject.getDouble("locationLat");
+        result.locationLng = jsonObject.getDouble("locationLng");
         result.like = jsonObject.getInt("like");
         result.text = jsonObject.getString("text");
         result.media = jsonObject.getString("media");
@@ -160,8 +160,8 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
         return url;
     }
 
-    public static URL getQueryNeatbyUrl(double locationLatLowerBound, double locationLatUpperBound,
-                                 double locationLngLowerBound, double locationLngUpperBound) throws MalformedURLException {
+    public static URL getQueryNearbyUrl(double locationLatLowerBound, double locationLatUpperBound,
+                                        double locationLngLowerBound, double locationLngUpperBound) throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(NetworkJsonKeyDefine.HTTP)
                 .encodedAuthority(NetworkJsonKeyDefine.host)
