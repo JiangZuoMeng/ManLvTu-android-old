@@ -35,6 +35,7 @@ import com.jiangzuomeng.modals.Travel;
 import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -80,18 +81,14 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
 
     DataManager dataManager;
     List<Travel> travelList;
+    List<Integer> travelIdList = new ArrayList<>();
+    List<String> nameList = new ArrayList<>();
     Handler handler = new Handler();
+    NetworkHandler networkHandler = new NetworkHandler(this);
     public void setHandler(Handler handler) {
         this.handler = handler;
     }
 
-    Handler netWorkHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-//                case StaticStrings.ADD_NEW_TRAVEL:
-                    currentTravelId = 23;
-        }
-    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,12 +134,14 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         tab.setText("No Travel On");
 
+
     }
 
     private void initdrawerAdapter() {
+        dataManager.queryTravelIdListByUserId(MainActivity.userId, new NetworkHandler(this));
+
         travelList = dataManager.queryTravelListByUserId(userId);
         List<Uri> uriList = new ArrayList<>();
-        List<String> nameList = new ArrayList<>();
         List<Integer> travelIdList = new ArrayList<>();
         for (Travel travel : travelList) {
             Uri uri = null;
@@ -429,6 +428,53 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                         break;
                 }
                 break;
+            case NetworkJsonKeyDefine.QUERY_ALL:
+                switch (target) {
+                    case NetworkJsonKeyDefine.TRAVEL:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONArray jsonArray = originJSONObject.
+                                        getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                    travelIdList.add(jsonObject.getInt(NetworkJsonKeyDefine.ID));
+                                    dataManager.queryTravelByTravelId(travelIdList.get(i), networkHandler);
+
+                                    dataManager.queryTravelItemIdListByTravelId(travelIdList.get(i),
+                                            networkHandler);
+                                }
+                                break;
+                        }
+                        break;
+                    case NetworkJsonKeyDefine.TRAVEL_ITEM:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONArray jsonArray = originJSONObject.getJSONArray(
+                                        NetworkJsonKeyDefine.DATA_KEY
+                                );
+                                if (jsonArray.length() > 0) {
+                                    int travekItemId = jsonArray.getJSONObject(0).
+                                            getInt(NetworkJsonKeyDefine.ID);
+                                    dataManager.queryTravelItemByTravelItemId(travekItemId, networkHandler);
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case NetworkJsonKeyDefine.QUERY:
+                switch (target) {
+                    case NetworkJsonKeyDefine.TRAVEL:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONObject jsonObject = originJSONObject.
+                                        getJSONObject(NetworkJsonKeyDefine.DATA_KEY);
+                                nameList.add(jsonObject.getString(NetworkJsonKeyDefine.NAME));
+                                break;
+                        }
+                        break;
+                }
+
         }
     }
 }

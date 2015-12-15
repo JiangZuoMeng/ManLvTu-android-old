@@ -224,10 +224,6 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.v("wilbert", "marker clicked");
-        int index = markerList.indexOf(marker);
-        if (index == -1 || index >= travelList.size()) {
-            return true;
-        }
         int markerTravelId = markerIdMap.get(marker);
         //// TODO: 2015/11/1 跳转到每一项单独的旅程 返回值true表示默认操作(显示信息窗口)不显示
         Intent intent = new Intent(getActivity(), SingleTravelActivity.class);
@@ -287,6 +283,10 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
                                     LatLng latLng = new LatLng(locationLat, locationLng);
                                     Marker marker = aMap.addMarker(new MarkerOptions().position(latLng));
                                     markerIdMap.put(marker, travelId);
+                                } else {
+                                    LatLng latLng = new LatLng(locationLat, locationLng);
+                                    Marker marker = aMap.addMarker(new MarkerOptions().position(latLng));
+                                    markerIdMap.put(marker, MainActivity.currentTravelId);
                                 }
                                 break;
                         }
