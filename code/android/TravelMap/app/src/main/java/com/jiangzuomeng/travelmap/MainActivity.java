@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                 for (int i = 0; i < jsonArray.length(); i++) {
                                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                                     travelIdList.add(jsonObject.getInt(NetworkJsonKeyDefine.ID));
-                                    dataManager.queryTravelByTravelId(travelIdList.get(i), networkHandler);
+                                    nameList.add(jsonObject.getString(NetworkJsonKeyDefine.NAME));
 
                                     dataManager.queryTravelItemIdListByTravelId(travelIdList.get(i),
                                             networkHandler);
@@ -474,20 +474,6 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                 break;
             case NetworkJsonKeyDefine.QUERY:
                 switch (target) {
-                    case NetworkJsonKeyDefine.TRAVEL:
-                        switch (result) {
-                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
-                                JSONObject jsonObject = originJSONObject.
-                                        getJSONObject(NetworkJsonKeyDefine.DATA_KEY);
-                                nameList.add(jsonObject.getString(NetworkJsonKeyDefine.NAME));
-                                if (nameList.size() == travelIdList.size() &&
-                                        uriList.size() == travelIdList.size()) {
-                                    drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
-                                    listView_drawer.setAdapter(drawerAdapter);
-                                }
-                                break;
-                        }
-                        break;
                     case NetworkJsonKeyDefine.TRAVEL_ITEM:
                         switch (result) {
                             case NetworkJsonKeyDefine.RESULT_SUCCESS:

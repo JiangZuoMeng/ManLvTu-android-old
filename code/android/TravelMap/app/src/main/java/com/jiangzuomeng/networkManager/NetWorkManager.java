@@ -1,107 +1,117 @@
 package com.jiangzuomeng.networkManager;
 
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 
-import com.jiangzuomeng.modals.Comment;
-import com.jiangzuomeng.modals.Travel;
-import com.jiangzuomeng.modals.TravelItem;
-import com.jiangzuomeng.modals.User;
-
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 /**
  * Created by wilbert on 2015/11/22.
  */
 public class NetWorkManager {
-    String host = "192.168.191.1:3000";
-    public static final String HTTP = "http";
-    public static final String USER = "user";
-    public static final String REGISTER = "register";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    public static final String TRAVEL = "travel";
-    public static final String ADD = "add";
-    public static final String USER_ID = "userId";
-    public static final String NAME = "name";
-    public static final String COMMENT = "comment";
-    public static final String TRAVEL_ITEM_ID = "travelItemId";
-    public static final String TRAVEL_ITEM = "travelItem";
-    public static final String TRAVEL_ID = "travelId";
-    public static final String LABEL = "label";
-    public static final String TIME = "time";
-    public static final String LOCATION_LNG = "locationLng";
-    public static final String LOCATION_LAT = "locationLat";
-    public static final String LIKE = "like";
-    public static final String TEXT = "text";
-    public static final String MEDIA = "media";
-    public static final String QUERY = "query";
-    public static final String ID = "id";
-    public static final String REMOVE = "remove";
-    public static final String UPDATE = "update";
-
-
-    /*
-    public List<Integer> queryCommentIdListByTravelItemId(int travelItemId) {
-        // TODO: 2015/12/11
-
-    }
-
-    public int queryLikeNumByTravelItemId(int TravelItemid) {
-        // TODO: 2015/12/11
-    }
-
-    public List<Travel> queryTravelListByUserId(int userId) {
-        // TODO: 2015/12/11
-    }
-
-    public List<TravelItem> queryTravelItemListByTravelId(int travelId) {
-        // TODO: 2015/12/11
-    }
-
-    public List<Comment> queryCommentListByTravelItemId(int travelItemId) {
-        // TODO: 2015/12/11
-    }
-*/
-
-
-
-    public String getStringFromUrl(URL url) throws IOException {
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-        InputStream inputStream = urlConnection.getInputStream();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        StringBuilder stringBuilder = new StringBuilder();
-        String inputLine = null;
-        while ((inputLine = bufferedReader.readLine()) != null) {
-            stringBuilder.append(inputLine);
-        }
-        return  stringBuilder.toString();
-    }
-
     public String getDataFromUrl(URL url) throws IOException {
-        Log.v("ekuri", "openning uri:" + url.toString());
+        Log.v("ekuri", "openning url:" + url.toString());
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
         InputStream inputStream = urlConnection.getInputStream();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder stringBuilder = new StringBuilder();
-        String inputLine = null;
+        String inputLine;
         while ((inputLine = bufferedReader.readLine()) != null) {
             stringBuilder.append(inputLine);
         }
         return  stringBuilder.toString();
+    }
+
+    public String postFile(File targetFile) throws IOException {
+        String BOUNDARY = java.util.UUID.randomUUID().toString();
+        String SPACER = "--", LINE_END = "\r\n";
+        String MULTIPART_FROM_DATA = "multipart/form-data";
+        String CHARSET = "UTF-8";
+        Uri.Builder uriBuilder = new Uri.Builder();
+        uriBuilder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.FILE_UPLOAD_PREFIX);
+        URL url = new URL(uriBuilder.toString());
+        Log.v("ekuri", "openning url:" + url.toString());
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setReadTimeout(5 * 1000);
+        httpURLConnection.setDoInput(true);// 允许输入
+        httpURLConnection.setDoOutput(true);// 允许输出
+        httpURLConnection.setUseCaches(false);
+        httpURLConnection.setRequestMethod("POST"); // Post方式
+        httpURLConnection.setRequestProperty("connection", "keep-alive");
+        httpURLConnection.setRequestProperty("Charset", "UTF-8");
+        httpURLConnection.setRequestProperty("Content-Type", MULTIPART_FROM_DATA
+                + ";boundary=" + BOUNDARY);
+
+        // 首先组拼文本类型的参数
+        StringBuilder filePropertyStringBuilder = new StringBuilder();
+        filePropertyStringBuilder.append(SPACER);
+        filePropertyStringBuilder.append(BOUNDARY);
+        filePropertyStringBuilder.append(LINE_END);
+        filePropertyStringBuilder.append("Content-Disposition: form-data; name=\""
+                + NetworkJsonKeyDefine.FILE_UPLOAD_PARAMETER + "\"" + LINE_END);
+        filePropertyStringBuilder.append("Content-Type: text/plain; charset=" + CHARSET + LINE_END);
+        filePropertyStringBuilder.append("Content-Transfer-Encoding: 8bit" + LINE_END);
+        filePropertyStringBuilder.append(LINE_END);
+        filePropertyStringBuilder.append(targetFile.getName());
+        filePropertyStringBuilder.append(LINE_END);
+
+        DataOutputStream outStream = new DataOutputStream(httpURLConnection
+                .getOutputStream());
+        outStream.write(filePropertyStringBuilder.toString().getBytes());
+
+        // 发送文件数据
+        StringBuilder fileDataStringBuilder = new StringBuilder();
+        fileDataStringBuilder.append(SPACER);
+        fileDataStringBuilder.append(BOUNDARY);
+        fileDataStringBuilder.append(LINE_END);
+        fileDataStringBuilder
+                .append("Content-Disposition: form-data; name=\"file\"; filename=\""
+                        + targetFile.getName() + "\"" + LINE_END);
+        fileDataStringBuilder.append("Content-Type: application/octet-stream; charset="
+                + CHARSET + LINE_END);
+        fileDataStringBuilder.append(LINE_END);
+        outStream.write(fileDataStringBuilder.toString().getBytes());
+        InputStream fileInputStream = new FileInputStream(targetFile);
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = fileInputStream.read(buffer)) != -1) {
+            outStream.write(buffer, 0, len);
+        }
+
+        fileInputStream.close();
+        outStream.write(LINE_END.getBytes());
+
+        // 请求结束标志
+        byte[] end_data = (SPACER + BOUNDARY + SPACER + LINE_END).getBytes();
+        outStream.write(end_data);
+        outStream.flush();
+
+        // 得到响应码
+        int res = httpURLConnection.getResponseCode();
+        InputStream inputStream = httpURLConnection.getInputStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        StringBuilder stringBuilder = new StringBuilder();
+        String inputLine;
+        while ((inputLine = bufferedReader.readLine()) != null) {
+            stringBuilder.append(inputLine);
+        }
+
+        outStream.close();
+        httpURLConnection.disconnect();
+        return stringBuilder.toString();
     }
 }

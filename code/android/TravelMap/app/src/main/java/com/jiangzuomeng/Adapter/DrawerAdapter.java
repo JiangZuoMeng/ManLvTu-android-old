@@ -85,7 +85,7 @@ public class DrawerAdapter  extends BaseAdapter{
                     bitmapList.add(bitmap);
                 }
             } else {
-                    Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_mood_black_24dp);
+                    Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.test1_show);
                     bitmapList.add(bitmap);
             }
         }
