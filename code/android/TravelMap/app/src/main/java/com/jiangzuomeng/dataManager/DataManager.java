@@ -272,10 +272,8 @@ public class DataManager {
             public void run() {
                 try {
                     File targetFile = new File(targetFileUri.getPath());
-                    moveAndRenameFile(targetFile);
-
                     // TODO: add network file upload, done
-                    String dataString = netWorkManager.postFile(targetFile);
+                    String dataString = netWorkManager.postFile(moveAndRenameFile(targetFile));
 
                     Message message = new Message();
                     message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
