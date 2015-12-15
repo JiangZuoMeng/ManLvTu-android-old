@@ -277,10 +277,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     @Override
-    public void handleNetworkEvent(String status, String request, String target, JSONObject originJSONObject) throws JSONException {
+    public void handleNetworkEvent(String result, String request, String target, JSONObject originJSONObject) throws JSONException {
         switch (request) {
             case NetworkJsonKeyDefine.LOGIN:
-                switch (status) {
+                switch (result) {
                     case NetworkJsonKeyDefine.RESULT_SUCCESS:
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra(INTENT_USER_NAME_KEY,
@@ -300,10 +300,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             case NetworkJsonKeyDefine.REGISTER:
                 showProgress(false);
-                switch (status) {
+                switch (result) {
                     case NetworkJsonKeyDefine.RESULT_SUCCESS:
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra(INTENT_USER_NAME_KEY,
+                        intent.putExtra(NetworkJsonKeyDefine.ID,
                                 originJSONObject.getJSONObject(NetworkJsonKeyDefine.DATA_KEY)
                                         .getInt(NetworkJsonKeyDefine.ID));
                         startActivity(intent);
