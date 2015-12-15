@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         Log.v("wilbert", "userId:" + Integer.toString(userId));
         mainActivity = this;
         initMyListener();
-        initdrawerAdapter();
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
         viewPager = (CustomViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
@@ -140,7 +139,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     }
 
     private void initdrawerAdapter() {
-        dataManager.queryTravelIdListByUserId(MainActivity.userId, new NetworkHandler(this));
+        uriList.clear();
+        nameList.clear();
+        travelIdList.clear();
+
+        dataManager.queryTravelIdListByUserId(MainActivity.userId, networkHandler);
 /*
         travelList = dataManager.queryTravelListByUserId(userId);
         List<Uri> uriList = new ArrayList<>();
@@ -171,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this,SingleTravelActivity.class);
-                intent.putExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, travelList.get(position).id);
+                intent.putExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, travelIdList.get(position));
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 startActivity(intent);
@@ -344,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     travel.userId = userId;
                     travel.name = nameEdittext.getText().toString();
                     dataManager.addNewTravel(travel, new NetworkHandler(mainActivity));
-
                 }
             });
             builder.show();
