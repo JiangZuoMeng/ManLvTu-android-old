@@ -1,11 +1,14 @@
 package com.jiangzuomeng.dataManager;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.amap.api.maps2d.model.LatLng;
 import com.jiangzuomeng.database.DBManager;
@@ -266,14 +269,13 @@ public class DataManager {
         thread.start();
     }
 
-    public void uploadFile(final Uri targetFileUri, final Handler handler) {
+    public void uploadFile(final InputStream inputStream, final Handler handler) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    File targetFile = new File(targetFileUri.getPath());
                     // TODO: add network file upload, done
-                    String dataString = netWorkManager.postFile(moveAndRenameFile(targetFile));
+                    String dataString = netWorkManager.postFile(moveAndRenameFile(inputStream));
 
                     Message message = new Message();
                     message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
@@ -328,10 +330,10 @@ public class DataManager {
         }
 
     * */
-    public File moveAndRenameFile(File file) throws IOException, NoSuchAlgorithmException {
-        InputStream inputStream = new FileInputStream(file);
+    public File moveAndRenameFile(InputStream inputStream) throws IOException, NoSuchAlgorithmException {
         File newFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES) + File.separator + "temp.jpg");
+                Environment.DIRECTORY_PICTURES) + File.separator + "TravelMap" + File.separator + "temp.jpg");
+
         OutputStream outputStream = new FileOutputStream(newFile);
         byte[] buffer = new byte[1024];
 

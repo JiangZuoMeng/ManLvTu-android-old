@@ -2,9 +2,11 @@ package com.jiangzuomeng.travelmap;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -293,6 +295,27 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
         dialog = builder.show();
     }
 
+    public String getRealFilePath(final Uri targetFileUri) {
+        Log.v("ekuri", "target uri:" + targetFileUri.toString());
+
+        final String scheme = targetFileUri.getScheme();
+        if (null == scheme || ContentResolver.SCHEME_FILE.equals(scheme)) {
+            return targetFileUri.getPath();
+        }
+        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            Cursor cursor = getApplicationContext().getContentResolver().query(
+                    targetFileUri, new String[]{MediaStore.Images.Media.DATA}, null, null, null);
+
+            if (null == cursor)
+                return null;
+            int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(index);
+        }
+
+        return null;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -333,7 +356,12 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                 } else {
                     dataManager.updateTravelItem(currentTravelItem, networkHandler);
                 }
-                dataManager.uploadFile(fileUri, networkHandler);
+
+                try {
+                    dataManager.uploadFile(getContentResolver().openInputStream(fileUri), networkHandler);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
                 finish();
                 break;
         }
@@ -372,6 +400,7 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
             fileUri = data.getData();
         }
+
         addImageFromImageName();
     }
 
@@ -443,7 +472,6 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                     strings.add(currentTravelItem.label);
                     setTagAdapter = new SetTagAdapter(strings, this);
                     setTagAdapter.getIsSelectList().set(0, true);
-
                 }
         }
     }
