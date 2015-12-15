@@ -4,7 +4,7 @@ package com.jiangzuomeng.networkManager;
  * Created by wilbert on 2015/12/11.
  */
 public class NetworkJsonKeyDefine {
-    public static final String host = "192.168.150.1:3000";
+    public static final String host = "172.19.199.2:3000";
     public static final String HTTP = "http";
     public static final String NETWORK_RESULT_KEY = "network_result_key";
 

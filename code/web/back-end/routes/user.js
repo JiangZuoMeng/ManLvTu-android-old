@@ -36,7 +36,7 @@ router.get('/register', function (req, res) {
 });
 
 database.db.run("CREATE TABLE IF NOT EXISTS " + target_global +
-            " (id INTEGER PRIMARY KEY NOT NULL, username TEXT, password TEXT)", function (error) {
+            " (id INTEGER PRIMARY KEY NOT NULL, username TEXT UNIQUE, password TEXT)", function (error) {
         if (error) {
             console.log('create '+ target_global + ' table failed: ' + error.toString());
         }

@@ -30,6 +30,7 @@ import com.jiangzuomeng.MyLayout.CustomViewPager;
 import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.modals.Travel;
 import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
 
         dataManager = DataManager.getInstance(getApplicationContext());
         state = State.NotOnTrip;
-        userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
+        userName = getIntent().getStringExtra(NetworkJsonKeyDefine.ID);
 //        userId = dataManager.queryUserByUserName(userName, handler).id;
 
         initMyListener();
