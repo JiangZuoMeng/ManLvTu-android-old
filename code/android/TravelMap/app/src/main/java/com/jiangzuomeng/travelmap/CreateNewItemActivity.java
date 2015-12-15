@@ -29,7 +29,13 @@ import android.widget.PopupWindow;
 
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.dataManager.NetworkConnectActivity;
+import com.jiangzuomeng.dataManager.NetworkHandler;
 import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class CreateNewItemActivity extends AppCompatActivity {
+public class CreateNewItemActivity extends AppCompatActivity implements NetworkConnectActivity{
     private static final int CAMERA = 1000;
     private static final int PICK_IMAGE_REQUEST = 1234;
     private static  final int ID_START = 234;
@@ -83,6 +89,8 @@ public class CreateNewItemActivity extends AppCompatActivity {
     boolean isCreateNewTravelItem = true;
     TravelItem currentTravelItem = new TravelItem();
 
+    NetworkHandler networkHandler = new NetworkHandler(this);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,17 +123,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
         if (currentTravelItem.id != -1) {
             isCreateNewTravelItem = false;
             // TODO: 2015/12/14 network
-//            currentTravelItem = dataManager.queryTravelItemByTravelItemId(currentTravelItem.id);
-            if (currentTravelItem.media != null) {
-                addImageFromUri(Uri.parse(currentTravelItem.media));
-            }
-            itemTextEditText.setText(currentTravelItem.text);
-            locationLat = currentTravelItem.locationLat;
-            locationLng = currentTravelItem.locationLng;
-            List<String> strings = new ArrayList<>();
-            strings.add(currentTravelItem.label);
-            setTagAdapter = new SetTagAdapter(strings, this);
-            setTagAdapter.getIsSelectList().set(0, true);
+            dataManager.queryTravelItemByTravelItemId(currentTravelItem.id, networkHandler);
             return;
         }
 
@@ -328,6 +326,12 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 } else {
                     temp = dataManager.updateTravelItem(currentTravelItem);
                 }*/
+                if (isCreateNewTravelItem) {
+                    currentTravelItem.travelId = MainActivity.currentTravelId;
+                    dataManager.addNewTravelItem(currentTravelItem, networkHandler);
+                } else {
+                    dataManager.updateTravelItem(currentTravelItem, networkHandler);
+                }
                 finish();
                 break;
         }
@@ -358,13 +362,12 @@ public class CreateNewItemActivity extends AppCompatActivity {
                 try {
                     File newFile = dataManager.renameFile(new File(fileUri.getPath()));
                     Uri newUri = Uri.fromFile(newFile);
-                    addImageFromUri(newUri);
+                    addImageFromImageName(newFile.getName());
                 } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-//                addImageFromUri(fileUri);
             }
         }
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
@@ -373,7 +376,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
             try {
                 File newFile = dataManager.moveFile(file, mediaStorageDir.getPath());
                 Uri newUri = Uri.fromFile(newFile);
-                addImageFromUri(newUri);
+                addImageFromImageName(newFile.getName());
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {
@@ -382,8 +385,9 @@ public class CreateNewItemActivity extends AppCompatActivity {
         }
     }
 
-    private void addImageFromUri(Uri fileUri) {
-        if (fileUri == null) return;
+    private void addImageFromImageName(String imageName) {
+        if (imageName == null) return;
+        Uri fileUri = getUriFromImageName(imageName);
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -406,7 +410,10 @@ public class CreateNewItemActivity extends AppCompatActivity {
             imageView.setLayoutParams(new LinearLayout.LayoutParams((int) px, (int) px));
             HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put(IMAGEVIEW, imageView);
-            hashMap.put(URISTRING, fileUri.toString());
+            String uriString = fileUri.toString();
+            String fileName = uriString.substring(uriString.lastIndexOf(File.separator)+1,
+                    uriString.length());
+            hashMap.put(URISTRING, fileName);
             imageIdStringList.add(hashMap);
             countStart++;
             imageView.setOnLongClickListener(onLongClickListener);
@@ -414,5 +421,53 @@ public class CreateNewItemActivity extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void handleNetworkEvent(String result, String request, String target, JSONObject originJSONObject) throws JSONException {
+        switch (request) {
+            case NetworkJsonKeyDefine.ADD:
+                switch (result) {
+                    case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                        Log.v("wilbert", originJSONObject.toString());
+                        break;
+                }
+                break;
+            case NetworkJsonKeyDefine.UPDATE:
+                switch (result) {
+                    case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                        Log.v("wilbert", originJSONObject.toString());
+                }
+                break;
+            case NetworkJsonKeyDefine.QUERY:
+                if (target.equals(NetworkJsonKeyDefine.TRAVEL_ITEM) && result.equals(
+                        NetworkJsonKeyDefine.RESULT_SUCCESS)) {
+                    String jsonString = originJSONObject.getString(NetworkJsonKeyDefine.DATA_KEY);
+                    currentTravelItem = TravelItem.fromJson(jsonString, true);
+                    if (currentTravelItem.media != null) {
+                        addImageFromImageName(currentTravelItem.media);
+                    }
+                    itemTextEditText.setText(currentTravelItem.text);
+                    locationLat = currentTravelItem.locationLat;
+                    locationLng = currentTravelItem.locationLng;
+                    List<String> strings = new ArrayList<>();
+                    strings.add(currentTravelItem.label);
+                    setTagAdapter = new SetTagAdapter(strings, this);
+                    setTagAdapter.getIsSelectList().set(0, true);
+
+                }
+        }
+    }
+
+    public Uri getUriFromImageName(String imageName) {
+        mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "TravelMap");
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        File file = new File(mediaStorageDir.getPath()+File.separator+imageName);
+        return Uri.fromFile(file);
     }
 }
