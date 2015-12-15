@@ -300,6 +300,18 @@ public class DataManager {
         return newFile;
     }
 
+    /*
+    * @param path
+    * the path of file:  use getPath() method.
+    * File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "TravelMap");
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+
+    * */
     public File moveFile(File file, String path) throws IOException, NoSuchAlgorithmException {
         InputStream inputStream = new FileInputStream(file);
         File newFile = new File(path + File.separator + "temp.jpg");
