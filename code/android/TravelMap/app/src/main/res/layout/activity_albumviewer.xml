@@ -38,7 +38,6 @@
                     android:alpha="0.5"
                     android:padding="5dp"
                     android:textColor="@android:color/white"
-                    android:text="Small Text take my money isg gsi sssssssssdffffffffffffffffffffffffffffffffffff"
                     android:gravity="left"
                     android:textAlignment="gravity" />
                 <RelativeLayout

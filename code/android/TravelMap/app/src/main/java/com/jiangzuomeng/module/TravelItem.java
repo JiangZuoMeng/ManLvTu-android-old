@@ -2,10 +2,12 @@ package com.jiangzuomeng.module;
 
 import android.content.ContentValues;
 
+import java.io.Serializable;
+
 /**
  * Created by ekuri-PC on 2015/11/21.
  */
-public class TravelItem implements ManLvTuSQLDataType {
+public class TravelItem implements ManLvTuSQLDataType, Serializable {
     public static final String TRAVEL_ITEM_TABLE_NAME = "travelItem";
     public int id;
     public int travelId;
