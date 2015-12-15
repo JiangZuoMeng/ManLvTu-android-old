@@ -30,6 +30,11 @@ public class NetworkJsonKeyDefine {
     public static final String TEXT = "text";
     public static final String MEDIA = "media";
 
+    public static final String LOCATION_LAT_LOWER_BOUND = "locationLatLowerBound";
+    public static final String LOCATION_LAT_UPPER_BOUND = "locationLatUpperBound";
+    public static final String LOCATION_LNG_LOWER_BOUND = "locationLngLowerBound";
+    public static final String LOCATION_LNG_UPPER_BOUND = "locationLngUpperBound";
+
     public static final String REQUEST_KEY = "request";
     public static final String ADD = "add";
     public static final String QUERY = "query";
@@ -38,6 +43,7 @@ public class NetworkJsonKeyDefine {
     public static final String QUERY_ALL = "queryAll";
     public static final String LOGIN = "login";
     public static final String REGISTER = "register";
+    public static final String QUERY_NEARBY= "queryNearby";
 
     public static final String RESULT_KEY = "result";
     public static final String RESULT_SUCCESS = "success";

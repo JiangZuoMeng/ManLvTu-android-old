@@ -9,7 +9,7 @@ import java.net.URL;
  * Created by wilbert on 2015/12/13.
  */
 public abstract class ManLvTuNetworkDataType {
-    public URL getUrl(String key) throws MalformedURLException {
+    /*public URL getUrl(String key) throws MalformedURLException {
         URL url = null;
         switch (key) {
             case NetworkJsonKeyDefine.ADD:
@@ -27,20 +27,13 @@ public abstract class ManLvTuNetworkDataType {
             case NetworkJsonKeyDefine.QUERY_ALL:
                 url = getQueryAllUrl();
                 break;
-            case NetworkJsonKeyDefine.LOGIN:
-                url = getLoginUrl();
-                break;
         }
         return url;
-    }
+    }*/
 
     public abstract URL getAddUrl() throws MalformedURLException;
     public abstract URL getQueryUrl() throws MalformedURLException;
     public abstract URL getUpdateUrl() throws MalformedURLException;
     public abstract URL getRemoveUrl() throws MalformedURLException;
     public abstract URL getQueryAllUrl() throws MalformedURLException;
-
-    public URL getLoginUrl() throws MalformedURLException {
-        return null;
-    }
 }
