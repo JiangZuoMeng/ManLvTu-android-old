@@ -27,7 +27,9 @@ import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.dataManager.NetworkConnectActivity;
 import com.jiangzuomeng.dataManager.NetworkHandler;
 import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -79,7 +81,8 @@ public class SingleTravelActivity
         supportActionBar.setDisplayHomeAsUpEnabled(true);
         supportActionBar.setTitle("在生物岛");
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
-        initData();
+
+        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
 
         // tend to move camera to location of first item
         if (!travelItemList.isEmpty()) {
@@ -249,7 +252,20 @@ public class SingleTravelActivity
 
     @Override
     public void handleNetworkEvent(String status, String request, String target, JSONObject originJSONObject) throws JSONException {
-
+        switch (status) {
+            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                switch (request) {
+                    case NetworkJsonKeyDefine.QUERY_ALL:
+                        travelItemList.clear();
+                        JSONArray data = originJSONObject.getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
+                        for (int count = 0; count < data.length(); count++) {
+                            travelItemList.add(TravelItem.fromJson(
+                                    data.getJSONObject(count).toString(), true
+                            ));
+                        }
+                }
+                break;
+        }
     }
 
     @Override
