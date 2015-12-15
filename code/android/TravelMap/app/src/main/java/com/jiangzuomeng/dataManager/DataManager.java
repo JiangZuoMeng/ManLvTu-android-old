@@ -17,8 +17,11 @@ import com.jiangzuomeng.networkManager.NetWorkManager;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -291,9 +294,26 @@ public class DataManager {
         // Fill to 32 chars
         output = String.format("%32s", output).replace(' ', '0');
         String path = file.getPath();
-        String newPath = path.substring(0, path.lastIndexOf(File.separator));
+        String newPath = path.substring(0, path.lastIndexOf(File.separator)+1);
         File newFile = new File(newPath+output+".jpg");
         file.renameTo(newFile);
         return newFile;
+    }
+
+    public File moveFile(File file, String path) throws IOException, NoSuchAlgorithmException {
+        InputStream inputStream = new FileInputStream(file);
+        File newFile = new File(path + File.separator + "temp.jpg");
+        OutputStream outputStream = new FileOutputStream(newFile);
+        byte[] buffer = new byte[1024];
+
+        int length;
+        //copy the file content in bytes
+        while ((length = inputStream.read(buffer)) > 0){
+            outputStream.write(buffer, 0, length);
+        }
+        inputStream.close();
+        outputStream.close();
+        File outputFile = renameFile(newFile);
+        return outputFile;
     }
 }

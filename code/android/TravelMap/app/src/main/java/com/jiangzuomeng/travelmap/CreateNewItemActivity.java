@@ -88,6 +88,12 @@ public class CreateNewItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_item);
         init();
+
+        mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "TravelMap");
+        if (! mediaStorageDir.exists()){
+            mediaStorageDir.mkdirs();
+        }
     }
 
     private void init() {
@@ -351,7 +357,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK) {
                 try {
                     File newFile = dataManager.renameFile(new File(fileUri.getPath()));
-                    Uri newUri = Uri.parse(newFile.toString());
+                    Uri newUri = Uri.fromFile(newFile);
                     addImageFromUri(newUri);
                 } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
@@ -363,7 +369,16 @@ public class CreateNewItemActivity extends AppCompatActivity {
         }
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            addImageFromUri(uri);
+            File file = new File(uri.getPath());
+            try {
+                File newFile = dataManager.moveFile(file, mediaStorageDir.getPath());
+                Uri newUri = Uri.fromFile(newFile);
+                addImageFromUri(newUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
         }
     }
 
