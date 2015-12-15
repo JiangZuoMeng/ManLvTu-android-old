@@ -64,7 +64,6 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         final Bundle bun = intent.getExtras();
         if (bun != null) {
             travelItem = ((TravelItem) bun.getSerializable(AlbumViewerActivity.INTERT_TRAVEL_ITEM_OBJECT));
-            Log.v("TAG:dfsdf", String.valueOf(travelItem.id));
             if (travelItem != null) {
                 // TODO queryCommentListBy 添加handler参数
                 TextView userState = (TextView) findViewById(R.id.album_details_user_state);
