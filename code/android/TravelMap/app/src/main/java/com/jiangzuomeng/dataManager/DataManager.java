@@ -8,7 +8,6 @@ import android.os.Message;
 import com.amap.api.maps2d.model.LatLng;
 import com.jiangzuomeng.database.DBManager;
 import com.jiangzuomeng.modals.Comment;
-import com.jiangzuomeng.networkManager.ManLvTuNetworkDataType;
 import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 import com.jiangzuomeng.modals.Travel;
 import com.jiangzuomeng.modals.TravelItem;
@@ -162,7 +161,7 @@ public class DataManager {
     public void queryNearbyTravelItem(LatLng currentLocation, Handler handler) {
         double nearDistance = 1.0;
         try {
-            runThreadByUrl(TravelItem.getQueryNeatbyUrl(currentLocation.latitude - nearDistance,
+            runThreadByUrl(TravelItem.getQueryNearbyUrl(currentLocation.latitude - nearDistance,
                     currentLocation.latitude + nearDistance,
                     currentLocation.longitude - nearDistance,
                     currentLocation.longitude + nearDistance), handler);
@@ -202,6 +201,11 @@ public class DataManager {
 
 
     public void addNewComment(Comment comment,Handler handler) {
+        try {
+            runThreadByUrl(comment.getAddUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void queryCommentByCommentId(int commentid, Handler handler) {
@@ -240,24 +244,6 @@ public class DataManager {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-    }
-
-    public List<Travel> queryTravelListByUserId(int userId) {
-        List<Travel> travelList = dbManager.queryTravelListByUserId(userId);
-        //get the travel list by user id
-
-        return  travelList;
-    }
-    public List<TravelItem> queryTravelItemListByTravelId(int travelId) {
-        return dbManager.queryTravelItemListByTravelId(travelId);
-    }
-    public List<Comment> queryCommentListByTravelItemId(int travelItemId) {
-        return dbManager.queryCommentListByTravelItemId(travelItemId);
-    }
-    public int queryLikeNumByTravelItemId(int TravelItemid) {
-        int likeNum = 0;
-
-        return likeNum;
     }
 
     public void runThreadByUrl(final URL url, final Handler handler) {

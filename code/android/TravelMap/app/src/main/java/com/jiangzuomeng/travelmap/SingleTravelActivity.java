@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,12 +51,13 @@ public class SingleTravelActivity
     private ArrayList<Marker> markers = new ArrayList<>();
     List<TravelItem> travelItemList = new ArrayList<>();
     private boolean isMapMovable = true;
-    private ListView listView_drawer;
+    private ListView singleTravelItemsListView;
     PopupWindow popupWindow;
     private int listViewClickPosition = 0;
     private int currentTravelId;
     SingleTravelItemListViewAdapter singleTravelItemAdapter;
     private boolean initial = true;
+    android.support.v7.app.ActionBar supportActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +65,13 @@ public class SingleTravelActivity
         setContentView(R.layout.activity_single_travel);
 
         // setup single travel activity list view
-        listView_drawer = (ListView)findViewById(R.id.SingleTravelMapListView);
-        listView_drawer.setLongClickable(true);
-        listView_drawer.setOnItemLongClickListener(this);
-        listView_drawer.setOnItemClickListener(this);
+        singleTravelItemsListView = (ListView)findViewById(R.id.SingleTravelMapListView);
+        singleTravelItemsListView.setLongClickable(true);
+        singleTravelItemsListView.setOnItemLongClickListener(this);
+        singleTravelItemsListView.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
-        currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
+
+
         initPopupWindow();
 
         // setup map
@@ -78,11 +81,11 @@ public class SingleTravelActivity
         setupMap();
 
         // setting action bar
-        android.support.v7.app.ActionBar supportActionBar = getSupportActionBar();
-        supportActionBar.setDisplayHomeAsUpEnabled(true);
-        supportActionBar.setTitle("在生物岛");
+        supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
 
+        currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
+        DataManager.getInstance(getApplicationContext()).queryTravelByTravelId(currentTravelId, new NetworkHandler(this));
         DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
     }
     private void initData() {
@@ -98,13 +101,13 @@ public class SingleTravelActivity
         }
 
         singleTravelItemAdapter.setup(travelItemList);
-        listView_drawer.setAdapter(singleTravelItemAdapter);
+        singleTravelItemsListView.setAdapter(singleTravelItemAdapter);
 
         aMap.clear();
         markers.clear();
 
         for (TravelItem travelItem : travelItemList) {
-            LatLng latLng= new LatLng(travelItem.locationLat, travelItem.locationLng);
+            LatLng latLng = new LatLng(travelItem.locationLat, travelItem.locationLng);
             addMarker(new MarkerOptions().position(latLng).draggable(true));
         }
         linkMarkersOfMap();
@@ -258,28 +261,43 @@ public class SingleTravelActivity
 
     @Override
     public void handleNetworkEvent(String status, String request, String target, JSONObject originJSONObject) throws JSONException {
-        switch (status) {
-            case NetworkJsonKeyDefine.RESULT_SUCCESS:
-                switch (request) {
-                    case NetworkJsonKeyDefine.QUERY_ALL:
-                        travelItemList.clear();
-                        JSONArray data = originJSONObject.getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
-                        for (int count = 0; count < data.length(); count++) {
-                            travelItemList.add(TravelItem.fromJson(
-                                    data.getJSONObject(count).toString(), true
-                            ));
+        switch (target) {
+            case NetworkJsonKeyDefine.TRAVEL_ITEM:
+                switch (status) {
+                    case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                        switch (request) {
+                            case NetworkJsonKeyDefine.QUERY_ALL:
+                                travelItemList.clear();
+                                JSONArray data = originJSONObject.getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
+                                for (int count = 0; count < data.length(); count++) {
+                                    travelItemList.add(TravelItem.fromJson(
+                                            data.getJSONObject(count).toString(), true
+                                    ));
+                                }
+                                initData();
+                                break;
+                            default:
+                                DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+                                break;
                         }
-                        initData();
                         break;
-                    case NetworkJsonKeyDefine.UPDATE:
-                        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
-                        break;
-                    case NetworkJsonKeyDefine.ADD:
-                        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+                }
+                break;
+            case NetworkJsonKeyDefine.TRAVEL:
+                switch (status) {
+                    case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                        switch (request) {
+                            case NetworkJsonKeyDefine.QUERY:
+                                supportActionBar.setTitle(
+                                        originJSONObject.getJSONObject(NetworkJsonKeyDefine.DATA_KEY)
+                                                .getString(NetworkJsonKeyDefine.NAME)
+                                );
+                        }
                         break;
                 }
                 break;
         }
+
     }
 
     @Override
