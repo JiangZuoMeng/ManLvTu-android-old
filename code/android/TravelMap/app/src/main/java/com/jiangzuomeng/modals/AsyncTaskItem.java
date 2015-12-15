@@ -1,6 +1,8 @@
-package com.jiangzuomeng.module;
+package com.jiangzuomeng.modals;
 
 import android.content.ContentValues;
+
+import com.jiangzuomeng.database.ManLvTuSQLDataType;
 
 /**
  * Created by ekuri-PC on 2015/12/1.

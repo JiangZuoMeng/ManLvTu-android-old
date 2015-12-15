@@ -7,10 +7,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.NetworkOnMainThreadException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -22,14 +25,20 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 import com.jiangzuomeng.Adapter.DrawerAdapter;
 import com.jiangzuomeng.Adapter.SetTagAdapter;
 import com.jiangzuomeng.MyLayout.CustomViewPager;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.dataManager.NetworkConnectActivity;
+import com.jiangzuomeng.dataManager.NetworkHandler;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +46,8 @@ import java.util.List;
 enum State{
         OnTrip,NotOnTrip
         }
-public class MainActivity extends AppCompatActivity implements AMapFragment.MainActivityListener {
+public class MainActivity extends AppCompatActivity implements AMapFragment.MainActivityListener,
+                                                    NetworkConnectActivity{
     public  static final String LOCATION_LNG_KEY = "locationlng";
     public  static final String LOCATION_LAT_KEY = "locationlat";
     public static int currentTravelId;
@@ -56,12 +66,12 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     };
     ListView.OnItemClickListener onItemClickListener = null;
     ListView.OnItemLongClickListener onItemLongClickListener;
-    PopupWindow setTagPopUpWindow;
     TabLayout.OnTabSelectedListener onTabSelectedListener;
     ViewPager.SimpleOnPageChangeListener simpleOnPageChangeListener;
     Button.OnClickListener btnOnclickListener;
     Button.OnLongClickListener btnOnLongClickListener;
 
+    MainActivity mainActivity;
     Button addOtherTagBtn;
     EditText addTagEditText;
     SetTagAdapter setTagAdapter;
@@ -72,7 +82,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
 
     DataManager dataManager;
     List<Travel> travelList;
+    List<Integer> travelIdList = new ArrayList<>();
+    List<String> nameList = new ArrayList<>();
+    List<Uri> uriList = new ArrayList<>();
     Handler handler = new Handler();
+    NetworkHandler networkHandler = new NetworkHandler(this);
     public void setHandler(Handler handler) {
         this.handler = handler;
     }
@@ -86,10 +100,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
 
         dataManager = DataManager.getInstance(getApplicationContext());
         state = State.NotOnTrip;
-        userName = getIntent().getStringExtra(LoginActivity.INTENT_USER_NAME_KEY);
-        userId = dataManager.queryUserByUserName(userName).id;
+
+        userId = getIntent().getIntExtra(NetworkJsonKeyDefine.ID, -1);
+        Log.v("wilbert", "userId:" + Integer.toString(userId));
+        mainActivity = this;
         initMyListener();
-        initdrawerAdapter();
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
         viewPager = (CustomViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
@@ -103,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         fab.setLongClickable(true);
         fab.setOnClickListener(btnOnclickListener);
         fab.setOnLongClickListener(btnOnLongClickListener);
+        fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
 
         tag = (FloatingActionButton) findViewById(R.id.set_tag);
         tag.setOnClickListener(btnOnclickListener);
@@ -119,12 +135,18 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         tab.setText("No Travel On");
 
+
     }
 
     private void initdrawerAdapter() {
+        uriList.clear();
+        nameList.clear();
+        travelIdList.clear();
+
+        dataManager.queryTravelIdListByUserId(MainActivity.userId, networkHandler);
+/*
         travelList = dataManager.queryTravelListByUserId(userId);
         List<Uri> uriList = new ArrayList<>();
-        List<String> nameList = new ArrayList<>();
         List<Integer> travelIdList = new ArrayList<>();
         for (Travel travel : travelList) {
             Uri uri = null;
@@ -140,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             travelIdList.add(travel.id);
         }
         drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
+*/
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
@@ -151,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this,SingleTravelActivity.class);
-                intent.putExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, travelList.get(position).id);
+                intent.putExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, travelIdList.get(position));
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
                 startActivity(intent);
@@ -204,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             @Override
             public boolean onLongClick(View v) {
                 fab_long_click(v);
+                fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
                 return true;
             }
         };
@@ -221,10 +245,12 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                         builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dataManager.removeTravelByTravelId(drawerAdapter.getTravelIdList().
-                                        get(position));
-                                initdrawerAdapter();
-                                listView_drawer.setAdapter(drawerAdapter);
+                                // TODO: 2015/12/14 network
+                                /*dataManager.removeTravelByTravelId(drawerAdapter.getTravelIdList().
+                                        get(position));*/
+                                //Log.v("ekuri", "on item click listener");
+                                //initdrawerAdapter();
+                                //listView_drawer.setAdapter(drawerAdapter);
                             }
                         });
                         builder.setNegativeButton(R.string.cancle, new DialogInterface.OnClickListener() {
@@ -294,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
             toast.show();
             state = State.NotOnTrip;
-            fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
+            fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
         } else {
 
         }
@@ -321,26 +347,12 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                     Travel travel = new Travel();
                     travel.userId = userId;
                     travel.name = nameEdittext.getText().toString();
-                    currentTravelId = (int) dataManager.addNewTravel(travel);
-
-                    initdrawerAdapter();
-                    listView_drawer.setAdapter(drawerAdapter);
-
-                    Message message = new Message();
-                    message.what = AMap_MySelf_Fragment.UPDATE;
-                    Bundle bundle = new Bundle();
-                    bundle.putDouble(LOCATION_LAT_KEY, locationLat);
-                    bundle.putDouble(LOCATION_LNG_KEY, locationLng);
-                    message.setData(bundle);
-                    handler.sendMessage(message);
-                    TabLayout.Tab tab = tabLayout.getTabAt(0);
-                    tab.setText(nameEdittext.getText().toString());
+                    dataManager.addNewTravel(travel, new NetworkHandler(mainActivity));
                 }
             });
             builder.show();
         }
         else {
-            //// TODO: 2015/10/27 camera
             Intent intent = new Intent(this, CreateNewItemActivity.class);
             Bundle bundle = new Bundle();
             bundle.putDouble(LOCATION_LAT_KEY, locationLat);
@@ -374,13 +386,128 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     @Override
     protected void onResume() {
         super.onResume();
+        Log.v("ekuri", "on resume");
         initdrawerAdapter();
         listView_drawer.setAdapter(drawerAdapter);
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_notification:
+                Intent intent = new Intent(this, NotificationActivity.class);
+                startActivity(intent);
+        }
+        return true;
     }
 
     @Override
     public void notifyLocation(double locationLng, double locationLat) {
         this.locationLat = locationLat;
         this.locationLng = locationLng;
+    }
+
+    @Override
+    public void handleNetworkEvent(String result, String request, String target, JSONObject originJSONObject) throws JSONException {
+        switch (request) {
+            case NetworkJsonKeyDefine.ADD:
+                switch (target) {
+                    case NetworkJsonKeyDefine.TRAVEL:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                String travelName = originJSONObject.getJSONObject(NetworkJsonKeyDefine.DATA_KEY)
+                                        .getString(NetworkJsonKeyDefine.NAME);
+                                TabLayout.Tab tab = tabLayout.getTabAt(0);
+                                tab.setText(travelName);
+                                currentTravelId = originJSONObject.getJSONObject(NetworkJsonKeyDefine.DATA_KEY)
+                                        .getInt(NetworkJsonKeyDefine.ID);
+                                Log.v("ekuri", "on handle network event");
+                                initdrawerAdapter();
+                                listView_drawer.setAdapter(drawerAdapter);
+                                Message message = new Message();
+                                message.what = AMap_MySelf_Fragment.UPDATE;
+                                Bundle bundle = new Bundle();
+                                bundle.putDouble(LOCATION_LAT_KEY, locationLat);
+                                bundle.putDouble(LOCATION_LNG_KEY, locationLng);
+                                message.setData(bundle);
+                                handler.sendMessage(message);
+                                fab.setBackgroundResource(R.drawable.ic_note_add_black_24dp);
+
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case NetworkJsonKeyDefine.QUERY_ALL:
+                switch (target) {
+                    case NetworkJsonKeyDefine.TRAVEL:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONArray jsonArray = originJSONObject.
+                                        getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                    travelIdList.add(jsonObject.getInt(NetworkJsonKeyDefine.ID));
+                                    dataManager.queryTravelByTravelId(travelIdList.get(i), networkHandler);
+
+                                    dataManager.queryTravelItemIdListByTravelId(travelIdList.get(i),
+                                            networkHandler);
+                                }
+                                break;
+                        }
+                        break;
+                    case NetworkJsonKeyDefine.TRAVEL_ITEM:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONArray jsonArray = originJSONObject.getJSONArray(
+                                        NetworkJsonKeyDefine.DATA_KEY
+                                );
+                                if (jsonArray.length() > 0) {
+                                    int travelItemId = jsonArray.getJSONObject(0).
+                                            getInt(NetworkJsonKeyDefine.ID);
+                                    dataManager.queryTravelItemByTravelItemId(travelItemId, networkHandler);
+                                } else {
+                                    uriList.add(null);
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case NetworkJsonKeyDefine.QUERY:
+                switch (target) {
+                    case NetworkJsonKeyDefine.TRAVEL:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONObject jsonObject = originJSONObject.
+                                        getJSONObject(NetworkJsonKeyDefine.DATA_KEY);
+                                nameList.add(jsonObject.getString(NetworkJsonKeyDefine.NAME));
+                                if (nameList.size() == travelIdList.size() &&
+                                        uriList.size() == travelIdList.size()) {
+                                    drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
+                                    listView_drawer.setAdapter(drawerAdapter);
+                                }
+                                break;
+                        }
+                        break;
+                    case NetworkJsonKeyDefine.TRAVEL_ITEM:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONObject jsonObject = originJSONObject.getJSONObject(
+                                        NetworkJsonKeyDefine.DATA_KEY
+                                );
+                                String uriString = jsonObject.getString(NetworkJsonKeyDefine.MEDIA);
+                                Uri.Builder builder = new Uri.Builder();
+                                builder.scheme("ftp")
+                                        .appendPath(uriString);
+                                uriList.add(builder.build());
+                                if (nameList.size() == travelIdList.size() &&
+                                        uriList.size() == travelIdList.size()) {
+                                    drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
+                                    listView_drawer.setAdapter(drawerAdapter);
+                                }
+                                break;
+                        }
+                        break;
+                }
+        }
     }
 }

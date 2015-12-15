@@ -19,6 +19,12 @@ block content
             p id
                 input(type='text', name='id')
             input(type='submit')
+            
+        h3 query comments by travel item id
+        form(action='/comment/queryAll', method='get')
+            p id
+                input(type='text', name='travelItemId')
+            input(type='submit')
 
         h3 remove comment
         form(action='/comment/remove', method='get')

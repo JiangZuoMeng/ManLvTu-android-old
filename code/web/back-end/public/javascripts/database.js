@@ -25,6 +25,15 @@ function Database() {
 			eventEmitter.emit('finished', error, row, who, res);
 		});
 	}
+	
+	this.queryAll = function(who, res) {
+		var eventEmitter = new EventEmitter();
+		eventEmitter.on('finished', response);
+
+		Database.prototype.db.all('select * from ' + who.tableName + ' where ' + who.condition, who.values, function (error, row) {
+			eventEmitter.emit('finished', error, row, who, res);
+		});
+	}
 
 	this.insert = function(who, res) {
 		var eventEmitter = new EventEmitter();
@@ -118,7 +127,7 @@ function createCounterTable(database) {
 		}
 	});
 }
-Database.prototype.db = new sqlite3.Database('data.sqlite3', function (error) {
+Database.prototype.db = new sqlite3.Database('./data/data.sqlite3', function (error) {
 	if (error) {
 		console.error('Open database failed: ' + error.toString());
 		return;

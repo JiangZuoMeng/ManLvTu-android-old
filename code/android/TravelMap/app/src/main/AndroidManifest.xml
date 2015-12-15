@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jiangzuomeng.travelmap" >
+    package="com.jiangzuomeng.travelmap">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <!-- <uses-permission android:name="android.permission.GET_ACCOUNTS" /> -->
@@ -26,7 +26,7 @@
         android:icon="@mipmap/apple_touch_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
 
         <!-- wilbert -->
         <meta-data
@@ -41,7 +41,7 @@
 
         <activity
             android:name=".LoginActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,14 +51,14 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
         <activity
             android:name=".Search_Result_Activity"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
                 <action android:name="android.intent.action.VIEW" />
@@ -66,19 +66,23 @@
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings" >
-        </activity>
-        <activity android:name=".SingleTravelActivity" >
-        </activity>
+            android:label="@string/title_activity_settings" />
+        <activity android:name=".SingleTravelActivity" />
         <activity
             android:name=".AlbumViewerActivity"
-            android:label="@string/title_activity_album" >
+            android:label="@string/title_activity_album" />
+        <activity android:name=".CreateNewItemActivity" />
+        <activity android:name=".AlbumDetailsActivity" />
+        <activity
+            android:name=".NotificationActivity"
+            android:label="@string/title_activity_notification" />
+        <activity android:name=".TestNetworkActivity">
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
         </activity>
-        <activity android:name=".CreateNewItemActivity" >
-        </activity>
-        <activity android:name=".AlbumDetailsActivity"/>
-        <activity android:name=".NotificationActivity"
-            android:label="@string/title_activity_notification"/>
     </application>
 
 </manifest>

@@ -1,16 +1,17 @@
 <resources>
     <string name="app_name">漫旅图</string>
-    
+
     <!-- Strings related to login -->
     <string name="prompt_email">用户名</string>
     <string name="prompt_password">密码</string>
-    <string name="action_sign_in">登录或注册</string>
     <string name="action_sign_in_short">登录</string>
-    <string name="error_invalid_email">用户名格式不正确</string>
-    <string name="error_invalid_password">密码过短</string>
+    <string name="action_register">注册</string>
     <string name="error_incorrect_password">密码不正确</string>
     <string name="error_incorrect_username">用户不存在</string>
-    <string name="error_field_required">这一项是必需的</string>
+    <string name="error_incorrect_username_or_password">用户名或密码错误</string>
+    <string name="error_empty_field_required">这一项是必需的</string>
+    <string name="error_in_register">用户已存在</string>
+    <string name="error_of_server">服务器错误</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
@@ -94,8 +95,6 @@
     <string name="action_add_new_position">添加新的坐标点</string>
     <string name="action_lock_map">锁定地图与解锁</string>
     <string name="single_travel_default_list_view_item_description">未完成编辑，长按编辑或删除</string>
-    
-    <!-- zefeng in charge -->
     <string name="delete_confirm">确定删除?</string>
     <string name="cancle">取消</string>
     <string name="album_comment">评论</string>

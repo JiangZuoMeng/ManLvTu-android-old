@@ -1,12 +1,8 @@
 package com.jiangzuomeng.travelmap;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,11 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.Switch;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
@@ -31,29 +22,35 @@ import com.amap.api.maps2d.CameraUpdate;
 import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.LocationSource;
 import com.amap.api.maps2d.MapView;
-import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
 import com.amap.api.services.core.LatLonPoint;
-import com.amap.api.services.geocoder.GeocodeQuery;
 import com.amap.api.services.geocoder.GeocodeResult;
 import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeResult;
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.dataManager.NetworkConnectActivity;
+import com.jiangzuomeng.dataManager.NetworkHandler;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
 /**
  * Created by wilbert on 2015/10/30.
  */
 public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener,
-        GeocodeSearch.OnGeocodeSearchListener {
+        GeocodeSearch.OnGeocodeSearchListener, NetworkConnectActivity {
     public  static final int UPDATE = 35344;
     private MapView mapView;
     private AMap aMap;
@@ -66,6 +63,8 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     private List<Marker> markerList;
     double locationLng = 0;
     double locationLat = 0;
+    List<Integer> travelIdList = new ArrayList<>();
+    HashMap<Marker, Integer> markerIdMap = new HashMap<>();
     public Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -101,7 +100,7 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
                 R.drawable.test1, R.drawable.test2, R.drawable.test3,
                 R.drawable.test4
         };
-        travelList = dataManager.queryTravelListByUserId(MainActivity.userId);
+        dataManager.queryTravelIdListByUserId(MainActivity.userId, new NetworkHandler(this));
     }
 
     private void setUpMap() {
@@ -125,28 +124,7 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
         aMap.animateCamera(cameraUpdate);
         CameraUpdate update = CameraUpdateFactory.changeLatLng(new LatLng(30, 104));
         aMap.animateCamera(update);
-        addMarkers();
         // aMap.setMyLocationType()
-    }
-
-    private void addMarkers() {
-        /*geocoderSearch = new GeocodeSearch(getActivity());
-        geocoderSearch.setOnGeocodeSearchListener(this);
-        GeocodeQuery query = new GeocodeQuery("广州", "广州");// 第一个参数表示地址，第二个参数表示查询城市，中文或者中文全拼，citycode、adcode，
-        geocoderSearch.getFromLocationNameAsyn(query);// 设置同步地理编码请求*/
-        for (Travel travel : travelList) {
-            List<TravelItem> travelItemList = dataManager.queryTravelItemListByTravelId(travel.id);
-            if (!travelItemList.isEmpty()) {
-                TravelItem travelItem = travelItemList.get(0);
-                LatLng latLng = new LatLng(travelItem.locationLat, travelItem.locationLng);
-                Marker marker = aMap.addMarker(new MarkerOptions().position(latLng));
-                markerList.add(marker);
-            } else {
-                LatLng latLng = new LatLng(locationLat, locationLng);
-                Marker marker = aMap.addMarker(new MarkerOptions().position(latLng));
-                markerList.add(marker);
-            }
-        }
     }
 
     @Override
@@ -246,8 +224,10 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.v("wilbert", "marker clicked");
+        int markerTravelId = markerIdMap.get(marker);
         //// TODO: 2015/11/1 跳转到每一项单独的旅程 返回值true表示默认操作(显示信息窗口)不显示
         Intent intent = new Intent(getActivity(), SingleTravelActivity.class);
+        intent.putExtra(SingleTravelActivity.INTENT_TRAVEL_KEY, markerTravelId);
         startActivity(intent);
         return true;
     }
@@ -266,6 +246,53 @@ public class AMap_MySelf_Fragment extends Fragment implements LocationSource, AM
             /*markers.add(aMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude()))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bookmark_black_24dp))
                     .title("my location")));*/
+        }
+    }
+
+    @Override
+    public void handleNetworkEvent(String result, String request, String target, JSONObject originJSONObject) throws JSONException {
+        switch (request) {
+            case NetworkJsonKeyDefine.QUERY_ALL:
+                switch (target) {
+                    case NetworkJsonKeyDefine.TRAVEL:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONArray jsonArray = originJSONObject.
+                                        getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                    travelIdList.add(jsonObject.getInt(NetworkJsonKeyDefine.ID));
+                                    dataManager.queryTravelItemIdListByTravelId(travelIdList.get(i),
+                                            new NetworkHandler(this));
+                                }
+                                break;
+                        }
+                        break;
+                    case NetworkJsonKeyDefine.TRAVEL_ITEM:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONArray jsonArray = originJSONObject.
+                                        getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
+                                if (jsonArray.length() > 0) {
+                                    double locationLng = jsonArray.getJSONObject(0)
+                                            .getDouble(NetworkJsonKeyDefine.LOCATION_LNG);
+                                    double locationLat = jsonArray.getJSONObject(0)
+                                            .getDouble(NetworkJsonKeyDefine.LOCATION_LAT);
+                                    int travelId = jsonArray.getJSONObject(0)
+                                            .getInt(NetworkJsonKeyDefine.TRAVEL_ID);
+                                    LatLng latLng = new LatLng(locationLat, locationLng);
+                                    Marker marker = aMap.addMarker(new MarkerOptions().position(latLng));
+                                    markerIdMap.put(marker, travelId);
+                                } else {
+                                    LatLng latLng = new LatLng(locationLat, locationLng);
+                                    Marker marker = aMap.addMarker(new MarkerOptions().position(latLng));
+                                    markerIdMap.put(marker, MainActivity.currentTravelId);
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
         }
     }
 }

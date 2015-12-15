@@ -5,10 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.jiangzuomeng.module.Comment;
-import com.jiangzuomeng.module.Travel;
-import com.jiangzuomeng.module.TravelItem;
-import com.jiangzuomeng.module.User;
+import com.jiangzuomeng.modals.Comment;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.modals.User;
 
 import java.util.ArrayList;
 import java.util.List;
