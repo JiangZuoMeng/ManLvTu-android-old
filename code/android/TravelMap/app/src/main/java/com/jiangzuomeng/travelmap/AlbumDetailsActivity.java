@@ -7,14 +7,22 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.jiangzuomeng.dataManager.DataManager;
-import com.jiangzuomeng.module.Comment;
-import com.jiangzuomeng.module.TravelItem;
+import com.jiangzuomeng.modals.Comment;
+import com.jiangzuomeng.modals.TravelItem;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +30,13 @@ import java.util.Map;
 public class AlbumDetailsActivity extends AppCompatActivity {
     ListView commentsView;
     TravelItem travelItem;
+    DataManager dataManager;
+    SimpleAdapter adapter;
+    List<Map<String, Object>> cmmtsData;
 
     private final static int MSG_COMMENT_GOT = 1;
     Handler handler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,19 +44,48 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_album_details);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        handler = new CommentHandler();
+        dataManager = DataManager.getInstance(this);
+
+        commentsView = (ListView) findViewById(R.id.comments);
+        cmmtsData = new ArrayList<>();
+        adapter = new SimpleAdapter(AlbumDetailsActivity.this, cmmtsData, R.layout.album_item,
+                new String[]{"album_item_userlogo", "cmmnt_user", "cmmnt_text", "cmmnt_time"},
+                new int[]{R.id.album_item_userlogo, R.id.cmmnt_user, R.id.cmmnt_text, R.id.cmmnt_time});
+        commentsView.setAdapter(adapter);
 
         Intent intent = getIntent();
         final Bundle bun = intent.getExtras();
         if (bun != null) {
             travelItem = ((TravelItem) bun.getSerializable(AlbumViewerActivity.INTERT_TRAVEL_ITEM_OBJECT));
             if (travelItem != null) {
+                // TODO queryCommentListBy 添加handler参数
+                TextView userState = (TextView) findViewById(R.id.album_details_user_state);
+                userState.setText(travelItem.text);
 
+                TextView dateText = (TextView) findViewById(R.id.album_time);
+                dateText.setText(travelItem.time);
+
+                dataManager.queryCommentListByTravelItemId(travelItem.travelId);
             }
         }
-
-        handler = new CommentHandler();
+        final EditText myComment = (EditText) findViewById(R.id.album_my_comments);
 
         commentsView = (ListView) findViewById(R.id.comments);
+        Button sendCmmtBtn = (Button) findViewById(R.id.send_cmmnt_btn);
+        sendCmmtBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Comment newComment = new Comment();
+                newComment.text = myComment.getText().toString();
+                Calendar calendar = Calendar.getInstance();
+                Date date = calendar.getTime();
+                newComment.time = android.text.format.DateFormat.format("MM/dd hh:mm", date).toString();
+                newComment.userId = MainActivity.userId;
+                dataManager.addNewComment(newComment, handler);
+                myComment.setText("");
+            }
+        });
 
     }
 
@@ -63,8 +104,8 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_COMMENT_GOT:
-                    List<Comment> cmts = (List<Comment>) msg.obj;
-                    onCommentsUpdate(cmts);
+                    List<Comment> cmmts = (List<Comment>) msg.obj;
+                    onCommentsUpdate(cmmts);
                     break;
             }
         }
@@ -74,76 +115,15 @@ public class AlbumDetailsActivity extends AppCompatActivity {
             for (Comment cmt : cmmts) {
                 Map<String, Object> itemData = new HashMap<>();
                 itemData.put("album_item_userlogo", R.drawable.photo0);
-                itemData.put("cmmnt_user", "Chrom");
-                itemData.put("cmmnt_text", "内存不够吃");
-                itemData.put("cmmnt_time", "2014.12.Nov");
+                itemData.put("cmmnt_user", cmt.userId);
+                itemData.put("cmmnt_text", cmt.text);
+                itemData.put("cmmnt_time", cmt.time);
                 data.add(itemData);
             }
-            SimpleAdapter adapter = new SimpleAdapter(AlbumDetailsActivity.this, data, R.layout.album_item,
-                new String[]{"album_item_userlogo", "cmmnt_user", "cmmnt_text", "cmmnt_time"},
-                new int[]{R.id.album_item_userlogo, R.id.cmmnt_user, R.id.cmmnt_text, R.id.cmmnt_time});
-            commentsView.setAdapter(adapter);
-
-
+            cmmtsData = data;
+            adapter.notifyDataSetChanged();
         }
     }
-    private class GetCommentTask extends AsyncTask<Integer, Comment, Boolean> {
-        @Override
-        protected Boolean doInBackground(Integer ... traveItemIds) {
-            int traveitemId = traveItemIds[0];
-            DataManager dataManager = DataManager.getInstance(AlbumDetailsActivity.this);
-            dataManager.queryCommentListByTravelItemId(traveitemId);
-            return true;
-        }
-    }
-
-//    private List<Map<String, Object>> getTmpData() {
-//        List<Map<String, Object>> data = new ArrayList<>();
-//        Map<String, Object> itemData = new HashMap<>();
-//        itemData.put("album_item_userlogo", R.drawable.photo0);
-//        itemData.put("cmmnt_user", "Chrom");
-//        itemData.put("cmmnt_text", "内存不够吃");
-//        itemData.put("cmmnt_time", "2014.12.Nov");
-//        data.add(itemData);
-//
-//        itemData = new HashMap<>();
-//        itemData.put("album_item_userlogo", R.drawable.photo1);
-//        itemData.put("cmmnt_user", "天凉好个秋");
-//        itemData.put("cmmnt_text", "少吃点会死吗，少吃点又不会死");
-//        itemData.put("cmmnt_time", "2015.12.23 Nov");
-//        data.add(itemData);
-//        itemData = new HashMap<>();
-//        itemData.put("album_item_userlogo", R.drawable.photo1);
-//        itemData.put("cmmnt_user", "天凉好个秋");
-//        itemData.put("cmmnt_text", "少吃点会死吗，少吃点又不会死");
-//        itemData.put("cmmnt_time", "2015.12.23 Nov");
-//        data.add(itemData);
-//        itemData = new HashMap<>();
-//        itemData.put("album_item_userlogo", R.drawable.photo1);
-//        itemData.put("cmmnt_user", "天凉好个秋");
-//        itemData.put("cmmnt_text", "少吃点会死吗，少吃点又不会死");
-//        itemData.put("cmmnt_time", "2015.12.23 Nov");
-//        data.add(itemData);
-//        itemData = new HashMap<>();
-//        itemData.put("album_item_userlogo", R.drawable.photo1);
-//        itemData.put("cmmnt_user", "天凉好个秋");
-//        itemData.put("cmmnt_text", "少吃点会死吗，少吃点又不会死");
-//        itemData.put("cmmnt_time", "2015.12.23 Nov");
-//        data.add(itemData);
-//        itemData = new HashMap<>();
-//        itemData.put("album_item_userlogo", R.drawable.photo1);
-//        itemData.put("cmmnt_user", "天凉好个秋");
-//        itemData.put("cmmnt_text", "少吃点会死吗，少吃点又不会死");
-//        itemData.put("cmmnt_time", "2015.12.23 Nov");
-//        data.add(itemData);
-//        itemData = new HashMap<>();
-//        itemData.put("album_item_userlogo", R.drawable.photo1);
-//        itemData.put("cmmnt_user", "天凉好个秋");
-//        itemData.put("cmmnt_text", "少吃点会死吗，少吃点又不会死");
-//        itemData.put("cmmnt_time", "2015.12.23 Nov");
-//        data.add(itemData);
-//        return data;
-//    }
 
 
 }

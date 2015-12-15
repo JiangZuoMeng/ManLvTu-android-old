@@ -11,13 +11,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
  * Created by ekuri-PC on 2015/11/21.
  */
-public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
+public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLDataType, Serializable {
     public static final String TRAVEL_ITEM_TABLE_NAME = "travelItem";
     public int id;
     public int travelId;
