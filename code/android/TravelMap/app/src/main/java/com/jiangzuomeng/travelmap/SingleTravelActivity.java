@@ -24,7 +24,14 @@ import com.amap.api.maps2d.model.Polyline;
 import com.amap.api.maps2d.model.PolylineOptions;
 import com.jiangzuomeng.Adapter.SingleTravelItemListViewAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.dataManager.NetworkConnectActivity;
+import com.jiangzuomeng.dataManager.NetworkHandler;
 import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +39,8 @@ import java.util.List;
 public class SingleTravelActivity
         extends AppCompatActivity
         implements AMap.OnMapClickListener, AdapterView.OnItemLongClickListener
-        ,AdapterView.OnItemClickListener, AMap.OnMarkerDragListener {
+        ,AdapterView.OnItemClickListener, AMap.OnMarkerDragListener
+        ,NetworkConnectActivity, View.OnClickListener {
 
     public static final String INTENT_TRAVEL_KEY = "travelId";
     public static final String INTENT_TRAVEL_ITEM_KEY = "travelItemId";
@@ -40,41 +48,14 @@ public class SingleTravelActivity
     private AMap aMap;
     private Polyline polyline;
     private ArrayList<Marker> markers = new ArrayList<>();
-    List<TravelItem> travelItemList;
+    List<TravelItem> travelItemList = new ArrayList<>();
     private boolean isMapMovable = true;
     private ListView listView_drawer;
     PopupWindow popupWindow;
     private int listViewClickPosition = 0;
     private int currentTravelId;
     SingleTravelItemListViewAdapter singleTravelItemAdapter;
-
-
-    private View.OnClickListener clickListener = new View.OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.SingleTravelActivityListViewPopupDeleteButton:
-                    popupWindow.dismiss();
-
-                    TravelItem targetTravelItem = travelItemList.get(listViewClickPosition);
-                    // TODO: 2015/12/14 network
-                    /*DataManager.getInstance(getApplicationContext()).removeTravelItemByTravelItemId(
-                            targetTravelItem.id
-                    );*/
-                    initData();
-                    break;
-
-                case R.id.SingleTravelActivityListViewPopupEditButton:
-                    popupWindow.dismiss();
-
-                    Intent intent = new Intent(getApplicationContext(), CreateNewItemActivity.class);
-                    intent.putExtra(INTENT_TRAVEL_KEY, travelItemList.get(listViewClickPosition).id);
-                    startActivity(intent);
-                    break;
-            }
-        }
-    };
+    private boolean initial = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +69,6 @@ public class SingleTravelActivity
         listView_drawer.setOnItemClickListener(this);
         singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
         currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
-        /*currentTravelId = 0;*/
         initPopupWindow();
 
         // setup map
@@ -102,17 +82,21 @@ public class SingleTravelActivity
         supportActionBar.setDisplayHomeAsUpEnabled(true);
         supportActionBar.setTitle("在生物岛");
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
-        initData();
+
+        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+    }
+    private void initData() {
+        if (travelItemList.isEmpty()) {
+            return;
+        }
 
         // tend to move camera to location of first item
-        if (!travelItemList.isEmpty()) {
+        if (initial) {
+            initial = false;
             aMap.moveCamera(CameraUpdateFactory.changeLatLng(
                     new LatLng(travelItemList.get(0).locationLat, travelItemList.get(0).locationLng)));
         }
-    }
-    private void initData() {
-        travelItemList = DataManager.getInstance(getApplicationContext())
-                .queryTravelItemListByTravelId(currentTravelId);
+
         singleTravelItemAdapter.setup(travelItemList);
         listView_drawer.setAdapter(singleTravelItemAdapter);
 
@@ -134,15 +118,16 @@ public class SingleTravelActivity
         aMap.setOnMapClickListener(this);
         aMap.setOnMarkerDragListener(this);
     }
+
     private void initPopupWindow() {
         View popViewContent = getLayoutInflater().inflate(R.layout.popup_window_for_single_travel_view_list_item, null);
 
         Button editButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupEditButton);
         Button deleteButton = (Button) popViewContent.findViewById(R.id.SingleTravelActivityListViewPopupDeleteButton);
 
-        editButton.setOnClickListener(clickListener);
+        editButton.setOnClickListener(this);
 
-        deleteButton.setOnClickListener(clickListener);
+        deleteButton.setOnClickListener(this);
 
         popupWindow = new PopupWindow(popViewContent, ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.WRAP_CONTENT, true);
@@ -150,9 +135,11 @@ public class SingleTravelActivity
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
     }
+
     private void addMarker(MarkerOptions markerOptions) {
         markers.add(aMap.addMarker(markerOptions));
     }
+
     private void linkMarkersOfMap() {
         if (polyline != null) {
             polyline.remove();
@@ -227,9 +214,7 @@ public class SingleTravelActivity
                 travelItem.text = getResources().getString(R.string.single_travel_default_list_view_item_description);
                 travelItem.locationLng = aMap.getCameraPosition().target.longitude;
                 travelItem.locationLat = aMap.getCameraPosition().target.latitude;
-                // TODO: 2015/12/13 use network , should add handler as para
-//                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem);
-                initData();
+                DataManager.getInstance(getApplicationContext()).addNewTravelItem(travelItem, new NetworkHandler(this));
                 break;
             case R.id.action_lock_map:
                 isMapMovable = !isMapMovable;
@@ -268,9 +253,53 @@ public class SingleTravelActivity
         targetTravelItem.locationLat = marker.getPosition().latitude;
         targetTravelItem.locationLng = marker.getPosition().longitude;
 
-        //// TODO: 2015/12/14  network
-//        DataManager.getInstance(getApplicationContext()).updateTravelItem(targetTravelItem);
+        DataManager.getInstance(getApplicationContext()).updateTravelItem(targetTravelItem, new NetworkHandler(this));
+    }
 
-        initData();
+    @Override
+    public void handleNetworkEvent(String status, String request, String target, JSONObject originJSONObject) throws JSONException {
+        switch (status) {
+            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                switch (request) {
+                    case NetworkJsonKeyDefine.QUERY_ALL:
+                        travelItemList.clear();
+                        JSONArray data = originJSONObject.getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
+                        for (int count = 0; count < data.length(); count++) {
+                            travelItemList.add(TravelItem.fromJson(
+                                    data.getJSONObject(count).toString(), true
+                            ));
+                        }
+                        initData();
+                        break;
+                    case NetworkJsonKeyDefine.UPDATE:
+                        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+                        break;
+                    case NetworkJsonKeyDefine.ADD:
+                        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+                        break;
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.SingleTravelActivityListViewPopupDeleteButton:
+                popupWindow.dismiss();
+
+                TravelItem targetTravelItem = travelItemList.get(listViewClickPosition);
+                DataManager.getInstance(getApplicationContext()).removeTravelItemByTravelItemId(targetTravelItem.id,
+                        new NetworkHandler(this));
+                break;
+
+            case R.id.SingleTravelActivityListViewPopupEditButton:
+                popupWindow.dismiss();
+
+                Intent intent = new Intent(getApplicationContext(), CreateNewItemActivity.class);
+                intent.putExtra(INTENT_TRAVEL_KEY, travelItemList.get(listViewClickPosition).id);
+                startActivity(intent);
+                break;
+        }
     }
 }

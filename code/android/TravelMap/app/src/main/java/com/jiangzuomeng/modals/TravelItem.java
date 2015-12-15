@@ -158,4 +158,17 @@ public class TravelItem extends ManLvTuNetworkDataType implements ManLvTuSQLData
         URL url = new URL(builder.build().toString());
         return url;
     }
+
+    public static URL getQueryNeatbyUrl(double locationLatLowerBound, double locationLatUpperBound,
+                                 double locationLngLowerBound, double locationLngUpperBound) throws MalformedURLException {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.TRAVEL_ITEM).appendPath(NetworkJsonKeyDefine.QUERY_NEARBY)
+                .appendQueryParameter(NetworkJsonKeyDefine.LOCATION_LAT_LOWER_BOUND, Double.toString(locationLatLowerBound))
+                .appendQueryParameter(NetworkJsonKeyDefine.LOCATION_LAT_UPPER_BOUND, Double.toString(locationLatUpperBound))
+                .appendQueryParameter(NetworkJsonKeyDefine.LOCATION_LNG_LOWER_BOUND, Double.toString(locationLngLowerBound))
+                .appendQueryParameter(NetworkJsonKeyDefine.LOCATION_LNG_UPPER_BOUND, Double.toString(locationLngUpperBound));
+        return new URL(builder.build().toString());
+    }
 }

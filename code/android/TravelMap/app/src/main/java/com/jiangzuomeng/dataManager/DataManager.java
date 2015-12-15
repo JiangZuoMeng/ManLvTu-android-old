@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
+import com.amap.api.maps2d.model.LatLng;
 import com.jiangzuomeng.database.DBManager;
 import com.jiangzuomeng.modals.Comment;
 import com.jiangzuomeng.networkManager.ManLvTuNetworkDataType;
@@ -15,10 +15,8 @@ import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -43,114 +41,196 @@ public class DataManager {
     }
 
     public void login(User user, NetworkHandler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.LOGIN, handler, user);
+        try {
+            runThreadByUrl(user.getLoginUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void addNewUser(User user, Handler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.ADD, handler, user);
-    }
-
-    public void queryUserByUserName(String userName, Handler handler) {
+    public void registerUser(User user, Handler handler) {
+        try {
+            runThreadByUrl(user.getAddUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void queryUserByUserId(int id, Handler handler) {
         User user = new User();
         user.id = id;
-        runThreadByKey(NetworkJsonKeyDefine.QUERY, handler, user);
+        try {
+            runThreadByUrl(user.getQueryUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateUser(User user, Handler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.UPDATE, handler, user);
+        try {
+            runThreadByUrl(user.getUpdateUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void removeUserByUserId(int userId, Handler handler) {
         User user = new User();
         user.id = userId;
-        runThreadByKey(NetworkJsonKeyDefine.REMOVE, handler, user);
+        try {
+            runThreadByUrl(user.getRemoveUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
-
-
     public void addNewTravel(Travel travel,Handler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.ADD, handler, travel);
+        try {
+            runThreadByUrl(travel.getAddUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void queryTravelByTravelId(int travelId, Handler handler) {
         Travel travel = new Travel();
         travel.id = travelId;
-        runThreadByKey(NetworkJsonKeyDefine.QUERY, handler, travel);
+        try {
+            runThreadByUrl(travel.getQueryUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void removeTravelByTravelId(int travelId, Handler handler) {
         Travel travel = new Travel();
         travel.id = travelId;
-        runThreadByKey(NetworkJsonKeyDefine.REMOVE, handler, travel);
+        try {
+            runThreadByUrl(travel.getRemoveUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateTravel(Travel travel, Handler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.UPDATE, handler, travel);
+        try {
+            runThreadByUrl(travel.getUpdateUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void queryTravelIdListByUserId(int userId, Handler handler) {
         Travel travel = new Travel();
         travel.userId = userId;
-        runThreadByKey(NetworkJsonKeyDefine.QUERY_ALL, handler, travel);
+        try {
+            runThreadByUrl(travel.getQueryAllUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
 
 
     public void addNewTravelItem(TravelItem travelItem, Handler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.ADD, handler, travelItem);
+        try {
+            runThreadByUrl(travelItem.getAddUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void queryTravelItemByTravelItemId(int travelItemid, Handler handler) {
+    public void queryTravelItemByTravelItemId(int travelItemId, Handler handler) {
         TravelItem travelItem = new TravelItem();
-        travelItem.id = travelItemid;
-        runThreadByKey(NetworkJsonKeyDefine.QUERY, handler, travelItem);
+        travelItem.id = travelItemId;
+        try {
+            runThreadByUrl(travelItem.getQueryUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void queryTravelItemIdListByTravelId(int travelid, Handler handler) {
+    public void queryNearbyTravelItem(LatLng currentLocation, Handler handler) {
+        double nearDistance = 1.0;
+        try {
+            runThreadByUrl(TravelItem.getQueryNeatbyUrl(currentLocation.latitude - nearDistance,
+                    currentLocation.latitude + nearDistance,
+                    currentLocation.longitude - nearDistance,
+                    currentLocation.longitude + nearDistance), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void queryTravelItemIdListByTravelId(int travelId, Handler handler) {
         TravelItem travelItem = new TravelItem();
-        travelItem.travelId = travelid;
-        runThreadByKey(NetworkJsonKeyDefine.QUERY_ALL, handler, travelItem);
+        travelItem.travelId = travelId;
+        try {
+            runThreadByUrl(travelItem.getQueryAllUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void removeTravelItemByTravelItemId(int travelItemId, Handler handler) {
         TravelItem travelItem = new TravelItem();
         travelItem.id = travelItemId;
-        runThreadByKey(NetworkJsonKeyDefine.REMOVE, handler, travelItem);
+        try {
+            runThreadByUrl(travelItem.getRemoveUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateTravelItem(TravelItem travelItem, Handler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.UPDATE, handler, travelItem);
+        try {
+            runThreadByUrl(travelItem.getUpdateUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
 
 
     public void addNewComment(Comment comment,Handler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.ADD, handler, comment);
     }
 
     public void queryCommentByCommentId(int commentid, Handler handler) {
         Comment comment = new Comment();
         comment.id = commentid;
-        runThreadByKey(NetworkJsonKeyDefine.QUERY, handler, comment);
+        try {
+            runThreadByUrl(comment.getQueryUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void queryCommentIdListByTravelItemId(int travelItemid, Handler handler) {
         Comment comment = new Comment();
         comment.travelItemId = travelItemid;
-        runThreadByKey(NetworkJsonKeyDefine.QUERY_ALL, handler, comment);
+        try {
+            runThreadByUrl(comment.getQueryAllUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void removeCommentByCommentId(int commentId, Handler handler) {
         Comment comment = new Comment();
         comment.id = commentId;
-        runThreadByKey(NetworkJsonKeyDefine.REMOVE, handler, comment);
+        try {
+            runThreadByUrl(comment.getRemoveUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateComment(Comment comment, Handler handler) {
-        runThreadByKey(NetworkJsonKeyDefine.UPDATE, handler, comment);
+        try {
+            runThreadByUrl(comment.getUpdateUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public List<Travel> queryTravelListByUserId(int userId) {
@@ -171,21 +251,11 @@ public class DataManager {
         return likeNum;
     }
 
-
-
-
-
-
-
-
-
-
-    public void runThreadByKey(final String key, final Handler handler, final ManLvTuNetworkDataType manLvTuNetworkDataType) {
+    public void runThreadByUrl(final URL url, final Handler handler) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    URL url = manLvTuNetworkDataType.getUrl(key);
                     String dataString = netWorkManager.getDataFromUrl(url);
                     Message message = new Message();
                     message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;

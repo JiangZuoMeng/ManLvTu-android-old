@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity implements NetworkConnectAc
     private void attemptRegister() {
         if (checkInput()) {
             showProgress(true);
-            DataManager.getInstance(getApplicationContext()).addNewUser(
+            DataManager.getInstance(getApplicationContext()).registerUser(
                     new User(-1, mUsernameView.getText().toString(), mPasswordView.getText().toString()),
                     new NetworkHandler(this));
         }

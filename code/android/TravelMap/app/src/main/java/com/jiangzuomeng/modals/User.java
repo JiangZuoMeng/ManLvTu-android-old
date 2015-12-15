@@ -127,7 +127,6 @@ public class User extends ManLvTuNetworkDataType implements ManLvTuSQLDataType {
         return url;
     }
 
-    @Override
     public URL getLoginUrl() throws MalformedURLException {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(NetworkJsonKeyDefine.HTTP)

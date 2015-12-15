@@ -81,8 +81,10 @@ public class DrawerAdapter  extends BaseAdapter{
                     bitmap = BitmapFactory.decodeStream(inputStream, null, options);
                     bitmapList.add(bitmap);
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }} else {
+                    Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_mood_black_24dp);
+                    bitmapList.add(bitmap);
+                }
+            } else {
                     Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_mood_black_24dp);
                     bitmapList.add(bitmap);
             }
