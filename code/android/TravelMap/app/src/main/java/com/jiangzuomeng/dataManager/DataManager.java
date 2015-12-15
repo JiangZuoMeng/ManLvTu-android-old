@@ -8,7 +8,6 @@ import android.os.Message;
 import com.amap.api.maps2d.model.LatLng;
 import com.jiangzuomeng.database.DBManager;
 import com.jiangzuomeng.modals.Comment;
-import com.jiangzuomeng.networkManager.ManLvTuNetworkDataType;
 import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 import com.jiangzuomeng.modals.Travel;
 import com.jiangzuomeng.modals.TravelItem;
@@ -153,7 +152,7 @@ public class DataManager {
     public void queryNearbyTravelItem(LatLng currentLocation, Handler handler) {
         double nearDistance = 1.0;
         try {
-            runThreadByUrl(TravelItem.getQueryNeatbyUrl(currentLocation.latitude - nearDistance,
+            runThreadByUrl(TravelItem.getQueryNearbyUrl(currentLocation.latitude - nearDistance,
                     currentLocation.latitude + nearDistance,
                     currentLocation.longitude - nearDistance,
                     currentLocation.longitude + nearDistance), handler);
