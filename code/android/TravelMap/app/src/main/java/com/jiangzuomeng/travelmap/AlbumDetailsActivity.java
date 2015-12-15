@@ -17,6 +17,12 @@ import android.widget.TextView;
 import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.modals.Comment;
 import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -26,7 +32,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import android.util.Log;
 public class AlbumDetailsActivity extends AppCompatActivity {
     ListView commentsView;
     TravelItem travelItem;
@@ -58,6 +64,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         final Bundle bun = intent.getExtras();
         if (bun != null) {
             travelItem = ((TravelItem) bun.getSerializable(AlbumViewerActivity.INTERT_TRAVEL_ITEM_OBJECT));
+            Log.v("TAG:dfsdf", String.valueOf(travelItem.id));
             if (travelItem != null) {
                 // TODO queryCommentListBy 添加handler参数
                 TextView userState = (TextView) findViewById(R.id.album_details_user_state);
@@ -65,8 +72,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
 
                 TextView dateText = (TextView) findViewById(R.id.album_time);
                 dateText.setText(travelItem.time);
-
-                dataManager.queryCommentListByTravelItemId(travelItem.travelId);
+                dataManager.queryCommentIdListByTravelItemId(travelItem.id, handler);
             }
         }
         final EditText myComment = (EditText) findViewById(R.id.album_my_comments);
@@ -77,12 +83,27 @@ public class AlbumDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Comment newComment = new Comment();
+                newComment.travelItemId = travelItem.id;
                 newComment.text = myComment.getText().toString();
                 Calendar calendar = Calendar.getInstance();
                 Date date = calendar.getTime();
                 newComment.time = android.text.format.DateFormat.format("MM/dd hh:mm", date).toString();
                 newComment.userId = MainActivity.userId;
-                dataManager.addNewComment(newComment, handler);
+
+                Map<String, Object> itemData = new HashMap<>();
+                itemData.put("album_item_userlogo", R.drawable.photo0);
+                itemData.put("cmmnt_user", newComment.userId);
+                itemData.put("cmmnt_text", newComment.text);
+                itemData.put("cmmnt_time", newComment.time);
+                cmmtsData.add(itemData);
+
+                adapter = new SimpleAdapter(AlbumDetailsActivity.this, cmmtsData, R.layout.album_item,
+                        new String[]{"album_item_userlogo", "cmmnt_user", "cmmnt_text", "cmmnt_time"},
+                        new int[]{R.id.album_item_userlogo, R.id.cmmnt_user, R.id.cmmnt_text, R.id.cmmnt_time});
+                commentsView.setAdapter(adapter);
+
+                // TODO 暂不处理失败
+                dataManager.addNewComment(newComment, new Handler());
                 myComment.setText("");
             }
         });
@@ -103,14 +124,30 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_COMMENT_GOT:
-                    List<Comment> cmmts = (List<Comment>) msg.obj;
-                    onCommentsUpdate(cmmts);
+                case NetworkJsonKeyDefine.NETWORK_OPERATION:
+                    try {
+                        Bundle bundle = msg.getData();
+                        String responseStr = bundle.getString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY);
+                        JSONTokener tokener = new JSONTokener(responseStr);
+                        JSONArray cmmtsArr = ((JSONObject) tokener.nextValue()).getJSONArray("data");
+                        List<Comment> cmmts = new ArrayList<>();
+                        for (int i = 0; i < cmmtsArr.length(); ++i) {
+                            cmmts.add(Comment.fromJson(cmmtsArr.getString(i), true));
+                        }
+                        onCommentsUpdate(cmmts);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }
 
         private void onCommentsUpdate(List<Comment> cmmts) {
+            for (Comment cmt : cmmts) {
+                Log.e("TESTLIST", cmmts.toString());
+
+            }
             List<Map<String, Object>> data = new ArrayList<>();
             for (Comment cmt : cmmts) {
                 Map<String, Object> itemData = new HashMap<>();
@@ -121,7 +158,10 @@ public class AlbumDetailsActivity extends AppCompatActivity {
                 data.add(itemData);
             }
             cmmtsData = data;
-            adapter.notifyDataSetChanged();
+            adapter = new SimpleAdapter(AlbumDetailsActivity.this, cmmtsData, R.layout.album_item,
+                    new String[]{"album_item_userlogo", "cmmnt_user", "cmmnt_text", "cmmnt_time"},
+                    new int[]{R.id.album_item_userlogo, R.id.cmmnt_user, R.id.cmmnt_text, R.id.cmmnt_time});
+            commentsView.setAdapter(adapter);
         }
     }
 

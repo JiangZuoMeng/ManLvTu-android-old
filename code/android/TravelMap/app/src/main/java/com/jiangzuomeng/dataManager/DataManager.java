@@ -27,7 +27,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-
+import android.util.Log;
 /**
  * Created by wilbert on 2015/11/22.
  */
