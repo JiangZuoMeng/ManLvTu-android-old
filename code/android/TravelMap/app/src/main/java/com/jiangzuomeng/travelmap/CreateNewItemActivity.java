@@ -51,7 +51,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
     public static final String IMAGEVIEW = "imageView";
     public static final String URISTRING = "uriString";
     int countStart = 0;
-
+    File mediaStorageDir;
     ImageView image;
     View.OnClickListener onClickListener;
     AdapterView.OnItemClickListener onItemClickListener;
@@ -226,7 +226,7 @@ public class CreateNewItemActivity extends AppCompatActivity {
     }
 
     private File getOutputImageFile() {
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+        mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "TravelMap");
         if (! mediaStorageDir.exists()){
             if (! mediaStorageDir.mkdirs()){

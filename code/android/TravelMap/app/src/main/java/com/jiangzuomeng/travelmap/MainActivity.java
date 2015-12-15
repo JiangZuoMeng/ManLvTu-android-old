@@ -493,7 +493,8 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                 );
                                 String uriString = jsonObject.getString(NetworkJsonKeyDefine.MEDIA);
                                 Uri.Builder builder = new Uri.Builder();
-                                builder.scheme("ftp")
+                                //// TODO: 2015/12/15 uri builder
+                                builder.scheme("file")
                                         .appendPath(uriString);
                                 uriList.add(builder.build());
                                 if (nameList.size() == travelIdList.size() &&
