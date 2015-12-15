@@ -33,7 +33,9 @@ import com.jiangzuomeng.modals.TravelItem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -347,7 +349,16 @@ public class CreateNewItemActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode  == CAMERA) {
             if(resultCode == RESULT_OK) {
-                addImageFromUri(fileUri);
+                try {
+                    File newFile = dataManager.renameFile(new File(fileUri.getPath()));
+                    Uri newUri = Uri.parse(newFile.toString());
+                    addImageFromUri(newUri);
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+//                addImageFromUri(fileUri);
             }
         }
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {

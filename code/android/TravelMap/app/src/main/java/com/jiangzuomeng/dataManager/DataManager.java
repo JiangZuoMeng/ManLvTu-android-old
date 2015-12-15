@@ -15,9 +15,15 @@ import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -269,5 +275,25 @@ public class DataManager {
             }
         });
         thread.start();
+    }
+
+    public File renameFile(File file) throws NoSuchAlgorithmException, IOException {
+        MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+        InputStream inputStream = new FileInputStream(file);
+        byte[] buffer = new byte[8196];
+        int read;
+        while ((read = inputStream.read(buffer)) > 0) {
+            messageDigest.update(buffer, 0, read);
+        }
+        byte[] md5sum = messageDigest.digest();
+        BigInteger bigInt = new BigInteger(1, md5sum);
+        String output = bigInt.toString(16);
+        // Fill to 32 chars
+        output = String.format("%32s", output).replace(' ', '0');
+        String path = file.getPath();
+        String newPath = path.substring(0, path.lastIndexOf(File.separator));
+        File newFile = new File(newPath+output+".jpg");
+        file.renameTo(newFile);
+        return newFile;
     }
 }
