@@ -192,6 +192,11 @@ public class DataManager {
 
 
     public void addNewComment(Comment comment,Handler handler) {
+        try {
+            runThreadByUrl(comment.getAddUrl(), handler);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void queryCommentByCommentId(int commentid, Handler handler) {
@@ -230,24 +235,6 @@ public class DataManager {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-    }
-
-    public List<Travel> queryTravelListByUserId(int userId) {
-        List<Travel> travelList = dbManager.queryTravelListByUserId(userId);
-        //get the travel list by user id
-
-        return  travelList;
-    }
-    public List<TravelItem> queryTravelItemListByTravelId(int travelId) {
-        return dbManager.queryTravelItemListByTravelId(travelId);
-    }
-    public List<Comment> queryCommentListByTravelItemId(int travelItemId) {
-        return dbManager.queryCommentListByTravelItemId(travelItemId);
-    }
-    public int queryLikeNumByTravelItemId(int TravelItemid) {
-        int likeNum = 0;
-
-        return likeNum;
     }
 
     public void runThreadByUrl(final URL url, final Handler handler) {
