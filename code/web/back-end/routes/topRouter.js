@@ -43,6 +43,7 @@ router.post('/upload', function(req, res) {
           }
           result.result = 'success';
           result.data = files.file.name;
+          console.log("Saved file: " + result.data);
           res.json(result);
       });
     });

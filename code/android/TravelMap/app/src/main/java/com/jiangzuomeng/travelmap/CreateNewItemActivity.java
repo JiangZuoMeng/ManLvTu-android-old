@@ -32,6 +32,7 @@ import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.dataManager.NetworkConnectActivity;
 import com.jiangzuomeng.dataManager.NetworkHandler;
 import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetWorkManager;
 import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
 import org.json.JSONException;
@@ -332,6 +333,7 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                 } else {
                     dataManager.updateTravelItem(currentTravelItem, networkHandler);
                 }
+                dataManager.uploadFile(fileUri, networkHandler);
                 finish();
                 break;
         }
@@ -357,37 +359,23 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode  == CAMERA) {
+        /*if (requestCode  == CAMERA) {
             if(resultCode == RESULT_OK) {
                 try {
                     File newFile = dataManager.renameFile(new File(fileUri.getPath()));
-                    Uri newUri = Uri.fromFile(newFile);
                     addImageFromImageName(newFile.getName());
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                } catch (NoSuchAlgorithmException | IOException e) {
                     e.printStackTrace();
                 }
             }
-        }
+        }*/
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
-            Uri uri = data.getData();
-            File file = new File(uri.getPath());
-            try {
-                File newFile = dataManager.moveFile(file, mediaStorageDir.getPath());
-                Uri newUri = Uri.fromFile(newFile);
-                addImageFromImageName(newFile.getName());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
+            fileUri = data.getData();
         }
+        addImageFromImageName();
     }
 
-    private void addImageFromImageName(String imageName) {
-        if (imageName == null) return;
-        Uri fileUri = getUriFromImageName(imageName);
+    private void addImageFromImageName() {
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -445,7 +433,8 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                     String jsonString = originJSONObject.getString(NetworkJsonKeyDefine.DATA_KEY);
                     currentTravelItem = TravelItem.fromJson(jsonString, true);
                     if (currentTravelItem.media != null) {
-                        addImageFromImageName(currentTravelItem.media);
+                        fileUri = getUriFromImageName(currentTravelItem.media);
+                        addImageFromImageName();
                     }
                     itemTextEditText.setText(currentTravelItem.text);
                     locationLat = currentTravelItem.locationLat;

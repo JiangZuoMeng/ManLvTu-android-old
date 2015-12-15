@@ -1,7 +1,9 @@
 package com.jiangzuomeng.dataManager;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 
@@ -16,7 +18,6 @@ import com.jiangzuomeng.networkManager.NetWorkManager;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,8 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import android.util.Log;
+
 /**
  * Created by wilbert on 2015/11/22.
  */
@@ -266,6 +266,36 @@ public class DataManager {
         thread.start();
     }
 
+    public void uploadFile(final Uri targetFileUri, final Handler handler) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    File targetFile = new File(targetFileUri.getPath());
+                    // TODO: add network file upload, done
+                    String dataString = netWorkManager.postFile(moveAndRenameFile(targetFile));
+
+                    Message message = new Message();
+                    message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
+                    Bundle bundle = new Bundle();
+                    bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, dataString);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    public void downLoadFile(String filename) {
+        // TODO: add network file download
+    }
+
     public File renameFile(File file) throws NoSuchAlgorithmException, IOException {
         MessageDigest messageDigest = MessageDigest.getInstance("MD5");
         InputStream inputStream = new FileInputStream(file);
@@ -298,9 +328,10 @@ public class DataManager {
         }
 
     * */
-    public File moveFile(File file, String path) throws IOException, NoSuchAlgorithmException {
+    public File moveAndRenameFile(File file) throws IOException, NoSuchAlgorithmException {
         InputStream inputStream = new FileInputStream(file);
-        File newFile = new File(path + File.separator + "temp.jpg");
+        File newFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES) + File.separator + "temp.jpg");
         OutputStream outputStream = new FileOutputStream(newFile);
         byte[] buffer = new byte[1024];
 
@@ -311,7 +342,7 @@ public class DataManager {
         }
         inputStream.close();
         outputStream.close();
-        File outputFile = renameFile(newFile);
-        return outputFile;
+
+        return renameFile(newFile);
     }
 }
