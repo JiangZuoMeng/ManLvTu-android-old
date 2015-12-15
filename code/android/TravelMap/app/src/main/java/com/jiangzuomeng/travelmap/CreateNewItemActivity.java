@@ -371,12 +371,10 @@ public class CreateNewItemActivity extends AppCompatActivity {
             Uri uri = data.getData();
             File file = new File(uri.getPath());
             try {
-                File newFile = dataManager.moveFile(file, mediaStorageDir.getPath());
+                File newFile = dataManager.moveFile(file);
                 Uri newUri = Uri.fromFile(newFile);
                 addImageFromUri(newUri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
+            } catch (IOException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }

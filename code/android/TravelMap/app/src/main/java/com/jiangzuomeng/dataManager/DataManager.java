@@ -2,6 +2,7 @@ package com.jiangzuomeng.dataManager;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 
@@ -266,6 +267,37 @@ public class DataManager {
         thread.start();
     }
 
+    public void uploadFile(final File targetFile, final Handler handler) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    renameFile(moveFile(targetFile));
+
+                    // TODO: add network file upload, done
+                    String dataString = netWorkManager.postFile(targetFile);
+
+                    Message message = new Message();
+                    message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
+                    Bundle bundle = new Bundle();
+                    bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, dataString);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.run();
+    }
+
+    public void downLoadFile(String filename) {
+        // TODO: add network file download
+    }
+
     public File renameFile(File file) throws NoSuchAlgorithmException, IOException {
         MessageDigest messageDigest = MessageDigest.getInstance("MD5");
         InputStream inputStream = new FileInputStream(file);
@@ -298,9 +330,10 @@ public class DataManager {
         }
 
     * */
-    public File moveFile(File file, String path) throws IOException, NoSuchAlgorithmException {
+    public File moveFile(File file) throws IOException, NoSuchAlgorithmException {
         InputStream inputStream = new FileInputStream(file);
-        File newFile = new File(path + File.separator + "temp.jpg");
+        File newFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES) + File.separator + "temp.jpg");
         OutputStream outputStream = new FileOutputStream(newFile);
         byte[] buffer = new byte[1024];
 
@@ -311,7 +344,7 @@ public class DataManager {
         }
         inputStream.close();
         outputStream.close();
-        File outputFile = renameFile(newFile);
-        return outputFile;
+
+        return renameFile(newFile);
     }
 }
