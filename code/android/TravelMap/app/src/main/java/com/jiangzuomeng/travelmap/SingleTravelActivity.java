@@ -263,6 +263,7 @@ public class SingleTravelActivity
                                     data.getJSONObject(count).toString(), true
                             ));
                         }
+                        initData();
                 }
                 break;
         }
