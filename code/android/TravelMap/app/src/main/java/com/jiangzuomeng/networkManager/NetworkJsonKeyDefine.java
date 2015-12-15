@@ -52,6 +52,6 @@ public class NetworkJsonKeyDefine {
     public static final String RESULT_SERVER_FAILED = "server failed";
 
     public static final int NETWORK_OPERATION = 718392;
-    public static final String FILE_UPLOAD_PREFIX = "/upload";
-    public static final String FILE_UPLOAD_PARAMETER = "/upload";
+    public static final String FILE_UPLOAD_PREFIX = "upload";
+    public static final String FILE_UPLOAD_PARAMETER = "upload";
 }

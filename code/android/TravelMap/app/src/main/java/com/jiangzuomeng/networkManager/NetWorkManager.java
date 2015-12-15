@@ -1,5 +1,6 @@
 package com.jiangzuomeng.networkManager;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -37,7 +38,11 @@ public class NetWorkManager {
         String SPACER = "--", LINE_END = "\r\n";
         String MULTIPART_FROM_DATA = "multipart/form-data";
         String CHARSET = "UTF-8";
-        URL url = new URL(NetworkJsonKeyDefine.FILE_UPLOAD_PREFIX);
+        Uri.Builder uriBuilder = new Uri.Builder();
+        uriBuilder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.FILE_UPLOAD_PREFIX);
+        URL url = new URL(uriBuilder.toString());
         Log.v("ekuri", "openning url:" + url.toString());
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setReadTimeout(5 * 1000);

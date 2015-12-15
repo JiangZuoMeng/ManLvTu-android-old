@@ -1,6 +1,7 @@
 package com.jiangzuomeng.dataManager;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -17,7 +18,6 @@ import com.jiangzuomeng.networkManager.NetWorkManager;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 /**
  * Created by wilbert on 2015/11/22.
@@ -267,12 +266,13 @@ public class DataManager {
         thread.start();
     }
 
-    public void uploadFile(final File targetFile, final Handler handler) {
+    public void uploadFile(final Uri targetFileUri, final Handler handler) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    renameFile(moveFile(targetFile));
+                    File targetFile = new File(targetFileUri.getPath());
+                    moveAndRenameFile(targetFile);
 
                     // TODO: add network file upload, done
                     String dataString = netWorkManager.postFile(targetFile);
@@ -291,7 +291,7 @@ public class DataManager {
             }
         });
 
-        thread.run();
+        thread.start();
     }
 
     public void downLoadFile(String filename) {
@@ -330,7 +330,7 @@ public class DataManager {
         }
 
     * */
-    public File moveFile(File file) throws IOException, NoSuchAlgorithmException {
+    public File moveAndRenameFile(File file) throws IOException, NoSuchAlgorithmException {
         InputStream inputStream = new FileInputStream(file);
         File newFile = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES) + File.separator + "temp.jpg");
