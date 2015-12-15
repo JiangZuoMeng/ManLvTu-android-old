@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         Log.v("wilbert", "userId:" + Integer.toString(userId));
         mainActivity = this;
         initMyListener();
-        initdrawerAdapter();
         pagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager(),2);
         viewPager = (CustomViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
@@ -245,8 +244,9 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                 // TODO: 2015/12/14 network
                                 /*dataManager.removeTravelByTravelId(drawerAdapter.getTravelIdList().
                                         get(position));*/
-                                initdrawerAdapter();
-                                listView_drawer.setAdapter(drawerAdapter);
+                                //Log.v("ekuri", "on item click listener");
+                                //initdrawerAdapter();
+                                //listView_drawer.setAdapter(drawerAdapter);
                             }
                         });
                         builder.setNegativeButton(R.string.cancle, new DialogInterface.OnClickListener() {
@@ -383,6 +383,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     @Override
     protected void onResume() {
         super.onResume();
+        Log.v("ekuri", "on resume");
         initdrawerAdapter();
         listView_drawer.setAdapter(drawerAdapter);
     }
@@ -415,6 +416,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                 tab.setText(travelName);
                                 currentTravelId = originJSONObject.getJSONObject(NetworkJsonKeyDefine.DATA_KEY)
                                         .getInt(NetworkJsonKeyDefine.ID);
+                                Log.v("ekuri", "on handle network event");
                                 initdrawerAdapter();
                                 listView_drawer.setAdapter(drawerAdapter);
                                 Message message = new Message();

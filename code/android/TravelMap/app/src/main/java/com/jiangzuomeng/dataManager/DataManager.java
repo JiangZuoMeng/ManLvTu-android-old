@@ -166,7 +166,7 @@ public class DataManager {
         TravelItem travelItem = new TravelItem();
         travelItem.travelId = travelId;
         try {
-            runThreadByUrl(travelItem.getQueryUrl(), handler);
+            runThreadByUrl(travelItem.getQueryAllUrl(), handler);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
