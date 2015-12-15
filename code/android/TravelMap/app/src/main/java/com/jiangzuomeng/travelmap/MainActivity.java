@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.NetworkOnMainThreadException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     List<Travel> travelList;
     List<Integer> travelIdList = new ArrayList<>();
     List<String> nameList = new ArrayList<>();
+    List<Uri> uriList = new ArrayList<>();
     Handler handler = new Handler();
     NetworkHandler networkHandler = new NetworkHandler(this);
     public void setHandler(Handler handler) {
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
 
     private void initdrawerAdapter() {
         dataManager.queryTravelIdListByUserId(MainActivity.userId, new NetworkHandler(this));
-
+/*
         travelList = dataManager.queryTravelListByUserId(userId);
         List<Uri> uriList = new ArrayList<>();
         List<Integer> travelIdList = new ArrayList<>();
@@ -157,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             travelIdList.add(travel.id);
         }
         drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
+*/
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
@@ -453,9 +456,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                         NetworkJsonKeyDefine.DATA_KEY
                                 );
                                 if (jsonArray.length() > 0) {
-                                    int travekItemId = jsonArray.getJSONObject(0).
+                                    int travelItemId = jsonArray.getJSONObject(0).
                                             getInt(NetworkJsonKeyDefine.ID);
-                                    dataManager.queryTravelItemByTravelItemId(travekItemId, networkHandler);
+                                    dataManager.queryTravelItemByTravelItemId(travelItemId, networkHandler);
+                                } else {
+                                    uriList.add(null);
                                 }
                                 break;
                         }
@@ -470,11 +475,34 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                 JSONObject jsonObject = originJSONObject.
                                         getJSONObject(NetworkJsonKeyDefine.DATA_KEY);
                                 nameList.add(jsonObject.getString(NetworkJsonKeyDefine.NAME));
+                                if (nameList.size() == travelIdList.size() &&
+                                        uriList.size() == travelIdList.size()) {
+                                    drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
+                                    listView_drawer.setAdapter(drawerAdapter);
+                                }
+                                break;
+                        }
+                        break;
+                    case NetworkJsonKeyDefine.TRAVEL_ITEM:
+                        switch (result) {
+                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                                JSONObject jsonObject = originJSONObject.getJSONObject(
+                                        NetworkJsonKeyDefine.DATA_KEY
+                                );
+                                String uriString = jsonObject.getString(NetworkJsonKeyDefine.MEDIA);
+                                Uri.Builder builder = new Uri.Builder();
+                                builder.scheme("ftp")
+                                        .appendPath(uriString);
+                                uriList.add(builder.build());
+                                if (nameList.size() == travelIdList.size() &&
+                                        uriList.size() == travelIdList.size()) {
+                                    drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
+                                    listView_drawer.setAdapter(drawerAdapter);
+                                }
                                 break;
                         }
                         break;
                 }
-
         }
     }
 }
