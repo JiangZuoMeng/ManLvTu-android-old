@@ -147,12 +147,13 @@ public class LoginActivity extends AppCompatActivity implements NetworkConnectAc
         }
     }
 
+
     @Override
-    public void handleNetworkEvent(String status, String request, String target, JSONObject originJSONObject) throws JSONException {
+    public void handleNetworkEvent(String result, String request, String target, JSONObject originJSONObject) throws JSONException {
         showProgress(false);
         switch (request) {
             case NetworkJsonKeyDefine.LOGIN:
-                switch (status) {
+                switch (result) {
                     case NetworkJsonKeyDefine.RESULT_SUCCESS:
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra(NetworkJsonKeyDefine.ID,
@@ -173,7 +174,8 @@ public class LoginActivity extends AppCompatActivity implements NetworkConnectAc
                 break;
 
             case NetworkJsonKeyDefine.REGISTER:
-                switch (status) {
+                showProgress(false);
+                switch (result) {
                     case NetworkJsonKeyDefine.RESULT_SUCCESS:
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra(NetworkJsonKeyDefine.ID,
