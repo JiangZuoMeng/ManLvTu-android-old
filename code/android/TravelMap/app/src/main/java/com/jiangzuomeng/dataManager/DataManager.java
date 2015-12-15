@@ -1,9 +1,14 @@
 package com.jiangzuomeng.dataManager;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 
 import com.amap.api.maps2d.model.LatLng;
 import com.jiangzuomeng.database.DBManager;
@@ -36,6 +41,7 @@ public class DataManager {
     private DBManager dbManager;
     private NetWorkManager netWorkManager;
     private Bundle bundle = new Bundle();
+    private Context context;
     public static DataManager getInstance(Context context) {
         if (dataManager == null) {
             dataManager = new DataManager(context);
@@ -46,6 +52,7 @@ public class DataManager {
     private DataManager(Context context) {
         dbManager = new DBManager(context);
         netWorkManager = new NetWorkManager();
+        this.context = context;
     }
 
     public void login(User user, NetworkHandler handler) {
@@ -313,5 +320,23 @@ public class DataManager {
         outputStream.close();
         File outputFile = renameFile(newFile);
         return outputFile;
+    }
+
+    public Bitmap getBitmapFromUri(Uri uri, float heightPx) throws FileNotFoundException {
+        InputStream inputStream = context.getContentResolver().openInputStream(uri);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+//                    options.inSampleSize = 8;
+        Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+        float bitmapHeight = options.outHeight;
+        Resources resources = context.getResources();
+        DisplayMetrics displayMetrics = resources.getDisplayMetrics();
+        float px = heightPx * (displayMetrics.densityDpi / 160f);
+        int sampleSize = (int)(bitmapHeight / px);
+        options.inSampleSize = sampleSize;
+        options.inJustDecodeBounds = false;
+        inputStream = context.getContentResolver().openInputStream(uri);
+        bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+        return bitmap;
     }
 }

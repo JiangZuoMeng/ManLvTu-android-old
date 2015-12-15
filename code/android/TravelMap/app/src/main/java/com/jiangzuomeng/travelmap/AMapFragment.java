@@ -40,12 +40,27 @@ import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
 import com.jiangzuomeng.Adapter.ShowPictureAdapter;
+import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.dataManager.NetworkConnectActivity;
+import com.jiangzuomeng.dataManager.NetworkHandler;
+import com.jiangzuomeng.modals.Travel;
+import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by wilbert on 2015/10/30.
  */
 public class AMapFragment extends Fragment implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener,
-        AMap.OnInfoWindowClickListener, AMap.InfoWindowAdapter, AMap.OnMapClickListener{
+        AMap.OnInfoWindowClickListener, AMap.InfoWindowAdapter, AMap.OnMapClickListener,
+        NetworkConnectActivity{
     private MapView mapView;
     private AMap aMap;
     private OnLocationChangedListener mlistener;
@@ -60,8 +75,24 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         Maptype = t;
 
     }
+    private DataManager dataManager;
+    private NetworkHandler networkHandler;
     private ShowPictureAdapter showPictureAdapter;
+    List<TravelItem> nearByTravelItemList = new ArrayList<>();
+    HashMap<ImageView, Integer> imageItemIdMap = new HashMap<>();
     HorizontalScrollView horizontalScrollView;
+
+    @Override
+    public void handleNetworkEvent(String result, String request, String target, JSONObject originJSONObject) throws JSONException {
+        if (request.equals(NetworkJsonKeyDefine.QUERY_NEARBY) && target.equals(NetworkJsonKeyDefine.TRAVEL_ITEM)
+                && result.equals(NetworkJsonKeyDefine.RESULT_SUCCESS)) {
+            nearByTravelItemList.clear();
+            JSONArray jsonArray = originJSONObject.getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                nearByTravelItemList.add(TravelItem.fromJson(jsonArray.getString(i), true));
+            }
+        }
+    }
 
     public interface MainActivityListener {
         void notifyLocation(double locationLng, double locationLat);
@@ -78,6 +109,8 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         setUpMap();
         initData();
         InitMyListener();
+        dataManager = DataManager.getInstance(getActivity().getApplicationContext());
+        networkHandler = new NetworkHandler(this);
         showPictureAdapter = new ShowPictureAdapter(layoutInflater);
         return view;
     }
@@ -158,6 +191,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 //            current_marker.destroy();
             current_marker = aMap.addMarker(new MarkerOptions().position(latLng).title("my location"));
             mainActivityListener.notifyLocation(aMapLocation.getLongitude(), aMapLocation.getLatitude());
+            dataManager.queryNearbyTravelItem(latLng, networkHandler);
         }
     }
 
@@ -267,12 +301,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         imageView.setPadding(5, 5, 5, 5);
         linearLayout.addView(imageView);
         imageView.setOnClickListener(popupWindowImageClickListener);
-
-        final int width = imageView.getWidth();
-        final int height = imageView.getHeight();
-        imageView.setOnClickListener(popupWindowImageClickListener);
-
-
+        
         imageView = new ImageView(getActivity().getApplicationContext());
         imageView.setImageResource(R.drawable.test4_show);
         imageView.setPadding(5, 5, 5, 5);
