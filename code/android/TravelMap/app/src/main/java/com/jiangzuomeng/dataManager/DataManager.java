@@ -33,6 +33,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Created by wilbert on 2015/11/22.
@@ -41,7 +45,7 @@ public class DataManager {
     private static DataManager dataManager = null;
     private DBManager dbManager;
     private NetWorkManager netWorkManager;
-    private Bundle bundle = new Bundle();
+
     public static DataManager getInstance(Context context) {
         if (dataManager == null) {
             dataManager = new DataManager(context);
@@ -294,33 +298,47 @@ public class DataManager {
         thread.start();
     }
 
+    private LinkedBlockingDeque<String> fileDownloadQueue = new LinkedBlockingDeque<>();
+    private Handler fileDownloadCurrentHandler;
     public void downLoadFile(final String filename, final Handler handler) {
+        fileDownloadCurrentHandler = handler;
+        if (fileDownloadQueue.contains(filename)) {
+            Log.v("ekuri", "file already in download queue: " + filename);
+            return;
+        }
+        if (!fileDownloadQueue.offer(filename)) {
+            Log.v("ekuri", "can not add filename to download queue: " + filename);
+        }
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    InputStream fileInputStream = netWorkManager.downloadFile(filename);
+                while (!fileDownloadQueue.isEmpty()) {
+                    try {
+                        String filename = fileDownloadQueue.getFirst();
+                        InputStream fileInputStream = netWorkManager.downloadFile(filename);
 
-                    JSONObject resultJson = new JSONObject();
-                    resultJson.put(NetworkJsonKeyDefine.REQUEST_KEY, NetworkJsonKeyDefine.FILE_DOWNLOAD);
-                    resultJson.put(NetworkJsonKeyDefine.TARGET_KEY, NetworkJsonKeyDefine.FILE);
+                        JSONObject resultJson = new JSONObject();
+                        resultJson.put(NetworkJsonKeyDefine.REQUEST_KEY, NetworkJsonKeyDefine.FILE_DOWNLOAD);
+                        resultJson.put(NetworkJsonKeyDefine.TARGET_KEY, NetworkJsonKeyDefine.FILE);
 
-                    if (null == fileInputStream) {
-                        resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_FAILED);
-                    } else {
-                        File resultFile = moveAndRenameFile(fileInputStream);
-                        resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_SUCCESS);
-                        resultJson.put(NetworkJsonKeyDefine.DATA_KEY, resultFile.getName());
+                        if (null == fileInputStream) {
+                            resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_FAILED);
+                        } else {
+                            File resultFile = moveAndRenameFile(fileInputStream);
+                            resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_SUCCESS);
+                            resultJson.put(NetworkJsonKeyDefine.DATA_KEY, resultFile.getName());
+                        }
+
+                        Message message = new Message();
+                        message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
+                        Bundle bundle = new Bundle();
+                        bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, resultJson.toString());
+                        message.setData(bundle);
+                        fileDownloadCurrentHandler.sendMessage(message);
+                        fileDownloadQueue.remove();
+                    } catch (IOException | NoSuchAlgorithmException | JSONException e) {
+                        e.printStackTrace();
                     }
-
-                    Message message = new Message();
-                    message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
-                    Bundle bundle = new Bundle();
-                    bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, resultJson.toString());
-                    message.setData(bundle);
-                    handler.sendMessage(message);
-                } catch (IOException | NoSuchAlgorithmException | JSONException e) {
-                    e.printStackTrace();
                 }
             }
         });

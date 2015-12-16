@@ -117,6 +117,7 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
             try {
                 z.image.setImageBitmap(getBitmapFromFilename(convertView, uriString));
             } catch (FileNotFoundException e) {
+                Log.v("ekuri", "Try to download file: " + uriString);
                 DataManager.getInstance(context)
                         .downLoadFile(uriString, new NetworkHandler(targetActivity));
             }
