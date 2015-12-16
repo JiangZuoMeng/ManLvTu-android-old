@@ -31,11 +31,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
-                android:text="锋哥"
                 android:background="@drawable/album_clickable_text"
                 />
 
             <TextView
+                android:id="@+id/album_details_user_state"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
 
@@ -80,7 +80,7 @@
                 android:layout_alignParentRight="true"
                 style="?android:borderlessButtonStyle" />
             <EditText
-                android:id="@+id/my_comments"
+                android:id="@+id/album_my_comments"
                 android:inputType="text"
                 android:layout_height="wrap_content"
                 android:singleLine="false"
