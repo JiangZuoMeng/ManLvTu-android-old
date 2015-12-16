@@ -296,8 +296,6 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
     }
 
     public String getRealFilePath(final Uri targetFileUri) {
-        Log.v("ekuri", "target uri:" + targetFileUri.toString());
-
         final String scheme = targetFileUri.getScheme();
         if (null == scheme || ContentResolver.SCHEME_FILE.equals(scheme)) {
             return targetFileUri.getPath();
@@ -310,7 +308,9 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                 return null;
             int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             cursor.moveToFirst();
-            return cursor.getString(index);
+            String result = cursor.getString(index);
+            cursor.close();
+            return result;
         }
 
         return null;
@@ -340,26 +340,20 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                 currentTravelItem.label = labelString;
                 currentTravelItem.locationLat = locationLat;
                 currentTravelItem.locationLng = locationLng;
-                currentTravelItem.media = imageString;
                 currentTravelItem.time = timeStamp;
-                // TODO: 2015/12/13 use network and should add some para
-/*                long temp;
-                if (isCreateNewTravelItem) {
-                    currentTravelItem.travelId = MainActivity.currentTravelId;
-                    temp = dataManager.addNewTravelItem(currentTravelItem);
-                } else {
-                    temp = dataManager.updateTravelItem(currentTravelItem);
-                }*/
-                if (isCreateNewTravelItem) {
-                    currentTravelItem.travelId = MainActivity.currentTravelId;
-                    dataManager.addNewTravelItem(currentTravelItem, networkHandler);
-                } else {
-                    dataManager.updateTravelItem(currentTravelItem, networkHandler);
-                }
 
                 try {
-                    dataManager.uploadFile(getContentResolver().openInputStream(fileUri), networkHandler);
-                } catch (FileNotFoundException e) {
+                    File targetFile = dataManager.moveAndRenameFile(getContentResolver().openInputStream(fileUri));
+                    currentTravelItem.media = targetFile.getName();
+
+                    if (isCreateNewTravelItem) {
+                        currentTravelItem.travelId = MainActivity.currentTravelId;
+                        dataManager.addNewTravelItem(currentTravelItem, networkHandler);
+                    } else {
+                        dataManager.updateTravelItem(currentTravelItem, networkHandler);
+                    }
+                    dataManager.uploadFile(targetFile, networkHandler);
+                } catch (NoSuchAlgorithmException | IOException e) {
                     e.printStackTrace();
                 }
                 finish();

@@ -69,7 +69,7 @@ public class SingleTravelActivity
         singleTravelItemsListView.setLongClickable(true);
         singleTravelItemsListView.setOnItemLongClickListener(this);
         singleTravelItemsListView.setOnItemClickListener(this);
-        singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this);
+        singleTravelItemAdapter = new SingleTravelItemListViewAdapter(this, this);
 
 
         initPopupWindow();
@@ -82,6 +82,7 @@ public class SingleTravelActivity
 
         // setting action bar
         supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
 
         currentTravelId = getIntent().getIntExtra(INTENT_TRAVEL_KEY, -1);
@@ -164,7 +165,8 @@ public class SingleTravelActivity
     public void onResume() {
         super.onResume();
         mapView.onResume();
-        initData();
+        DataManager.getInstance(getApplicationContext())
+                .queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
     }
     /**
      * 方法必须重写
@@ -296,8 +298,12 @@ public class SingleTravelActivity
                         break;
                 }
                 break;
+            case NetworkJsonKeyDefine.FILE:
+                switch (status) {
+                    case NetworkJsonKeyDefine.RESULT_SUCCESS:
+                        DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
+                }
         }
-
     }
 
     @Override

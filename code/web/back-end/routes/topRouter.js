@@ -20,9 +20,12 @@ router.get('/comment', function(req, res) {
     res.render('comment.jade');
 });
 
+var fileFinishedDirectory = './data/uploaded/finished/';
+var fileTempDirectory = './data/uploaded/tmp/';
+
 router.post('/upload', function(req, res) {
     var form = new formidable.IncomingForm();
-    form.uploadDir = './data/uploaded/tmp';
+    form.uploadDir = fileTempDirectory;
 
     form.parse(req, function(error, fields, files) {
       var result = { request: 'upload', target: 'file'};
@@ -33,7 +36,7 @@ router.post('/upload', function(req, res) {
           return;
       }
       
-      var targetFilePath = './data/uploaded/finished/' + files.file.name;
+      var targetFilePath = fileFinishedDirectory + files.file.name;
       fs.rename(files.file.path, targetFilePath, function (error) {
           if (error) {
               result.result = 'error: ' + error.toString();
@@ -48,6 +51,17 @@ router.post('/upload', function(req, res) {
       });
     });
 
+});
+
+router.get('/download', function(req, res) {
+    var filename = req.query.filename;
+    var sendOptions = { root: fileFinishedDirectory };
+    res.sendFile(filename, sendOptions, function (error) {
+      if (error) {
+        console.log('send file error: ' + error);
+        res.sendStatus(404);
+      }
+    });
 });
 
 var user = require('./user.js');

@@ -19,6 +19,9 @@ import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -269,13 +272,12 @@ public class DataManager {
         thread.start();
     }
 
-    public void uploadFile(final InputStream inputStream, final Handler handler) {
+    public void uploadFile(final File targetFile, final Handler handler) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    // TODO: add network file upload, done
-                    String dataString = netWorkManager.postFile(moveAndRenameFile(inputStream));
+                    String dataString = netWorkManager.postFile(targetFile);
 
                     Message message = new Message();
                     message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
@@ -283,8 +285,6 @@ public class DataManager {
                     bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, dataString);
                     message.setData(bundle);
                     handler.sendMessage(message);
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -294,8 +294,38 @@ public class DataManager {
         thread.start();
     }
 
-    public void downLoadFile(String filename) {
-        // TODO: add network file download
+    public void downLoadFile(final String filename, final Handler handler) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    InputStream fileInputStream = netWorkManager.downloadFile(filename);
+
+                    JSONObject resultJson = new JSONObject();
+                    resultJson.put(NetworkJsonKeyDefine.REQUEST_KEY, NetworkJsonKeyDefine.FILE_DOWNLOAD);
+                    resultJson.put(NetworkJsonKeyDefine.TARGET_KEY, NetworkJsonKeyDefine.FILE);
+
+                    if (null == fileInputStream) {
+                        resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_FAILED);
+                    } else {
+                        File resultFile = moveAndRenameFile(fileInputStream);
+                        resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_SUCCESS);
+                        resultJson.put(NetworkJsonKeyDefine.DATA_KEY, resultFile.getName());
+                    }
+
+                    Message message = new Message();
+                    message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
+                    Bundle bundle = new Bundle();
+                    bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, resultJson.toString());
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                } catch (IOException | NoSuchAlgorithmException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
     }
 
     public File renameFile(File file) throws NoSuchAlgorithmException, IOException {
@@ -346,5 +376,10 @@ public class DataManager {
         outputStream.close();
 
         return renameFile(newFile);
+    }
+
+    public static File getLocalFile(String filename) {
+        return new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES) + File.separator + "TravelMap" + File.separator + filename);
     }
 }
