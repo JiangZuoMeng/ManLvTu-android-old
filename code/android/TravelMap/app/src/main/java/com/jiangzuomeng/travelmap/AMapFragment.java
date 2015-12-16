@@ -147,6 +147,8 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AlbumViewerActivity.class);
+                Log.v("wilbert", "travelItemId: " + v.getId());
+                intent.putExtra(SingleTravelActivity.INTENT_TRAVEL_ITEM_KEY, v.getId());
                 startActivity(intent);
             }
         };

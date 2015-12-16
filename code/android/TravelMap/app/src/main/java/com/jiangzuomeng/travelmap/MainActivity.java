@@ -322,9 +322,11 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             //stop the trip
 //            Snackbar.make(v,"stop the trip", Snackbar.LENGTH_SHORT).show();
             Toast toast = Toast.makeText(getApplicationContext(), "the trip has stopped", Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
+            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER, 0, 0);
             toast.show();
             state = State.NotOnTrip;
+            TabLayout.Tab tab = tabLayout.getTabAt(0);
+            tab.setText("No Travel On");
             fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
         } else {
 
