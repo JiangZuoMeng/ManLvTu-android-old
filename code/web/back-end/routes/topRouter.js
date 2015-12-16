@@ -62,7 +62,7 @@ router.get('/download', function(req, res) {
         try {
           res.sendStatus(404);
         } catch (error) {
-          console.log("error in send file: " + e.toString());
+          console.log("error in send file: " + error.toString());
         }
       }
     });
