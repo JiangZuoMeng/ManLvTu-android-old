@@ -172,6 +172,9 @@ public class DataManager {
     }
 
     public void queryNearbyTravelItem(LatLng currentLocation, Handler handler) {
+        if (null == currentLocation) {
+            return;
+        }
         double nearDistance = 1.0;
         try {
             runThreadByUrl(TravelItem.getQueryNearbyUrl(currentLocation.latitude - nearDistance,

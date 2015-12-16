@@ -4,26 +4,25 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Switch;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
@@ -33,7 +32,6 @@ import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.LocationSource;
 import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.Projection;
-import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
@@ -43,17 +41,20 @@ import com.jiangzuomeng.Adapter.ShowPictureAdapter;
 import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.dataManager.NetworkConnectActivity;
 import com.jiangzuomeng.dataManager.NetworkHandler;
-import com.jiangzuomeng.modals.Travel;
 import com.jiangzuomeng.modals.TravelItem;
+import com.jiangzuomeng.networkManager.NetWorkManager;
 import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by wilbert on 2015/10/30.
@@ -81,6 +82,8 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     List<TravelItem> nearByTravelItemList = new ArrayList<>();
     HashMap<ImageView, Integer> imageItemIdMap = new HashMap<>();
     HorizontalScrollView horizontalScrollView;
+    View popView;
+    private LatLng latLng;
 
     @Override
     public void handleNetworkEvent(String result, String request, String target, JSONObject originJSONObject) throws JSONException {
@@ -90,6 +93,23 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             JSONArray jsonArray = originJSONObject.getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
             for (int i = 0; i < jsonArray.length(); i++) {
                 nearByTravelItemList.add(TravelItem.fromJson(jsonArray.getString(i), true));
+            }
+            if (!nearByTravelItemList.isEmpty()) {
+                dataManager.downLoadFile(nearByTravelItemList.get(0).media, networkHandler);
+            }
+        }
+        if (request.equals(NetworkJsonKeyDefine.FILE_DOWNLOAD)) {
+            if (result.equals(NetworkJsonKeyDefine.RESULT_SUCCESS)) {
+                try {
+                    addNearByImageView(nearByTravelItemList.get(0).media,
+                            nearByTravelItemList.get(0).id);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                nearByTravelItemList.remove(0);
+                if (!nearByTravelItemList.isEmpty()) {
+                    dataManager.downLoadFile(nearByTravelItemList.get(0).media, networkHandler);
+                }
             }
         }
     }
@@ -112,6 +132,13 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         dataManager = DataManager.getInstance(getActivity().getApplicationContext());
         networkHandler = new NetworkHandler(this);
         showPictureAdapter = new ShowPictureAdapter(layoutInflater);
+
+        popView = layoutInflater.inflate(R.layout.popup_window_meeting, null);
+        linearLayout = (LinearLayout)popView.findViewById(R.id.meeting_linear_layout);
+
+        queryNearbyTimer = new Timer();
+        queryNearbyTimer.schedule(queryNearbtTimerTask, 1000, 10000);
+
         return view;
     }
 
@@ -185,13 +212,12 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         if (mlistener != null && aMapLocation != null) {
             mlistener.onLocationChanged(aMapLocation);// 显示系统小蓝点
             //添加marker
-            LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
+            latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
 /*            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin_drop_black_24dp))
                     .title("my location"));*/
 //            current_marker.destroy();
             current_marker = aMap.addMarker(new MarkerOptions().position(latLng).title("my location"));
             mainActivityListener.notifyLocation(aMapLocation.getLongitude(), aMapLocation.getLatitude());
-            dataManager.queryNearbyTravelItem(latLng, networkHandler);
         }
     }
 
@@ -214,10 +240,14 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     public void onProviderDisabled(String provider) {
 
     }
+
+    boolean isInbackground = false;
     @Override
     public void onResume() {
         super.onResume();
         mapView.onResume();
+
+        isInbackground = false;
     }
 
     /**
@@ -228,6 +258,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         super.onPause();
         mapView.onPause();
         deactivate();
+        isInbackground = true;
     }
 
     /**
@@ -246,6 +277,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
     public void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
+        queryNearbyTimer.purge();
     }
 
     @Override
@@ -256,9 +288,6 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             return  true;
         }
         Log.v("wilbert", "popup show");
-        View popView = layoutInflater.inflate(R.layout.popup_window_meeting, null);
-        linearLayout = (LinearLayout)popView.findViewById(R.id.meeting_linear_layout);
-        AddMarksPicturesHere();
         PopupWindow popupWindow = new PopupWindow(popView, ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setTouchable(true);
@@ -278,33 +307,17 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         horizontalScrollView = (HorizontalScrollView)view.findViewById(R.id.horizontalScrollView);
         linearLayout = (LinearLayout)view.findViewById(R.id.meeting_linear_layout);
 
-        AddMarksPicturesHere();
 
         return view;
     }
 
-    private void AddMarksPicturesHere() {
+    private void addNearByImageView(String imageName, int id) throws FileNotFoundException {
         ImageView imageView = new ImageView(getActivity().getApplicationContext());
-        imageView.setImageResource(R.drawable.test2_show);
+        Uri uri = DataManager.getUriFromImageName(imageName);
+        Bitmap bitmap = dataManager.getBitmapFromUri(uri, 150);
+        imageView.setImageBitmap(bitmap);
         imageView.setPadding(5, 5, 5, 5);
-        linearLayout.addView(imageView);
-        imageView.setOnClickListener(popupWindowImageClickListener);
-
-        imageView = new ImageView(getActivity().getApplicationContext());
-        imageView.setImageResource(R.drawable.test1_show);
-        imageView.setPadding(5, 5, 5, 5);
-        linearLayout.addView(imageView);
-        imageView.setOnClickListener(popupWindowImageClickListener);
-
-        imageView = new ImageView(getActivity().getApplicationContext());
-        imageView.setImageResource(R.drawable.test4_show);
-        imageView.setPadding(5, 5, 5, 5);
-        linearLayout.addView(imageView);
-        imageView.setOnClickListener(popupWindowImageClickListener);
-        
-        imageView = new ImageView(getActivity().getApplicationContext());
-        imageView.setImageResource(R.drawable.test4_show);
-        imageView.setPadding(5, 5, 5, 5);
+        imageView.setId(id);
         linearLayout.addView(imageView);
         imageView.setOnClickListener(popupWindowImageClickListener);
     }
@@ -340,4 +353,29 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         }
     }
 
+    Timer queryNearbyTimer;
+    Handler queryNearbyTimerHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (isInbackground)
+                return;
+            if (msg.what == NetworkJsonKeyDefine.TIMER_OPERATION) {
+                startQueryNearBy();
+            }
+        }
+    };
+    TimerTask queryNearbtTimerTask = new TimerTask() {
+        @Override
+        public void run() {
+            Message message = new Message();
+            message.what = NetworkJsonKeyDefine.TIMER_OPERATION;
+            queryNearbyTimerHandler.sendMessage(message);
+        }
+    };
+
+    public void startQueryNearBy() {
+        nearByTravelItemList.clear();
+        linearLayout.removeAllViews();
+        dataManager.queryNearbyTravelItem(latLng, networkHandler);
+    }
 }
