@@ -14,6 +14,7 @@ public class NetworkJsonKeyDefine {
     public static final String TRAVEL = "travel";
     public static final String TRAVEL_ITEM = "travelItem";
     public static final String COMMENT = "comment";
+    public static final String FILE= "file";
 
     public static final String DATA_KEY = "data";
     public static final String ID = "id";
@@ -30,6 +31,7 @@ public class NetworkJsonKeyDefine {
     public static final String LIKE = "like";
     public static final String TEXT = "text";
     public static final String MEDIA = "media";
+    public static final String FILENAME = "filename";
 
     public static final String LOCATION_LAT_LOWER_BOUND = "locationLatLowerBound";
     public static final String LOCATION_LAT_UPPER_BOUND = "locationLatUpperBound";
@@ -45,13 +47,17 @@ public class NetworkJsonKeyDefine {
     public static final String LOGIN = "login";
     public static final String REGISTER = "register";
     public static final String QUERY_NEARBY= "queryNearby";
+    public static final String FILE_UPLOAD= "upload";
+    public static final String FILE_DOWNLOAD= "download";
 
     public static final String RESULT_KEY = "result";
     public static final String RESULT_SUCCESS = "success";
     public static final String RESULT_FAILED = "failed";
     public static final String RESULT_SERVER_FAILED = "server failed";
+    public static final int RESULT_NOT_FOUND = 404;
 
     public static final int NETWORK_OPERATION = 718392;
     public static final String FILE_UPLOAD_PREFIX = "upload";
     public static final String FILE_UPLOAD_PARAMETER = "upload";
+    public static final String FILE_DOWNLOAD_FREFIX = "download";
 }

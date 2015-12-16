@@ -2,9 +2,11 @@ package com.jiangzuomeng.travelmap;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -293,6 +295,27 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
         dialog = builder.show();
     }
 
+    public String getRealFilePath(final Uri targetFileUri) {
+        final String scheme = targetFileUri.getScheme();
+        if (null == scheme || ContentResolver.SCHEME_FILE.equals(scheme)) {
+            return targetFileUri.getPath();
+        }
+        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            Cursor cursor = getApplicationContext().getContentResolver().query(
+                    targetFileUri, new String[]{MediaStore.Images.Media.DATA}, null, null, null);
+
+            if (null == cursor)
+                return null;
+            int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            String result = cursor.getString(index);
+            cursor.close();
+            return result;
+        }
+
+        return null;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -317,23 +340,22 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                 currentTravelItem.label = labelString;
                 currentTravelItem.locationLat = locationLat;
                 currentTravelItem.locationLng = locationLng;
-                currentTravelItem.media = imageString;
                 currentTravelItem.time = timeStamp;
-                // TODO: 2015/12/13 use network and should add some para
-/*                long temp;
-                if (isCreateNewTravelItem) {
-                    currentTravelItem.travelId = MainActivity.currentTravelId;
-                    temp = dataManager.addNewTravelItem(currentTravelItem);
-                } else {
-                    temp = dataManager.updateTravelItem(currentTravelItem);
-                }*/
-                if (isCreateNewTravelItem) {
-                    currentTravelItem.travelId = MainActivity.currentTravelId;
-                    dataManager.addNewTravelItem(currentTravelItem, networkHandler);
-                } else {
-                    dataManager.updateTravelItem(currentTravelItem, networkHandler);
+
+                try {
+                    File targetFile = dataManager.moveAndRenameFile(getContentResolver().openInputStream(fileUri));
+                    currentTravelItem.media = targetFile.getName();
+
+                    if (isCreateNewTravelItem) {
+                        currentTravelItem.travelId = MainActivity.currentTravelId;
+                        dataManager.addNewTravelItem(currentTravelItem, networkHandler);
+                    } else {
+                        dataManager.updateTravelItem(currentTravelItem, networkHandler);
+                    }
+                    dataManager.uploadFile(targetFile, networkHandler);
+                } catch (NoSuchAlgorithmException | IOException e) {
+                    e.printStackTrace();
                 }
-                dataManager.uploadFile(fileUri, networkHandler);
                 finish();
                 break;
         }
@@ -372,6 +394,7 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
             fileUri = data.getData();
         }
+
         addImageFromImageName();
     }
 
@@ -431,7 +454,6 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                     strings.add(currentTravelItem.label);
                     setTagAdapter = new SetTagAdapter(strings, this);
                     setTagAdapter.getIsSelectList().set(0, true);
-
                 }
         }
     }

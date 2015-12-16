@@ -1,15 +1,18 @@
 package com.jiangzuomeng.dataManager;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.amap.api.maps2d.model.LatLng;
 import com.jiangzuomeng.database.DBManager;
@@ -19,6 +22,9 @@ import com.jiangzuomeng.modals.Travel;
 import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.modals.User;
 import com.jiangzuomeng.networkManager.NetWorkManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +48,7 @@ public class DataManager {
     private NetWorkManager netWorkManager;
     private Bundle bundle = new Bundle();
     private Context context;
+
     public static DataManager getInstance(Context context) {
         if (dataManager == null) {
             dataManager = new DataManager(context);
@@ -99,7 +106,7 @@ public class DataManager {
         }
     }
 
-    public void addNewTravel(Travel travel,Handler handler) {
+    public void addNewTravel(Travel travel, Handler handler) {
         try {
             runThreadByUrl(travel.getAddUrl(), handler);
         } catch (MalformedURLException e) {
@@ -144,7 +151,6 @@ public class DataManager {
             e.printStackTrace();
         }
     }
-
 
 
     public void addNewTravelItem(TravelItem travelItem, Handler handler) {
@@ -206,8 +212,7 @@ public class DataManager {
     }
 
 
-
-    public void addNewComment(Comment comment,Handler handler) {
+    public void addNewComment(Comment comment, Handler handler) {
         try {
             runThreadByUrl(comment.getAddUrl(), handler);
         } catch (MalformedURLException e) {
@@ -273,14 +278,12 @@ public class DataManager {
         thread.start();
     }
 
-    public void uploadFile(final Uri targetFileUri, final Handler handler) {
+    public void uploadFile(final File targetFile, final Handler handler) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    File targetFile = new File(targetFileUri.getPath());
-                    // TODO: add network file upload, done
-                    String dataString = netWorkManager.postFile(moveAndRenameFile(targetFile));
+                    String dataString = netWorkManager.postFile(targetFile);
 
                     Message message = new Message();
                     message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
@@ -288,8 +291,6 @@ public class DataManager {
                     bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, dataString);
                     message.setData(bundle);
                     handler.sendMessage(message);
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -299,8 +300,38 @@ public class DataManager {
         thread.start();
     }
 
-    public void downLoadFile(String filename) {
-        // TODO: add network file download
+    public void downLoadFile(final String filename, final Handler handler) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    InputStream fileInputStream = netWorkManager.downloadFile(filename);
+
+                    JSONObject resultJson = new JSONObject();
+                    resultJson.put(NetworkJsonKeyDefine.REQUEST_KEY, NetworkJsonKeyDefine.FILE_DOWNLOAD);
+                    resultJson.put(NetworkJsonKeyDefine.TARGET_KEY, NetworkJsonKeyDefine.FILE);
+
+                    if (null == fileInputStream) {
+                        resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_FAILED);
+                    } else {
+                        File resultFile = moveAndRenameFile(fileInputStream);
+                        resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_SUCCESS);
+                        resultJson.put(NetworkJsonKeyDefine.DATA_KEY, resultFile.getName());
+                    }
+
+                    Message message = new Message();
+                    message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
+                    Bundle bundle = new Bundle();
+                    bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, resultJson.toString());
+                    message.setData(bundle);
+                    handler.sendMessage(message);
+                } catch (IOException | NoSuchAlgorithmException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
     }
 
     public File renameFile(File file) throws NoSuchAlgorithmException, IOException {
@@ -317,8 +348,8 @@ public class DataManager {
         // Fill to 32 chars
         output = String.format("%32s", output).replace(' ', '0');
         String path = file.getPath();
-        String newPath = path.substring(0, path.lastIndexOf(File.separator)+1);
-        File newFile = new File(newPath+output+".jpg");
+        String newPath = path.substring(0, path.lastIndexOf(File.separator) + 1);
+        File newFile = new File(newPath + output + ".jpg");
         file.renameTo(newFile);
         return newFile;
     }
@@ -335,16 +366,16 @@ public class DataManager {
         }
 
     * */
-    public File moveAndRenameFile(File file) throws IOException, NoSuchAlgorithmException {
-        InputStream inputStream = new FileInputStream(file);
+    public File moveAndRenameFile(InputStream inputStream) throws IOException, NoSuchAlgorithmException {
         File newFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES) + File.separator + "temp.jpg");
+                Environment.DIRECTORY_PICTURES) + File.separator + "TravelMap" + File.separator + "temp.jpg");
+
         OutputStream outputStream = new FileOutputStream(newFile);
         byte[] buffer = new byte[1024];
 
         int length;
         //copy the file content in bytes
-        while ((length = inputStream.read(buffer)) > 0){
+        while ((length = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, length);
         }
         inputStream.close();
@@ -363,11 +394,27 @@ public class DataManager {
         Resources resources = context.getResources();
         DisplayMetrics displayMetrics = resources.getDisplayMetrics();
         float px = heightPx * (displayMetrics.densityDpi / 160f);
-        int sampleSize = (int)(bitmapHeight / px);
+        int sampleSize = (int) (bitmapHeight / px);
         options.inSampleSize = sampleSize;
         options.inJustDecodeBounds = false;
         inputStream = context.getContentResolver().openInputStream(uri);
         bitmap = BitmapFactory.decodeStream(inputStream, null, options);
         return bitmap;
+    }
+
+    public static File getLocalFile(String filename) {
+        return new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES) + File.separator + "TravelMap" + File.separator + filename);
+    }
+    public static Uri getUriFromImageName(String imageName) {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "TravelMap");
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        File file = new File(mediaStorageDir.getPath()+File.separator+imageName);
+        return Uri.fromFile(file);
     }
 }

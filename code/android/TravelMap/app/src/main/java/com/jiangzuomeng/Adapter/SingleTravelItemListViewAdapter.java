@@ -14,9 +14,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jiangzuomeng.dataManager.DataManager;
+import com.jiangzuomeng.dataManager.NetworkConnectActivity;
+import com.jiangzuomeng.dataManager.NetworkHandler;
 import com.jiangzuomeng.modals.TravelItem;
 import com.jiangzuomeng.travelmap.R;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,8 +32,10 @@ import java.util.Map;
  * Created by ekuri-PC on 2015/11/1.
  */
 public class SingleTravelItemListViewAdapter extends BaseAdapter {
-    public Bitmap getBitmapFromUri(View view, Uri uri, int scaledWidth) throws FileNotFoundException {
-        InputStream inputStream = view.getContext().getContentResolver().openInputStream(uri);
+    public Bitmap getBitmapFromFilename(View view, String filename) throws FileNotFoundException {
+        InputStream inputStream = new FileInputStream(
+                DataManager.getLocalFile(filename)
+        );
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
@@ -40,7 +46,9 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         int sampleSize = (int)(bitmapHeight / px);
         options.inSampleSize = sampleSize;
         options.inJustDecodeBounds = false;
-        inputStream = view.getContext().getContentResolver().openInputStream(uri);
+        inputStream = new FileInputStream(
+                DataManager.getLocalFile(filename)
+        );
         return BitmapFactory.decodeStream(inputStream, null, options);
     }
 
@@ -50,9 +58,11 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
         public TextView title;
     }
     public Context context;
-    public SingleTravelItemListViewAdapter(Context c) {
+    NetworkConnectActivity targetActivity;
+    public SingleTravelItemListViewAdapter(Context c, NetworkConnectActivity targetActivity) {
         data = new ArrayList<>();
         context = c;
+        this.targetActivity = targetActivity;
     }
 
     public void setup(List<TravelItem> initialData) {
@@ -105,9 +115,10 @@ public class SingleTravelItemListViewAdapter extends BaseAdapter {
             z.image.setImageResource(R.drawable.ic_mood_black_24dp);
         } else {
             try {
-                z.image.setImageBitmap(getBitmapFromUri(convertView, Uri.parse(uriString), 0));
+                z.image.setImageBitmap(getBitmapFromFilename(convertView, uriString));
             } catch (FileNotFoundException e) {
-                Log.v("ekuri", e.toString());
+                DataManager.getInstance(context)
+                        .downLoadFile(uriString, new NetworkHandler(targetActivity));
             }
         }
 

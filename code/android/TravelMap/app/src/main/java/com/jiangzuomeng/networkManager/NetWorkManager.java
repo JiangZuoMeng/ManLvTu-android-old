@@ -33,6 +33,24 @@ public class NetWorkManager {
         return  stringBuilder.toString();
     }
 
+    public InputStream downloadFile(String filename) throws IOException {
+        Log.v("ekuri", "downloading file: " + filename);
+
+        Uri.Builder uriBuilder = new Uri.Builder();
+        uriBuilder.scheme(NetworkJsonKeyDefine.HTTP)
+                .encodedAuthority(NetworkJsonKeyDefine.host)
+                .appendPath(NetworkJsonKeyDefine.FILE_DOWNLOAD_FREFIX)
+                .appendQueryParameter(NetworkJsonKeyDefine.FILENAME, filename);
+
+        URL url = new URL(uriBuilder.toString());
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+        if (urlConnection.getResponseCode() == NetworkJsonKeyDefine.RESULT_NOT_FOUND) {
+            return null;
+        }
+        return urlConnection.getInputStream();
+    }
+
     public String postFile(File targetFile) throws IOException {
         String BOUNDARY = java.util.UUID.randomUUID().toString();
         String SPACER = "--", LINE_END = "\r\n";
