@@ -2,12 +2,16 @@ package com.jiangzuomeng.dataManager;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.amap.api.maps2d.model.LatLng;
@@ -24,6 +28,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +50,7 @@ public class DataManager {
     private static DataManager dataManager = null;
     private DBManager dbManager;
     private NetWorkManager netWorkManager;
+    private Context context;
 
     public static DataManager getInstance(Context context) {
         if (dataManager == null) {
@@ -56,6 +62,7 @@ public class DataManager {
     private DataManager(Context context) {
         dbManager = new DBManager(context);
         netWorkManager = new NetWorkManager();
+        this.context = context;
     }
 
     public void login(User user, NetworkHandler handler) {
@@ -102,7 +109,7 @@ public class DataManager {
         }
     }
 
-    public void addNewTravel(Travel travel,Handler handler) {
+    public void addNewTravel(Travel travel, Handler handler) {
         try {
             runThreadByUrl(travel.getAddUrl(), handler);
         } catch (MalformedURLException e) {
@@ -149,7 +156,6 @@ public class DataManager {
     }
 
 
-
     public void addNewTravelItem(TravelItem travelItem, Handler handler) {
         try {
             runThreadByUrl(travelItem.getAddUrl(), handler);
@@ -169,6 +175,9 @@ public class DataManager {
     }
 
     public void queryNearbyTravelItem(LatLng currentLocation, Handler handler) {
+        if (null == currentLocation) {
+            return;
+        }
         double nearDistance = 1.0;
         try {
             runThreadByUrl(TravelItem.getQueryNearbyUrl(currentLocation.latitude - nearDistance,
@@ -209,8 +218,7 @@ public class DataManager {
     }
 
 
-
-    public void addNewComment(Comment comment,Handler handler) {
+    public void addNewComment(Comment comment, Handler handler) {
         try {
             runThreadByUrl(comment.getAddUrl(), handler);
         } catch (MalformedURLException e) {
@@ -360,8 +368,8 @@ public class DataManager {
         // Fill to 32 chars
         output = String.format("%32s", output).replace(' ', '0');
         String path = file.getPath();
-        String newPath = path.substring(0, path.lastIndexOf(File.separator)+1);
-        File newFile = new File(newPath+output+".jpg");
+        String newPath = path.substring(0, path.lastIndexOf(File.separator) + 1);
+        File newFile = new File(newPath + output + ".jpg");
         file.renameTo(newFile);
         return newFile;
     }
@@ -387,7 +395,7 @@ public class DataManager {
 
         int length;
         //copy the file content in bytes
-        while ((length = inputStream.read(buffer)) > 0){
+        while ((length = inputStream.read(buffer)) > 0) {
             outputStream.write(buffer, 0, length);
         }
         inputStream.close();
@@ -396,8 +404,37 @@ public class DataManager {
         return renameFile(newFile);
     }
 
+    public Bitmap getBitmapFromUri(Uri uri, float heightPx) throws FileNotFoundException {
+        InputStream inputStream = context.getContentResolver().openInputStream(uri);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+//                    options.inSampleSize = 8;
+        Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+        float bitmapHeight = options.outHeight;
+        Resources resources = context.getResources();
+        DisplayMetrics displayMetrics = resources.getDisplayMetrics();
+        float px = heightPx * (displayMetrics.densityDpi / 160f);
+        int sampleSize = (int) (bitmapHeight / px);
+        options.inSampleSize = sampleSize;
+        options.inJustDecodeBounds = false;
+        inputStream = context.getContentResolver().openInputStream(uri);
+        bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+        return bitmap;
+    }
+
     public static File getLocalFile(String filename) {
         return new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES) + File.separator + "TravelMap" + File.separator + filename);
+    }
+    public static Uri getUriFromImageName(String imageName) {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "TravelMap");
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        File file = new File(mediaStorageDir.getPath()+File.separator+imageName);
+        return Uri.fromFile(file);
     }
 }

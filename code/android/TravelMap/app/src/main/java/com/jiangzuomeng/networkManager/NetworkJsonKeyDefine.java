@@ -57,6 +57,7 @@ public class NetworkJsonKeyDefine {
     public static final int RESULT_NOT_FOUND = 404;
 
     public static final int NETWORK_OPERATION = 718392;
+    public static final int TIMER_OPERATION = 123567;
     public static final String FILE_UPLOAD_PREFIX = "upload";
     public static final String FILE_UPLOAD_PARAMETER = "upload";
     public static final String FILE_DOWNLOAD_FREFIX = "download";

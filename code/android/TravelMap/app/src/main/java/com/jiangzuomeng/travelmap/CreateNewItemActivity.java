@@ -400,20 +400,8 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
 
     private void addImageFromImageName() {
         try {
-            InputStream inputStream = getContentResolver().openInputStream(fileUri);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-//                    options.inSampleSize = 8;
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
-            float bitmapHeight = options.outHeight;
-            Resources resources = getResources();
-            DisplayMetrics displayMetrics = resources.getDisplayMetrics();
-            float px = 90 * (displayMetrics.densityDpi / 160f);
-            int sampleSize = (int)(bitmapHeight / px);
-            options.inSampleSize = sampleSize;
-            options.inJustDecodeBounds = false;
-            inputStream = getContentResolver().openInputStream(fileUri);
-            bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+            float px = 90 * (getResources().getDisplayMetrics().densityDpi / 160f);
+            Bitmap bitmap = dataManager.getBitmapFromUri(fileUri, 90);
             ImageView imageView = new ImageView(this);
             imageView.setImageBitmap(bitmap);
             imageView.setId(ID_START + countStart);
