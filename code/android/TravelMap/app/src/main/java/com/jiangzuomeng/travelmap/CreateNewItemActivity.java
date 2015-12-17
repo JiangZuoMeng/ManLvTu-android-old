@@ -202,10 +202,9 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                         break;
                     }
                 }
-                if (delete != -1) {
-                    imageIdStringList.remove(delete);
-                }
+                imageIdStringList.remove(delete);
                 pictureLinearLayout.removeView(v);
+                fileUri = null;
                 return true;
             }
         };
@@ -343,8 +342,13 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                 currentTravelItem.time = timeStamp;
 
                 try {
-                    File targetFile = dataManager.moveAndRenameFile(getContentResolver().openInputStream(fileUri));
-                    currentTravelItem.media = targetFile.getName();
+                    if (null == fileUri) {
+                        currentTravelItem.media = null;
+                    } else {
+                        File targetFile = dataManager.moveAndRenameFile(getContentResolver().openInputStream(fileUri));
+                        dataManager.uploadFile(targetFile, networkHandler);
+                        currentTravelItem.media = targetFile.getName();
+                    }
 
                     if (isCreateNewTravelItem) {
                         currentTravelItem.travelId = MainActivity.currentTravelId;
@@ -352,7 +356,6 @@ public class CreateNewItemActivity extends AppCompatActivity implements NetworkC
                     } else {
                         dataManager.updateTravelItem(currentTravelItem, networkHandler);
                     }
-                    dataManager.uploadFile(targetFile, networkHandler);
                 } catch (NoSuchAlgorithmException | IOException e) {
                     e.printStackTrace();
                 }

@@ -28,16 +28,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- wilbert -->
-        <meta-data
+        <!-- debug key -->
+        <!--<meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="3ee375419a7a4ec9abf2736b0040854d" />
-        <!-- ekuri -->
-        <!--
+            android:value="3ee375419a7a4ec9abf2736b0040854d" />-->
+        <!-- release key -->
             <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="1c0ddf3748123bb4fafc260adada5840"/>
-        -->
 
         <activity
             android:name=".LoginActivity"
