@@ -25,6 +25,7 @@ import com.jiangzuomeng.networkManager.NetWorkManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -289,14 +290,36 @@ public class DataManager {
             @Override
             public void run() {
                 try {
-                    String dataString = netWorkManager.postFile(targetFile);
+                    // check whether the file having exists in server
+                    Uri.Builder uriBuilder = new Uri.Builder();
+                    uriBuilder.scheme(NetworkJsonKeyDefine.HTTP)
+                            .encodedAuthority(NetworkJsonKeyDefine.host)
+                            .appendPath(NetworkJsonKeyDefine.FILE_UPLOAD_PREFIX)
+                            .appendQueryParameter(NetworkJsonKeyDefine.FILENAME, targetFile.getName());
+                    String fileCheckResult = netWorkManager.getDataFromUrl(new URL(uriBuilder.toString()));
 
-                    Message message = new Message();
-                    message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
-                    Bundle bundle = new Bundle();
-                    bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, dataString);
-                    message.setData(bundle);
-                    handler.sendMessage(message);
+                    JSONTokener parser = new JSONTokener(fileCheckResult);
+
+                    try {
+                        String dataString;
+                        JSONObject jsonObject = (JSONObject) parser.nextValue();
+                        if (jsonObject.getString(NetworkJsonKeyDefine.RESULT_KEY).equals(NetworkJsonKeyDefine.RESULT_FAILED)) {
+                            dataString = fileCheckResult;
+                            Log.v("ekuri", "file already exists in server, will not upload");
+                        } else {
+                            // upload file if not exist
+                            dataString = netWorkManager.postFile(targetFile);
+                        }
+
+                        Message message = new Message();
+                        message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;
+                        Bundle bundle = new Bundle();
+                        bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, dataString);
+                        message.setData(bundle);
+                        handler.sendMessage(message);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -310,6 +333,7 @@ public class DataManager {
     private Handler fileDownloadCurrentHandler;
     public void downLoadFile(final String filename, final Handler handler) {
         fileDownloadCurrentHandler = handler;
+
         if (fileDownloadQueue.contains(filename)) {
             Log.v("ekuri", "file already in download queue: " + filename);
             return;
@@ -317,25 +341,33 @@ public class DataManager {
         if (!fileDownloadQueue.offer(filename)) {
             Log.v("ekuri", "can not add filename to download queue: " + filename);
         }
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (!fileDownloadQueue.isEmpty()) {
                     try {
                         String filename = fileDownloadQueue.getFirst();
-                        InputStream fileInputStream = netWorkManager.downloadFile(filename);
 
                         JSONObject resultJson = new JSONObject();
                         resultJson.put(NetworkJsonKeyDefine.REQUEST_KEY, NetworkJsonKeyDefine.FILE_DOWNLOAD);
                         resultJson.put(NetworkJsonKeyDefine.TARGET_KEY, NetworkJsonKeyDefine.FILE);
 
-                        if (null == fileInputStream) {
-                            resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_FAILED);
-                        } else {
-                            File resultFile = moveAndRenameFile(fileInputStream);
+                        if (getLocalFile(filename).exists()) {
+                            Log.v("ekuri", "file already exists: " + filename);
                             resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_SUCCESS);
-                            resultJson.put(NetworkJsonKeyDefine.DATA_KEY, resultFile.getName());
+                            resultJson.put(NetworkJsonKeyDefine.DATA_KEY, filename);
+                        } else {
+                            InputStream fileInputStream = netWorkManager.downloadFile(filename);
+                            if (null == fileInputStream) {
+                                resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_FAILED);
+                            } else {
+                                File resultFile = moveAndRenameFile(fileInputStream);
+                                resultJson.put(NetworkJsonKeyDefine.RESULT_KEY, NetworkJsonKeyDefine.RESULT_SUCCESS);
+                                resultJson.put(NetworkJsonKeyDefine.DATA_KEY, resultFile.getName());
+                            }
                         }
+
 
                         Message message = new Message();
                         message.what = NetworkJsonKeyDefine.NETWORK_OPERATION;

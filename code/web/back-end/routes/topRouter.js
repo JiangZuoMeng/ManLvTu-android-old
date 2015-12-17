@@ -23,6 +23,22 @@ router.get('/comment', function(req, res) {
 var fileFinishedDirectory = './data/uploaded/finished/';
 var fileTempDirectory = './data/uploaded/tmp/';
 
+router.get('/upload', function(req, res) {
+    console.log('requested to save file: ' + req.query.filename);
+    var result = { request: 'upload', target: 'file'};
+    fs.exists(fileFinishedDirectory + req.query.filename, function (exists) {
+      if (exists) {
+        result.result = 'failed';
+        console.log('file already exists: ' + req.query.filename);
+      } else {
+        result.result = 'success';
+        console.log('file not found, sending able to accept file: ' + req.query.filename);
+      }
+      result.data = req.query.filename;
+      res.json(result);
+    });
+});
+
 router.post('/upload', function(req, res) {
     var form = new formidable.IncomingForm();
     form.uploadDir = fileTempDirectory;
@@ -39,14 +55,16 @@ router.post('/upload', function(req, res) {
       var targetFilePath = fileFinishedDirectory + files.file.name;
       fs.rename(files.file.path, targetFilePath, function (error) {
           if (error) {
-              result.result = 'error: ' + error.toString();
+              result.result = 'failed';
               console.log(error.toString());
               res.json(result);
               return;
+          } else {
+              result.result = 'success';
+              console.log("Saved file: " + result.data);
           }
-          result.result = 'success';
+          
           result.data = files.file.name;
-          console.log("Saved file: " + result.data);
           res.json(result);
       });
     });
@@ -54,16 +72,25 @@ router.post('/upload', function(req, res) {
 });
 
 router.get('/download', function(req, res) {
+    console.log('requested to send file: ' + req.query.filename);
     var filename = req.query.filename;
-    var sendOptions = { root: fileFinishedDirectory };
-    res.sendFile(filename, sendOptions, function (error) {
-      if (error) {
-        console.log('send file error: ' + error);
-        try {
+    
+    fs.exists(fileFinishedDirectory + req.query.filename, function (exists) {
+      if (exists) {
+          var sendOptions = { root: fileFinishedDirectory };
+          res.sendFile(filename, sendOptions, function (error) {
+            if (error) {
+              console.log('send file error: ' + error);
+              try {
+                res.sendStatus(404);
+              } catch (error) {
+                console.log("error in send file: " + error.toString());
+              }
+            }
+          });
+      } else {
           res.sendStatus(404);
-        } catch (error) {
-          console.log("error in send file: " + error.toString());
-        }
+          console.log('file not found: ' + filename);
       }
     });
 });

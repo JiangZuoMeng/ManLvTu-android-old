@@ -22,7 +22,6 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.Switch;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
@@ -42,7 +41,6 @@ import com.jiangzuomeng.dataManager.DataManager;
 import com.jiangzuomeng.dataManager.NetworkConnectActivity;
 import com.jiangzuomeng.dataManager.NetworkHandler;
 import com.jiangzuomeng.modals.TravelItem;
-import com.jiangzuomeng.networkManager.NetWorkManager;
 import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 
 import org.json.JSONArray;
@@ -64,23 +62,16 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         NetworkConnectActivity{
     private MapView mapView;
     private AMap aMap;
-    private OnLocationChangedListener mlistener;
+    private OnLocationChangedListener mListener;
     private LocationManagerProxy locationManagerProxy;
-    private int []imageIds;
     private LayoutInflater layoutInflater;
     private Marker current_marker = null;
-    private static String Maptype;
     private LinearLayout linearLayout;
     private ImageView.OnClickListener popupWindowImageClickListener;
-    public  static void setType(String t) {
-        Maptype = t;
-
-    }
     private DataManager dataManager;
     private NetworkHandler networkHandler;
     private ShowPictureAdapter showPictureAdapter;
     List<TravelItem> nearByTravelItemList = new ArrayList<>();
-    HashMap<ImageView, Integer> imageItemIdMap = new HashMap<>();
     HorizontalScrollView horizontalScrollView;
     View popView;
     private LatLng latLng;
@@ -127,7 +118,6 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         aMap = mapView.getMap();
         layoutInflater = LayoutInflater.from(getActivity());
         setUpMap();
-        initData();
         InitMyListener();
         dataManager = DataManager.getInstance(getActivity().getApplicationContext());
         networkHandler = new NetworkHandler(this);
@@ -137,7 +127,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         linearLayout = (LinearLayout)popView.findViewById(R.id.meeting_linear_layout);
 
         queryNearbyTimer = new Timer();
-        queryNearbyTimer.schedule(queryNearbtTimerTask, 1000, 10000);
+        queryNearbyTimer.schedule(queryNearbyTimerTask, 1000, 10000);
 
         return view;
     }
@@ -151,13 +141,6 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             }
         };
 
-    }
-
-    private void initData() {
-        imageIds = new int[]{
-            R.drawable.test1, R.drawable.test2, R.drawable.test3,
-                R.drawable.test4
-        };
     }
 
     private void setUpMap() {
@@ -184,7 +167,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 
     @Override
     public void activate(OnLocationChangedListener onLocationChangedListener) {
-        mlistener = onLocationChangedListener;
+        mListener = onLocationChangedListener;
         if (locationManagerProxy == null) {
             locationManagerProxy = LocationManagerProxy.getInstance(getActivity());
 			/*
@@ -199,7 +182,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 
     @Override
     public void deactivate() {
-        mlistener = null;
+        mListener = null;
         if (locationManagerProxy != null) {
             locationManagerProxy.removeUpdates(this);
             locationManagerProxy.destroy();
@@ -209,8 +192,8 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        if (mlistener != null && aMapLocation != null) {
-            mlistener.onLocationChanged(aMapLocation);// 显示系统小蓝点
+        if (mListener != null && aMapLocation != null) {
+            mListener.onLocationChanged(aMapLocation);// 显示系统小蓝点
             //添加marker
             latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
 /*            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin_drop_black_24dp))
@@ -364,7 +347,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             }
         }
     };
-    TimerTask queryNearbtTimerTask = new TimerTask() {
+    TimerTask queryNearbyTimerTask = new TimerTask() {
         @Override
         public void run() {
             Message message = new Message();
