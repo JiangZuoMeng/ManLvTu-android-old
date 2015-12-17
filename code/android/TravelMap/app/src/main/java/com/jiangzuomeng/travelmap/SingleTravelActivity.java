@@ -90,22 +90,18 @@ public class SingleTravelActivity
         DataManager.getInstance(getApplicationContext()).queryTravelItemIdListByTravelId(currentTravelId, new NetworkHandler(this));
     }
     private void initData() {
-        if (travelItemList.isEmpty()) {
-            return;
-        }
-
-        // tend to move camera to location of first item
-        if (initial) {
-            initial = false;
-            aMap.moveCamera(CameraUpdateFactory.changeLatLng(
-                    new LatLng(travelItemList.get(0).locationLat, travelItemList.get(0).locationLng)));
-        }
-
         singleTravelItemAdapter.setup(travelItemList);
         singleTravelItemsListView.setAdapter(singleTravelItemAdapter);
 
         aMap.clear();
         markers.clear();
+
+        // tend to move camera to location of first item
+        if (initial && !travelItemList.isEmpty()) {
+            initial = false;
+            aMap.moveCamera(CameraUpdateFactory.changeLatLng(
+                    new LatLng(travelItemList.get(0).locationLat, travelItemList.get(0).locationLng)));
+        }
 
         for (TravelItem travelItem : travelItemList) {
             LatLng latLng = new LatLng(travelItem.locationLat, travelItem.locationLng);
