@@ -5,7 +5,7 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-
+        android:background="@color/lightBlue"
         android:paddingTop="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
@@ -36,6 +36,7 @@
             <TextView
                 android:id="@+id/album_details_user_state"
                 android:layout_width="fill_parent"
+                android:paddingBottom="15dp"
                 android:layout_height="wrap_content" />
 
             <TextView
