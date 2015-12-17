@@ -40,9 +40,8 @@ public class AlbumDetailsActivity extends AppCompatActivity {
     SimpleAdapter adapter;
     List<Map<String, Object>> cmmtsData;
 
-    private final static int MSG_COMMENT_GOT = 1;
     Handler handler;
-
+    UserInfoHandler userInfoHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +50,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         handler = new CommentHandler();
+        userInfoHandler = new UserInfoHandler();
         dataManager = DataManager.getInstance(this);
 
         commentsView = (ListView) findViewById(R.id.comments);
@@ -65,7 +65,6 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         if (bun != null) {
             travelItem = ((TravelItem) bun.getSerializable(AlbumViewerActivity.INTERT_TRAVEL_ITEM_OBJECT));
             if (travelItem != null) {
-                // TODO queryCommentListBy 添加handler参数
                 TextView userState = (TextView) findViewById(R.id.album_details_user_state);
                 userState.setText(travelItem.text);
 
@@ -119,6 +118,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         return true;
     }
 
+
     private class CommentHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
@@ -143,10 +143,6 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         }
 
         private void onCommentsUpdate(List<Comment> cmmts) {
-            for (Comment cmt : cmmts) {
-                Log.e("TESTLIST", cmmts.toString());
-
-            }
             List<Map<String, Object>> data = new ArrayList<>();
             for (Comment cmt : cmmts) {
                 Map<String, Object> itemData = new HashMap<>();
@@ -161,8 +157,20 @@ public class AlbumDetailsActivity extends AppCompatActivity {
                     new String[]{"album_item_userlogo", "cmmnt_user", "cmmnt_text", "cmmnt_time"},
                     new int[]{R.id.album_item_userlogo, R.id.cmmnt_user, R.id.cmmnt_text, R.id.cmmnt_time});
             commentsView.setAdapter(adapter);
+            dataManager.queryUserByUserId(cmmts.get(0).userId, userInfoHandler);
         }
     }
 
+
+    private class UserInfoHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case NetworkJsonKeyDefine.NETWORK_OPERATION:
+                    Bundle bundle = msg.getData();
+//                    String
+            }
+        }
+    }
 
 }
