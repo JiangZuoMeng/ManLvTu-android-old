@@ -97,7 +97,7 @@ public class SingleTravelActivity
         markers.clear();
 
         // tend to move camera to location of first item
-        if (initial && travelItemList.isEmpty()) {
+        if (initial && !travelItemList.isEmpty()) {
             initial = false;
             aMap.moveCamera(CameraUpdateFactory.changeLatLng(
                     new LatLng(travelItemList.get(0).locationLat, travelItemList.get(0).locationLng)));

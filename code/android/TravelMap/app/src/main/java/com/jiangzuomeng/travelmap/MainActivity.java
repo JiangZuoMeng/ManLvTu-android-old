@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     List<Travel> travelList;
     List<Integer> travelIdList = new ArrayList<>();
     List<String> nameList = new ArrayList<>();
-    List<Uri> uriList = new ArrayList<>();
+    List<String> uriList = new ArrayList<>();
     Handler handler = new Handler();
     NetworkHandler networkHandler = new NetworkHandler(this);
     public void setHandler(Handler handler) {
@@ -135,13 +135,16 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         tab.setText("No Travel On");
 
-
     }
 
     private void initdrawerAdapter() {
         uriList.clear();
         nameList.clear();
         travelIdList.clear();
+
+        for (int i = 0; i < 50; i++) {
+            uriList.add(null);
+        }
 
         dataManager.queryTravelIdListByUserId(MainActivity.userId, networkHandler);
 /*
@@ -251,6 +254,8 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                 //Log.v("ekuri", "on item click listener");
                                 //initdrawerAdapter();
                                 //listView_drawer.setAdapter(drawerAdapter);
+                                dataManager.removeTravelByTravelId(drawerAdapter.getTravelIdList().get(position)
+                                , networkHandler);
                             }
                         });
                         builder.setNegativeButton(R.string.cancle, new DialogInterface.OnClickListener() {
@@ -405,9 +410,15 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         this.locationLng = locationLng;
     }
 
+    private int queryTravelItemCount = 0;
     @Override
     public void handleNetworkEvent(String result, String request, String target, JSONObject originJSONObject) throws JSONException {
         switch (request) {
+            case NetworkJsonKeyDefine.FILE_DOWNLOAD:
+                if (result.equals(NetworkJsonKeyDefine.RESULT_SUCCESS)) {
+                    listView_drawer.setAdapter(drawerAdapter);
+                }
+                break;
             case NetworkJsonKeyDefine.ADD:
                 switch (target) {
                     case NetworkJsonKeyDefine.TRAVEL:
@@ -444,13 +455,17 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                 JSONArray jsonArray = originJSONObject.
                                         getJSONArray(NetworkJsonKeyDefine.DATA_KEY);
                                 for (int i = 0; i < jsonArray.length(); i++) {
+                                    queryTravelItemCount = 0;
                                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                                     travelIdList.add(jsonObject.getInt(NetworkJsonKeyDefine.ID));
-                                    dataManager.queryTravelByTravelId(travelIdList.get(i), networkHandler);
+                                    nameList.add(jsonObject.getString(NetworkJsonKeyDefine.NAME));
 
                                     dataManager.queryTravelItemIdListByTravelId(travelIdList.get(i),
                                             networkHandler);
                                 }
+                                drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, getApplicationContext(),
+                                        this);
+                                listView_drawer.setAdapter(drawerAdapter);
                                 break;
                         }
                         break;
@@ -461,11 +476,17 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                                         NetworkJsonKeyDefine.DATA_KEY
                                 );
                                 if (jsonArray.length() > 0) {
-                                    int travelItemId = jsonArray.getJSONObject(0).
-                                            getInt(NetworkJsonKeyDefine.ID);
-                                    dataManager.queryTravelItemByTravelItemId(travelItemId, networkHandler);
+                                    TravelItem travelItem = TravelItem.fromJson(jsonArray.getString(0), true);
+                                    int i = travelIdList.indexOf(travelItem.travelId);
+                                    uriList.add(i, travelItem.media);
                                 } else {
                                     uriList.add(null);
+                                }
+                                queryTravelItemCount++;
+                                if (queryTravelItemCount == travelIdList.size()) {
+                                    drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, getApplicationContext(),
+                                            this);
+                                    listView_drawer.setAdapter(drawerAdapter);
                                 }
                                 break;
                         }
@@ -474,40 +495,18 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
                 break;
             case NetworkJsonKeyDefine.QUERY:
                 switch (target) {
-                    case NetworkJsonKeyDefine.TRAVEL:
-                        switch (result) {
-                            case NetworkJsonKeyDefine.RESULT_SUCCESS:
-                                JSONObject jsonObject = originJSONObject.
-                                        getJSONObject(NetworkJsonKeyDefine.DATA_KEY);
-                                nameList.add(jsonObject.getString(NetworkJsonKeyDefine.NAME));
-                                if (nameList.size() == travelIdList.size() &&
-                                        uriList.size() == travelIdList.size()) {
-                                    drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
-                                    listView_drawer.setAdapter(drawerAdapter);
-                                }
-                                break;
-                        }
-                        break;
                     case NetworkJsonKeyDefine.TRAVEL_ITEM:
                         switch (result) {
                             case NetworkJsonKeyDefine.RESULT_SUCCESS:
-                                JSONObject jsonObject = originJSONObject.getJSONObject(
-                                        NetworkJsonKeyDefine.DATA_KEY
-                                );
-                                String uriString = jsonObject.getString(NetworkJsonKeyDefine.MEDIA);
-                                Uri.Builder builder = new Uri.Builder();
-                                //// TODO: 2015/12/15 uri builder
-                                builder.scheme("file")
-                                        .appendPath(uriString);
-                                uriList.add(builder.build());
-                                if (nameList.size() == travelIdList.size() &&
-                                        uriList.size() == travelIdList.size()) {
-                                    drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
-                                    listView_drawer.setAdapter(drawerAdapter);
-                                }
                                 break;
                         }
                         break;
+                }
+                break;
+            case NetworkJsonKeyDefine.REMOVE:
+                if (target.equals(NetworkJsonKeyDefine.TRAVEL) && result.equals(NetworkJsonKeyDefine.RESULT_SUCCESS)) {
+                    Log.v("wilbert", "removeTravel successfully on net");
+                    initdrawerAdapter();
                 }
         }
     }
