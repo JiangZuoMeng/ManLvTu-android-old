@@ -89,7 +89,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
                 newComment.userId = MainActivity.userId;
 
                 Map<String, Object> itemData = new HashMap<>();
-                itemData.put("album_item_userlogo", R.drawable.photo0);
+                itemData.put("album_item_userlogo", R.drawable.default_usr_logo);
                 itemData.put(CMMNT_USER, newComment.userId);
                 itemData.put("cmmnt_text", newComment.text);
                 itemData.put("cmmnt_time", newComment.time);
@@ -149,7 +149,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
             List<Map<String, Object>> data = new ArrayList<>();
             for (Comment cmt : cmmts) {
                 Map<String, Object> itemData = new HashMap<>();
-                itemData.put("album_item_userlogo", R.drawable.photo0);
+                itemData.put("album_item_userlogo", R.drawable.default_usr_logo);
                 itemData.put(CMMNT_USER, cmt.userId);
                 itemData.put("cmmnt_text", cmt.text);
                 itemData.put("cmmnt_time", cmt.time);

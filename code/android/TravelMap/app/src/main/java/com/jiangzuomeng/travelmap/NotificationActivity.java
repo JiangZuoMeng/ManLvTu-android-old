@@ -30,7 +30,7 @@ public class NotificationActivity extends AppCompatActivity {
     private List<Map<String, Object>> getTmpData() {
         List<Map<String, Object>> data = new ArrayList<>();
         Map<String, Object> itemData = new HashMap<>();
-        itemData.put("sender_logo", R.drawable.photo0);
+        itemData.put("sender_logo", R.drawable.default_usr_logo);
         itemData.put("sender_text", "Chrom");
         itemData.put("send_message", "内存不够吃");
         itemData.put("send_time", "2014.12.Nov");
