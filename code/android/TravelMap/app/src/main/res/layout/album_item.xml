@@ -12,7 +12,6 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/photo2"
             android:layout_alignParentLeft="true"
             android:id="@+id/album_item_userlogo"
             />

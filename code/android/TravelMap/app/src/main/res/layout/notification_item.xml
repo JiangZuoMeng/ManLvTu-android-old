@@ -11,7 +11,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/photo2"
+            android:src="@drawable/default_usr_logo"
             android:layout_alignParentLeft="true"
             android:id="@+id/sender_logo" />
 

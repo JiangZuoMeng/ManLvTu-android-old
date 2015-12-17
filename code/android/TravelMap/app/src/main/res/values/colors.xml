@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="single_travel_polyline_color">#3498DB</color>
     <color name="transparent">#00000000</color>
+    <color name="lightBlue">#71efff</color>
 </resources>
