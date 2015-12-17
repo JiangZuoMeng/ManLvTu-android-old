@@ -42,6 +42,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
 
     Handler handler;
     UserInfoHandler userInfoHandler;
+    private static final String CMMNT_USER = "cmmnt_user";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,6 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         handler = new CommentHandler();
-        userInfoHandler = new UserInfoHandler();
         dataManager = DataManager.getInstance(this);
 
         commentsView = (ListView) findViewById(R.id.comments);
@@ -85,12 +85,12 @@ public class AlbumDetailsActivity extends AppCompatActivity {
                 newComment.text = myComment.getText().toString();
                 Calendar calendar = Calendar.getInstance();
                 Date date = calendar.getTime();
-                newComment.time = android.text.format.DateFormat.format("MM/dd hh:mm", date).toString();
+                newComment.time = android.text.format.DateFormat.format("hh:mm MM/dd", date).toString();
                 newComment.userId = MainActivity.userId;
 
                 Map<String, Object> itemData = new HashMap<>();
                 itemData.put("album_item_userlogo", R.drawable.photo0);
-                itemData.put("cmmnt_user", newComment.userId);
+                itemData.put(CMMNT_USER, newComment.userId);
                 itemData.put("cmmnt_text", newComment.text);
                 itemData.put("cmmnt_time", newComment.time);
                 cmmtsData.add(itemData);
@@ -99,6 +99,9 @@ public class AlbumDetailsActivity extends AppCompatActivity {
                         new String[]{"album_item_userlogo", "cmmnt_user", "cmmnt_text", "cmmnt_time"},
                         new int[]{R.id.album_item_userlogo, R.id.cmmnt_user, R.id.cmmnt_text, R.id.cmmnt_time});
                 commentsView.setAdapter(adapter);
+                UserInfoHandler newMsgHandler = new UserInfoHandler(cmmtsData.size());
+                newMsgHandler.setCurIdx(cmmtsData.size() - 1);
+                dataManager.queryUserByUserId(newComment.userId, newMsgHandler);
 
                 // TODO 暂不处理失败
                 dataManager.addNewComment(newComment, new Handler());
@@ -147,28 +150,58 @@ public class AlbumDetailsActivity extends AppCompatActivity {
             for (Comment cmt : cmmts) {
                 Map<String, Object> itemData = new HashMap<>();
                 itemData.put("album_item_userlogo", R.drawable.photo0);
-                itemData.put("cmmnt_user", cmt.userId);
+                itemData.put(CMMNT_USER, cmt.userId);
                 itemData.put("cmmnt_text", cmt.text);
                 itemData.put("cmmnt_time", cmt.time);
                 data.add(itemData);
             }
             cmmtsData = data;
             adapter = new SimpleAdapter(AlbumDetailsActivity.this, cmmtsData, R.layout.album_item,
-                    new String[]{"album_item_userlogo", "cmmnt_user", "cmmnt_text", "cmmnt_time"},
+                    new String[]{"album_item_userlogo", CMMNT_USER, "cmmnt_text", "cmmnt_time"},
                     new int[]{R.id.album_item_userlogo, R.id.cmmnt_user, R.id.cmmnt_text, R.id.cmmnt_time});
             commentsView.setAdapter(adapter);
-            dataManager.queryUserByUserId(cmmts.get(0).userId, userInfoHandler);
+            userInfoHandler = new UserInfoHandler(cmmts.size());
+            if (cmmts.size() > 0) {
+                dataManager.queryUserByUserId(cmmts.get(0).userId, userInfoHandler);
+            }
         }
     }
 
 
     private class UserInfoHandler extends Handler {
+        int userCount;
+        int curIdx;
+        public UserInfoHandler(int userCount) {
+            super();
+            this.userCount = userCount;
+            curIdx = 0;
+        }
+
+        public void setCurIdx(int idx) {
+            curIdx = idx;
+        }
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case NetworkJsonKeyDefine.NETWORK_OPERATION:
                     Bundle bundle = msg.getData();
-//                    String
+                    String jsonStr = bundle.getString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY);
+                    JSONTokener tokener = new JSONTokener(jsonStr);
+                    try {
+                        JSONObject userObject = ((JSONObject) tokener.nextValue()).getJSONObject(NetworkJsonKeyDefine.DATA_KEY);
+                        String userName = userObject.getString(NetworkJsonKeyDefine.USERNAME);
+                        cmmtsData.get(curIdx).put(CMMNT_USER, userName);
+                        adapter.notifyDataSetChanged();
+                        ++curIdx;
+                        if (curIdx < userCount) {
+                            int userid = (Integer) (cmmtsData.get(curIdx).get(CMMNT_USER));
+                            dataManager.queryUserByUserId(userid, this);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
             }
         }
     }
