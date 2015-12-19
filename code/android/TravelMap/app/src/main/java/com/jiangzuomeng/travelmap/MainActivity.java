@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
 */
         List<String> strings = new ArrayList<>();
+        strings.add("此部分未完成,选择后无实际效果");
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
         setTagAdapter = new SetTagAdapter(strings, this);
@@ -396,6 +397,14 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         Log.v("ekuri", "on resume");
         initdrawerAdapter();
         listView_drawer.setAdapter(drawerAdapter);
+
+        Message message = new Message();
+        message.what = AMap_MySelf_Fragment.UPDATE;
+        Bundle bundle = new Bundle();
+        bundle.putDouble(LOCATION_LAT_KEY, locationLat);
+        bundle.putDouble(LOCATION_LNG_KEY, locationLng);
+        message.setData(bundle);
+        handler.sendMessage(message);
     }
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
