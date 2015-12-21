@@ -101,5 +101,5 @@
     <string name="album_like">赞</string>
     <string name="album_details_send">发送</string>
     <string name="title_activity_notification">消息</string>
-    <string name="title_activity_album">相册</string>
+    <string name="title_activity_album">相册</string><string name="tipsBelowTablayout">x</string>
 </resources>

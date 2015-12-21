@@ -1,8 +1,10 @@
 package com.jiangzuomeng.travelmap;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +27,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.jiangzuomeng.Adapter.DrawerAdapter;
 import com.jiangzuomeng.Adapter.SetTagAdapter;
@@ -39,6 +43,7 @@ import com.jiangzuomeng.networkManager.NetworkJsonKeyDefine;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
     List<String> uriList = new ArrayList<>();
     Handler handler = new Handler();
     NetworkHandler networkHandler = new NetworkHandler(this);
+
+    DrawerLayout drawer;
     public void setHandler(Handler handler) {
         this.handler = handler;
     }
@@ -135,6 +142,86 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         tab.setText("No Travel On");
 
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                if (popupWindowAtTab != null) {
+                    popupWindowAtTab.dismiss();
+                }
+                if (popupWindow != null) {
+                    popupWindow.dismiss();
+                }
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                showPopupWindowTips();
+                if (popupWindowAtTab != null) {
+                    popupWindowAtTab.showAsDropDown(tabLayout);
+                }
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            showPopupWindowTips();
+        }
+    }
+
+    PopupWindow popupWindow;
+    PopupWindow popupWindowAtTab;
+    private void showPopupWindowTips() {
+        TextView textView = new TextView(this);
+        textView.getPaint().setFakeBoldText(true);
+        textView.setBackgroundColor(Color.rgb(113, 239, 255));
+//        textView.setTextColor(Color.rgb(113, 239, 255));
+        if (state == State.NotOnTrip) {
+            textView.setText("点击开启新的旅程");
+        } else {
+            textView.setText("点击创建心情,长按结束旅程");
+        }
+        if (popupWindow != null)
+        popupWindow.dismiss();
+
+        popupWindow = new PopupWindow(textView, ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.WRAP_CONTENT, false);
+
+        textView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        int popupWidth = textView.getMeasuredWidth();
+        int popupHeight =  textView.getMeasuredHeight();
+        int[] location = new int[2];
+        fab.getLocationOnScreen(location);
+        popupWindow.showAtLocation(fab, Gravity.NO_GRAVITY,
+                (location[0] + fab.getWidth()/2)-popupWidth/2,
+                location[1]-popupHeight);
+
+//        popupWindow.showAsDropDown(fab);
+
+        if (popupWindowAtTab != null) {
+//            popupWindowAtTab.dismiss();
+            return;
+        }
+        TextView textViewAtTab = new TextView(this);
+        textViewAtTab.setBackgroundColor(Color.rgb(113, 239, 255));
+//        textViewAtTab.setTextColor(Color.rgb(113, 239, 255));
+        textViewAtTab.getPaint().setFakeBoldText(true);
+        textViewAtTab.setText("左边是正在进行的旅图,右边是所有的旅图\r\n侧滑有惊喜");
+        popupWindowAtTab = new PopupWindow(textViewAtTab, ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.WRAP_CONTENT, false);
+        popupWindowAtTab.showAsDropDown(tabLayout);
     }
 
     private void initdrawerAdapter() {
@@ -167,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         drawerAdapter = new DrawerAdapter(travelIdList, uriList, nameList, this);
 */
         List<String> strings = new ArrayList<>();
+        strings.add("此部分未完成,选择后无实际效果");
         for (int i = 0; i < 5; i++)
             strings.add(Integer.toString(i));
         setTagAdapter = new SetTagAdapter(strings, this);
@@ -328,6 +416,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
             TabLayout.Tab tab = tabLayout.getTabAt(0);
             tab.setText("No Travel On");
             fab.setBackgroundResource(R.drawable.ic_add_black_24dp);
+            showPopupWindowTips();
         } else {
 
         }
@@ -372,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -396,6 +485,14 @@ public class MainActivity extends AppCompatActivity implements AMapFragment.Main
         Log.v("ekuri", "on resume");
         initdrawerAdapter();
         listView_drawer.setAdapter(drawerAdapter);
+
+        Message message = new Message();
+        message.what = AMap_MySelf_Fragment.UPDATE;
+        Bundle bundle = new Bundle();
+        bundle.putDouble(LOCATION_LAT_KEY, locationLat);
+        bundle.putDouble(LOCATION_LNG_KEY, locationLng);
+        message.setData(bundle);
+        handler.sendMessage(message);
     }
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

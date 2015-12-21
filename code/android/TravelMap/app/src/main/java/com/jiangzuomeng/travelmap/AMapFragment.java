@@ -198,9 +198,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
             mListener.onLocationChanged(aMapLocation);// 显示系统小蓝点
             //添加marker
             latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
-/*            current_marker = aMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin_drop_black_24dp))
-                    .title("my location"));*/
-//            current_marker.destroy();
+
             current_marker = aMap.addMarker(new MarkerOptions().position(latLng).title("my location"));
             mainActivityListener.notifyLocation(aMapLocation.getLongitude(), aMapLocation.getLatitude());
         }
@@ -301,7 +299,7 @@ public class AMapFragment extends Fragment implements LocationSource, AMapLocati
         Uri uri = DataManager.getUriFromImageName(imageName);
         Bitmap bitmap = dataManager.getBitmapFromUri(uri, 150);
         imageView.setImageBitmap(bitmap);
-        imageView.setPadding(5, 5, 5, 5);
+//        imageView.setPadding(1, 1, 1, 1);
         imageView.setId(id);
         linearLayout.addView(imageView);
         imageView.setOnClickListener(popupWindowImageClickListener);
