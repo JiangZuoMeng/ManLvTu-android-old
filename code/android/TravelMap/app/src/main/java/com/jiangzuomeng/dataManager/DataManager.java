@@ -179,7 +179,7 @@ public class DataManager {
         if (null == currentLocation) {
             return;
         }
-        double nearDistance = 1.0;
+        double nearDistance = NetworkJsonKeyDefine.NEAR_DISTANCE;
         try {
             runThreadByUrl(TravelItem.getQueryNearbyUrl(currentLocation.latitude - nearDistance,
                     currentLocation.latitude + nearDistance,
@@ -336,7 +336,6 @@ public class DataManager {
 
         if (fileDownloadQueue.contains(filename)) {
             Log.v("ekuri", "file already in download queue: " + filename);
-            return;
         }
         if (!fileDownloadQueue.offer(filename)) {
             Log.v("ekuri", "can not add filename to download queue: " + filename);
@@ -347,7 +346,7 @@ public class DataManager {
             public void run() {
                 while (!fileDownloadQueue.isEmpty()) {
                     try {
-                        String filename = fileDownloadQueue.getFirst();
+                        String filename = fileDownloadQueue.take();
 
                         JSONObject resultJson = new JSONObject();
                         resultJson.put(NetworkJsonKeyDefine.REQUEST_KEY, NetworkJsonKeyDefine.FILE_DOWNLOAD);
@@ -375,8 +374,7 @@ public class DataManager {
                         bundle.putString(NetworkJsonKeyDefine.NETWORK_RESULT_KEY, resultJson.toString());
                         message.setData(bundle);
                         fileDownloadCurrentHandler.sendMessage(message);
-                        fileDownloadQueue.remove();
-                    } catch (IOException | NoSuchAlgorithmException | JSONException e) {
+                    } catch (IOException | NoSuchAlgorithmException | JSONException | InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
